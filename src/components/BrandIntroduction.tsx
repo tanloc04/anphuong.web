@@ -48,10 +48,10 @@ export function BrandIntroduction() {
             </div>
 
             {/* Tab Content */}
-            <div className="relative h-full">
+            <div className="relative h-full overflow-x-hidden">
               <div
                 key={activeTab}
-                className="transition-all duration-700 ease-in-out opacity-0 translate-x-10 animate-[fadeSlide_0.7s_ease-in-out_forwards]"
+                className="transition-all duration-700 ease-in-out opacity-0 animate-[fadeSlide_0.7s_ease-in-out_forwards]"
               >
                 {activeTab === "history" && (
                   <p className="text-gray-700 font-dancing-script text-2xl leading-relaxed bg-white p-6 rounded-xl shadow-sm">
@@ -79,7 +79,6 @@ export function BrandIntroduction() {
                 )}
               </div>
             </div>
-
           </div>
 
           <div className="relative">
