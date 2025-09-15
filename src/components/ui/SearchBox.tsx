@@ -17,8 +17,8 @@ const SearchBox = () => {
 
   return (
     <div
-      className={`relative flex items-center rounded-full px-3 py-2 transition-all duration-300 overflow-hidden shadow-sm ${
-        showSearchInput ? "w-72 border" : "w-10 "
+      className={`relative flex items-center rounded-full px-3 border border-gray-400 w-11 py-2 transition-all duration-300 overflow-hidden shadow-sm ${
+        showSearchInput ? "w-72" : "w-10 "
       } ${isFocused ? "ring-2 ring-[#c4a484]" : ""}`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
