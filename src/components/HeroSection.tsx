@@ -44,7 +44,7 @@ const HeroSection = () => {
             <h1 className="text-4xl md:text-6xl font-montserrat-bold mb-6">{slide.title}</h1>
             <p className="text-xl font-montserrat md:text-2xl mb-8 opacity-90">{slide.desc}</p>
             <button
-            className="bg-[#c4a484] hover:bg-[#b8956f] font-montserrat text-white px-8 py-3 text-lg rounded-lg transition-colors duration-300 cursor-pointer active:scale-95"
+            className="bg-[#c4a484] hover:bg-[#be8042] font-montserrat text-white px-8 py-3 text-lg rounded-lg transition-colors duration-300 cursor-pointer active:scale-95"
             >
             Khám phá ngay
             </button>

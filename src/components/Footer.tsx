@@ -79,7 +79,7 @@ export function Footer() {
                 </label>
               </div>
               <button
-                className="bg-[#c4a484] hover:bg-[#b8956f] w-full  text-white px-8 py-3 rounded-lg transition-colors duration-300 cursor-pointer active:scale-95"
+                className="bg-[#c4a484] hover:bg-[#be8042] w-full  text-white px-8 py-3 rounded-lg transition-colors duration-300 cursor-pointer active:scale-95"
                 >
                 Đăng ký
               </button>

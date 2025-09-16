@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const tabs = ["history", "philosophy", "quality"];
 
@@ -47,63 +48,69 @@ export function BrandIntroduction() {
               ))}
             </div>
 
-            {/* Tab Content */}
-            <div className="relative h-full overflow-x-hidden">
-              <div
-                key={activeTab}
-                className="transition-all duration-700 ease-in-out opacity-0 animate-[fadeSlide_0.7s_ease-in-out_forwards]"
-              >
+            {/* Tab Content với Framer Motion */}
+            <div className="relative h-full overflow-x-hidden min-h-[200px]">
+              <AnimatePresence mode="wait">
                 {activeTab === "history" && (
-                  <p className="text-gray-700 font-dancing-script text-2xl leading-relaxed bg-white p-6 rounded-xl shadow-sm">
+                  <motion.p
+                    key="history"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    className="text-gray-700 font-dancing-script text-2xl leading-relaxed bg-white p-6 rounded-xl shadow-sm"
+                  >
                     Được thành lập từ năm 2015, An Phương đã trở thành một trong
                     những thương hiệu nội thất uy tín tại Việt Nam. Chúng tôi bắt
                     đầu từ một xưởng nhỏ với niềm đam mê tạo ra những sản phẩm nội
                     thất chất lượng cao cho không gian sống hiện đại.
-                  </p>
+                  </motion.p>
                 )}
                 {activeTab === "philosophy" && (
-                  <p className="text-gray-700 font-dancing-script text-2xl leading-relaxed bg-white p-6 rounded-xl shadow-sm">
+                  <motion.p
+                    key="philosophy"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    className="text-gray-700 font-dancing-script text-2xl leading-relaxed bg-white p-6 rounded-xl shadow-sm"
+                  >
                     Triết lý thiết kế của chúng tôi tập trung vào sự tối giản và
                     tinh tế. Mỗi sản phẩm được tạo ra không chỉ để phục vụ chức
                     năng mà còn để mang lại cảm xúc và trải nghiệm sống tốt nhất
                     cho người sử dụng.
-                  </p>
+                  </motion.p>
                 )}
                 {activeTab === "quality" && (
-                  <p className="text-gray-700 font-dancing-script text-2xl leading-relaxed bg-white p-6 rounded-xl shadow-sm">
+                  <motion.p
+                    key="quality"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    className="text-gray-700 font-dancing-script text-2xl leading-relaxed bg-white p-6 rounded-xl shadow-sm"
+                  >
                     Chúng tôi cam kết sử dụng chỉ những vật liệu cao cấp nhất và
                     áp dụng quy trình sản xuất nghiêm ngặt. Mỗi sản phẩm đều được
                     kiểm tra kỹ lưỡng trước khi đến tay khách hàng, đảm bảo độ bền
                     và thẩm mỹ hoàn hảo.
-                  </p>
+                  </motion.p>
                 )}
-              </div>
+              </AnimatePresence>
             </div>
           </div>
 
           <div className="relative">
-            <img
+            <motion.img
               src="/home-page/AnPhuong.jpg"
               alt="Xưởng sản xuất An Phương"
-              className="ml-12 w-5/6 h-auto rounded-2xl shadow-xl transition-all duration-500 hover:scale-105 hover:shadow-2xl object-cover"
+              className="ml-12 w-5/6 h-auto rounded-2xl shadow-xl object-cover"
+              whileHover={{ scale: 1.05, boxShadow: "0px 10px 30px rgba(0,0,0,0.2)" }}
+              transition={{ duration: 0.4 }}
             />
           </div>
         </div>
       </div>
-      <style>
-        {`
-          @keyframes fadeSlide {
-            from {
-              opacity: 0;
-              transform: translateX(20px);
-            }
-            to {
-              opacity: 1;
-              transform: translateX(0);
-            }
-          }
-        `}
-      </style>
     </section>
   );
 }

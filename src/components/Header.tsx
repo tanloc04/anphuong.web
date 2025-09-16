@@ -7,7 +7,7 @@ import {
   faTimes,
   faSearch,
 } from "@fortawesome/free-solid-svg-icons";
-import { Link } from "react-router-dom"; // 👈 Thêm vào
+import { Link } from "react-router-dom";
 import SearchBox from "./ui/SearchBox";
 
 const Header = () => {
@@ -17,7 +17,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-white/50 backdrop-blur-md shadow-sm z-50">
       {/* Logo */}
       <Link
-        to="/"
+        to="/home"
         className="text-2xl font-montserrat-extrabold text-gray-900"
       >
         An Phương
