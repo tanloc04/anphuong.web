@@ -1,23 +1,17 @@
-import { BlogNews } from "../components/BlogNews"
-import { BrandIntroduction } from "../components/BrandIntroduction"
-import { Footer } from "../components/Footer"
-import Header from "../components/Header"
-import HeroSection from "../components/HeroSection"
-import { ProductCategories } from "../components/ProductCategories"
+import HeroSection from "../components/HeroSection";
+import { ProductCategories } from "../components/ProductCategories";
+import { BrandIntroduction } from "../components/BrandIntroduction";
+import { BlogNews } from "../components/BlogNews";
 
 const Home = () => {
   return (
-    <div className="min-h-screen">
-      <Header />
-      <main>
-        <HeroSection />
-        <ProductCategories />
-        <BrandIntroduction />
-        <BlogNews />
-      </main>
-      <Footer />
-    </div>
-  )
-}
+    <>
+      <HeroSection />
+      <ProductCategories />
+      <BrandIntroduction />
+      <BlogNews />
+    </>
+  );
+};
 
-export default Home
+export default Home;

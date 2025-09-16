@@ -1,6 +1,13 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faShoppingCart, faUser, faBars, faTimes, faSearch } from "@fortawesome/free-solid-svg-icons";
+import {
+  faShoppingCart,
+  faUser,
+  faBars,
+  faTimes,
+  faSearch,
+} from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom"; // 👈 Thêm vào
 import SearchBox from "./ui/SearchBox";
 
 const Header = () => {
@@ -9,15 +16,51 @@ const Header = () => {
   return (
     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-white/50 backdrop-blur-md shadow-sm z-50">
       {/* Logo */}
-      <div className="text-2xl font-montserrat-extrabold text-gray-900">An Phương</div>
+      <Link
+        to="/"
+        className="text-2xl font-montserrat-extrabold text-gray-900"
+      >
+        An Phương
+      </Link>
 
       {/* Menu desktop */}
       <nav className="hidden md:block ml-50">
         <ul className="flex space-x-8 font-montserrat-medium">
-          <li className="text-gray-600 hover:text-gray-900 cursor-pointer transition">Sản phẩm</li>
-          <li className="text-gray-600 hover:text-gray-900 cursor-pointer transition">Về chúng tôi</li>
-          <li className="text-gray-600 hover:text-gray-900 cursor-pointer transition">Tin tức</li>
-          <li className="text-gray-600 hover:text-gray-900 cursor-pointer transition">Liên hệ</li>
+          <li>
+            <Link
+              to="/pages/product"
+              className="text-gray-600 hover:text-gray-900 transition"
+            >
+              Sản phẩm
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/pages/about-us"
+              className="text-gray-600 hover:text-gray-900 transition"
+            >
+              Về chúng tôi
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/pages/news"
+              className="text-gray-600 hover:text-gray-900 transition"
+            >
+              Tin tức
+            </Link>
+          </li>
+          <li
+              className="text-gray-600 hover:text-gray-900 transition cursor-pointer"
+              onClick={() => {
+                document.getElementById("footer")?.scrollIntoView({
+                  behavior: "smooth", 
+                  block: "start",     
+                });
+              }}
+            >
+              Liên hệ
+          </li>
         </ul>
       </nav>
 
@@ -38,15 +81,18 @@ const Header = () => {
           <FontAwesomeIcon icon={faSearch} />
         </button>
 
-        <FontAwesomeIcon
-          icon={faUser}
-          className="text-xl text-gray-800 cursor-pointer hover:text-black transition"
-        />
-        <FontAwesomeIcon
-          icon={faShoppingCart}
-          className="text-xl text-gray-800 cursor-pointer hover:text-black transition"
-        />
-
+        <Link to="/account/login">
+          <FontAwesomeIcon
+            icon={faUser}
+            className="text-xl text-gray-800 cursor-pointer hover:text-black transition"
+          />
+        </Link>
+        <Link to="/cart">
+          <FontAwesomeIcon
+            icon={faShoppingCart}
+            className="text-xl text-gray-800 cursor-pointer hover:text-black transition"
+          />
+        </Link>
         {/* Hamburger */}
         <button
           className="md:hidden text-2xl text-gray-800"
@@ -57,28 +103,61 @@ const Header = () => {
       </div>
 
       {/* Mobile menu overlay */}
-      {(isMenuOpen ) && (
+      {isMenuOpen && (
         <div className="absolute top-full left-0 w-full bg-white shadow-md md:hidden">
           <div className="p-6">
-            { (
-              <div className="mb-4">
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm..."
-                  autoFocus
-                  className="w-19/20 border rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#c4a484]"
-                />
-              </div>
-            )}
-            {isMenuOpen && (
-              <ul className="flex flex-col space-y-4 font-montserrat-medium">
-                <li className="text-gray-700 hover:text-black cursor-pointer transition">Sản phẩm</li>
-                <li className="text-gray-700 hover:text-black cursor-pointer transition">Dự án</li>
-                <li className="text-gray-700 hover:text-black cursor-pointer transition">Về chúng tôi</li>
-                <li className="text-gray-700 hover:text-black cursor-pointer transition">Tin tức</li>
-                <li className="text-gray-700 hover:text-black cursor-pointer transition">Liên hệ</li>
-              </ul>
-            )}
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Tìm kiếm..."
+                autoFocus
+                className="w-19/20 border rounded-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#c4a484]"
+              />
+            </div>
+
+            <ul className="flex flex-col space-y-4 font-montserrat-medium">
+              <li>
+                <Link
+                  to="/pages/product"
+                  className="text-gray-700 hover:text-black transition"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                  Sản phẩm
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/pages/about-us"
+                  className="text-gray-700 hover:text-black transition"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}                
+                >
+                  Về chúng tôi
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/pages/news"
+                  className="text-gray-700 hover:text-black transition"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)} 
+                >
+                  Tin tức
+                </Link>
+              </li>
+              <li>
+                <button
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    document.getElementById("footer")?.scrollIntoView({
+                      behavior: "smooth", 
+                      block: "start",     
+                    });
+                  }}
+                  className="text-gray-700 hover:text-black transition"
+                >
+                  Liên hệ
+                </button>
+              </li>
+            </ul>
           </div>
         </div>
       )}
