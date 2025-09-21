@@ -29,7 +29,7 @@ const HeroSection = () => {
   };
 
   return (
-    <section className="relative h-[70vh] min-h-[500px] overflow-hidden mt-16">
+    <section className="relative h-[70vh] min-h-[500px] overflow-hidden">
       {slides.map((slide, index) => (
         <div
           key={index}
@@ -41,10 +41,10 @@ const HeroSection = () => {
           <div className="absolute inset-0 bg-black/30" />
 
           <div className="absolute inset-0 flex flex-col items-center justify-center text-white text-center px-4">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">{slide.title}</h1>
-            <p className="text-xl md:text-2xl mb-8 opacity-90">{slide.desc}</p>
+            <h1 className="text-4xl md:text-6xl font-montserrat-bold mb-6">{slide.title}</h1>
+            <p className="text-xl font-montserrat md:text-2xl mb-8 opacity-90">{slide.desc}</p>
             <button
-            className="bg-[#c4a484] hover:bg-[#b8956f] text-white px-8 py-3 text-lg rounded-lg transition-colors duration-300 cursor-pointer active:scale-95"
+            className="bg-[#c4a484] hover:bg-[#be8042] font-montserrat text-white px-8 py-3 text-lg rounded-lg transition-colors duration-300 cursor-pointer active:scale-95"
             >
             Khám phá ngay
             </button>
@@ -65,7 +65,7 @@ const HeroSection = () => {
       >
         <FontAwesomeIcon icon={faChevronRight} />
       </button>
-
+``
       {/* Dots */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3">
         {slides.map((_, i) => (

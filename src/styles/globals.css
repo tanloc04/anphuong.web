@@ -1,1 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
 @import "tailwindcss";
+
+@theme {
+    --font-montserrat: "Montserrat", sans-serif;
+    --font-dancing-script: "Dancing Script", cursive;
+}
+
+@layer utilities {
+  /* Montserrat Alternates weights */
+  .font-montserrat-thin {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 100; /* thin */
+  }
+  .font-montserrat-extralight {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 200; /* extralight */
+  }
+  .font-montserrat-light {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 300; /* light */
+  }
+  .font-montserrat-regular {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400; /* regular */
+  }
+  .font-montserrat-medium {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 500; /* medium */
+  }
+  .font-montserrat-semibold {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600; /* semibold */
+  }
+  .font-montserrat-bold {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700; /* bold */
+  }
+  .font-montserrat-extrabold {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800; /* extrabold */
+  }
+  .font-montserrat-black {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 900; /* black */
+  }
+  /* Montserrat Alternates italic weights */
+  .font-montserrat-thin-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 100;
+    font-style: italic;
+  }
+  .font-montserrat-extralight-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 200;
+    font-style: italic;
+  }
+  .font-montserrat-light-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+  }
+  .font-montserrat-regular-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+  }
+  .font-montserrat-medium-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 500;
+    font-style: italic;
+  }
+  .font-montserrat-semibold-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+  }
+  .font-montserrat-bold-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+  }
+  .font-montserrat-extrabold-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 800;
+    font-style: italic;
+  }
+  .font-montserrat-black-italic {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 900;
+    font-style: italic;
+  }
+
+  /* Dancing Script weights */
+  .font-dancing-script-regular {
+    font-family: "Dancing Script", cursive;
+    font-weight: 400; /* regular */
+  }
+  .font-dancing-script-medium {
+    font-family: "Dancing Script", cursive;
+    font-weight: 500; /* medium */
+  }
+  .font-dancing-script-semibold {
+    font-family: "Dancing Script", cursive;
+    font-weight: 600; /* semibold */
+  }
+  .font-dancing-script-bold {
+    font-family: "Dancing Script", cursive;
+    font-weight: 700; /* bold */
+  }
+}
