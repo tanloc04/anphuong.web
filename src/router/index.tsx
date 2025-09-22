@@ -7,6 +7,9 @@ import AboutUs from "../pages/AboutUs";
 import Product from "../pages/Product";
 import News from "../pages/News";
 
+import AdminLayout from "../layouts/AdminLayout";
+import Dashboard from "../pages/admin/Dashboard";
+
 
 export const router = createBrowserRouter([
   {
@@ -19,6 +22,8 @@ export const router = createBrowserRouter([
       { path: "/pages/about-us", element: <AboutUs /> },
       { path: "/pages/product", element: <Product /> },
       { path: "/pages/news", element: <News /> },
+      { path: "/admin", element: <AdminLayout />},
+      { path: "/admin/dashboard", element: <Dashboard />},
     ],
   },
   {
