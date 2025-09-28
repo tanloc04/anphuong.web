@@ -21,11 +21,18 @@ export const router = createBrowserRouter([
       { path: "/account/login", element: <Login /> },
       { path: "/pages/about-us", element: <AboutUs /> },
       { path: "/pages/product", element: <Product /> },
-      { path: "/pages/news", element: <News /> },
-      { path: "/admin", element: <AdminLayout />},
-      { path: "/admin/dashboard", element: <Dashboard />},
+      { path: "/pages/news", element: <News /> }
     ],
   },
+
+  {
+    path: "/admin",
+    element: <AdminLayout />,
+    children: [
+      { path: "dashboard", element: <Dashboard /> }
+    ]
+  },
+
   {
     path: "*",
     element: <NotFound />, 
