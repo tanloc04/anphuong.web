@@ -53,7 +53,7 @@ const Sidebar = () => {
           </div>
           {!collapsed && (
             <div>
-              <div className="text-sm font-semibold">Admin Panel</div>
+              <div className="text-sm font-semibold">AP Furniture Panel</div>
               <div className="text-xs text-zinc-500">Control center</div>
             </div>
           )}
@@ -64,7 +64,7 @@ const Sidebar = () => {
           onClick={() => setCollapsed((v) => !v)}
           className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800"
         >
-          {collapsed ? <ChevronRight size={16}/> : <ChevronLeft size={16} />}
+          {collapsed ? <ChevronRight className="cursor-pointer" size={16}/> : <ChevronLeft className="cursor-pointer" size={16} />}
         </button>
       </div>
 
@@ -93,16 +93,98 @@ const Sidebar = () => {
                     <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
                       <Icon size={18} />                   
                     </div>
-                    {!collapsed && <span className="truncate">{item.label}</span>}
+                    {!collapsed && <span className="truncate cursor-pointer">{item.label}</span>}
                 </button>
               </li>
             );
-          })} 
+          })}
+
+          <li>
+            <div className="flex items-center justify-between px-3 mt-4 mb-1">
+              {!collapsed && <div className="text-xs uppercase text-zinc-500">Analytics</div>}
+              <button 
+                onClick={() => setShowAnalytics((v) => !v)}
+                className={`p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 ${collapsed ? "hidden" : ""}`}
+                >
+                  <Menu className="cursor-pointer" size={14}/>
+              </button>
+            </div>
+
+            <AnimatePresence>
+              {showAnalytics && (
+                  <motion.ul
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-1 px-1"
+                  >
+                    {analyticsItems.map((a) => {
+                      const Icon = a.icon;
+                      return (
+                        <li key={a.id}>
+                          <button
+                            onClick={() => setActive(a.id)}
+                            className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${active === a.id ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}
+                          >
+                            <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
+                              <Icon size={14}/>
+                            </div>
+                            {!collapsed && <span className="cursor-pointer">{a.label}</span>}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </motion.ul>
+                )
+              }
+            </AnimatePresence>
+          </li> 
         </ul>
+
+        {!collapsed && 
+          (
+            <div className="mt-6 px-3">
+              <div className="text-xs text-zinc-500 mb-2">Quick stats</div>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800 border dark:border-zinc-800">
+                  <div className="text-xs text-zinc-500">Orders</div>
+                  <div className="text-lg font-semibold">1,234 (dummy)</div>
+                </div>
+
+                <div className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800 border dark:border-zinc-800">
+                  <div className="text-xs text-zinc-500">Revenue</div>
+                  <div className="text-lg font-semibold">$12,3k (dummy)</div>
+                </div>
+              </div>
+            </div>
+          )
+        }
       </nav>
 
+      <div className="px-3 py-3 border-t dark:bg-zinc-800">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">T</div>
+          {!collapsed && (
+            <div className="flex-1">
+              <div className="text-sm font-medium">Trang Quoc Bao</div>
+              <div className="text-xs fext-zinc-500">Super Admin</div>
+            </div>
+          )}
+
+          {!collapsed && (
+            <div className="flex items-center gap-2">
+              <button className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Settings">
+                <Settings className="cursor-pointer" size={16}/>
+              </button>
+              <button className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Logout">
+                <LogOut className="cursor-pointer" size={16}/>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
     </aside>
   )
 }
 
-export default Sidebar
+export default Sidebar;
