@@ -2,7 +2,7 @@ import Dashboard from "@/pages/admin/Dashboard";
 
 const AdminLayout = () => {
   return (
-    <div style={{backgroundColor: 'grey'}}>
+    <div>
       <Dashboard />
     </div>
   )

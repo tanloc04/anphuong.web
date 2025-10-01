@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Menu, Home, Users, Box, Settings, LogOut, BarChart2, Search, ChevronLeft, ChevronRight, icons } from "lucide-react";
+import { Menu, Home, Users, Box, Settings, LogOut, BarChart2, Search, ChevronLeft, ChevronRight} from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const Sidebar = () => {
