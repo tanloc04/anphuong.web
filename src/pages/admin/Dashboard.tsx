@@ -1,4 +1,3 @@
-import User from "./User";
 import Sidebar from "./Sidebar";
 
 const Dashboard = () => {
