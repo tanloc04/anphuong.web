@@ -1,13 +1,15 @@
-import Sidebar from "./Sidebar";
+import Sidebar from "@/pages/admin/Sidebar";
+import { Outlet } from "react-router-dom";
 
-const Dashboard = () => {
+const AdminLayout = () => {
   return (
-    <div className="flex">
+    <div style={{ backgroundColor: 'grey' }}>
       <Sidebar />
-      <div className="main-content">
+      <div className="flex-1 p-4">
+        <Outlet /> {/* MỌI TRANG CON hiển thị ở đây */}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard;
+export default AdminLayout;
