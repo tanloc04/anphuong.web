@@ -1,15 +1,13 @@
 import Sidebar from "@/pages/admin/Sidebar";
 import { Outlet } from "react-router-dom";
 
-const AdminLayout = () => {
+export default function AdminLayout() {
   return (
-    <div style={{ backgroundColor: 'grey' }}>
+    <div className="flex h-screen w-screen overflow-hidden bg-gray-50">
       <Sidebar />
-      <div className="flex-1 p-4">
-        <Outlet /> {/* MỌI TRANG CON hiển thị ở đây */}
-      </div>
+      <main className="flex-1 overflow-auto p-4">
+        <Outlet />
+      </main>
     </div>
   );
-};
-
-export default AdminLayout;
+}

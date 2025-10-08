@@ -9,6 +9,7 @@ import News from "../pages/News";
 
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../pages/admin/Dashboard";
+import UserManagement from "@/pages/admin/UserManagement/UserManagement";
 
 
 export const router = createBrowserRouter([
@@ -29,8 +30,9 @@ export const router = createBrowserRouter([
     path: "/admin",
     element: <AdminLayout />,
     children: [
-      { path: "dashboard", element: <Dashboard /> }
-    ]
+      { index: true, element: <Dashboard /> },         // /admin
+      { path: "users", element: <UserManagement /> },  // /admin/users
+    ],
   },
 
   {
