@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Menu, Home, Users, Box, Settings, LogOut, BarChart2, Search, ChevronLeft, ChevronRight} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { motion, AnimatePresence } from "framer-motion"
+import { faBarChart, faBars, faBox, faChevronLeft, faChevronRight, faGear, faHome, faRightFromBracket, faSearch, faUser, faUsers } from "@fortawesome/free-solid-svg-icons"
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
@@ -11,19 +12,19 @@ const Sidebar = () => {
     {
       id: "dashboard",
       label: "Dashboard",
-      icon: Home
+      icon: <FontAwesomeIcon icon={faHome} />
     },
 
     {
       id: "users",
       label: "Users",
-      icon: Users
+      icon: <FontAwesomeIcon icon={faUsers} />
     },
 
     {
       id: "products",
       label: "Products",
-      icon: Box
+      icon: <FontAwesomeIcon icon={faBox} />
     }
   ];
 
@@ -31,13 +32,13 @@ const Sidebar = () => {
     {
       id: "overview",
       label: "Overview",
-      icon: BarChart2
+      icon: <FontAwesomeIcon icon={faBarChart} />
     },
 
     {
       id: "reports",
       label: "Reports",
-      icon: BarChart2
+      icon: <FontAwesomeIcon icon={faBarChart} />
     }
   ];
 
@@ -64,14 +65,14 @@ const Sidebar = () => {
           onClick={() => setCollapsed((v) => !v)}
           className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800"
         >
-          {collapsed ? <ChevronRight className="cursor-pointer" size={16}/> : <ChevronLeft className="cursor-pointer" size={16} />}
+          {collapsed ? <FontAwesomeIcon icon={faChevronRight} /> : <FontAwesomeIcon icon={faChevronLeft} />}
         </button>
       </div>
 
       <div className="p-3">
         <div className="relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <Search size={16}/>
+            <FontAwesomeIcon icon={faSearch} />
           </div>
 
           <input 
@@ -91,7 +92,7 @@ const Sidebar = () => {
                 <button onClick={() => setActive(item.id)}
                   className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${isActive ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}>
                     <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
-                      <Icon size={18} />                   
+                      {Icon}               
                     </div>
                     {!collapsed && <span className="truncate cursor-pointer">{item.label}</span>}
                 </button>
@@ -106,7 +107,7 @@ const Sidebar = () => {
                 onClick={() => setShowAnalytics((v) => !v)}
                 className={`p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 ${collapsed ? "hidden" : ""}`}
                 >
-                  <Menu className="cursor-pointer" size={14}/>
+                  <FontAwesomeIcon icon={faBars} />
               </button>
             </div>
 
@@ -127,7 +128,7 @@ const Sidebar = () => {
                             className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${active === a.id ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}
                           >
                             <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
-                              <Icon size={14}/>
+                              {Icon}
                             </div>
                             {!collapsed && <span className="cursor-pointer">{a.label}</span>}
                           </button>
@@ -174,10 +175,10 @@ const Sidebar = () => {
           {!collapsed && (
             <div className="flex items-center gap-2">
               <button className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Settings">
-                <Settings className="cursor-pointer" size={16}/>
+                <FontAwesomeIcon icon={faGear} />
               </button>
               <button className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Logout">
-                <LogOut className="cursor-pointer" size={16}/>
+                <FontAwesomeIcon icon={faRightFromBracket} />
               </button>
             </div>
           )}
