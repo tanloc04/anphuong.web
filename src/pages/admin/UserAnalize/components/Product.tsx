@@ -2,6 +2,7 @@ import { fectProducts } from "@/api/analize";
 import { faBox } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react"
+import { minutes } from "../utils/toMilliseconds";
 
 const ProductOverview = () => {
 
@@ -25,8 +26,6 @@ const ProductOverview = () => {
           }
         );
 
-        
-
         const productList = result?.data?.pageData || [];
 
         setTotalProducts(productList.length);
@@ -38,6 +37,11 @@ const ProductOverview = () => {
     }
 
     getProducts();
+    const intervalId = setInterval(() => {
+      getProducts
+    }, minutes(30));
+
+    return () => clearInterval(intervalId);
   }, [])
 
   return (
