@@ -1,4 +1,4 @@
-import Main from "./components/Main"
+import Main from "./components/Main";
 
 const ProductManagement = () => {
   
@@ -6,7 +6,7 @@ const ProductManagement = () => {
     <div className='p-6'>
       <Main />
     </div>
-  )
+  );
 }
 
-export default ProductManagement
+export default ProductManagement;

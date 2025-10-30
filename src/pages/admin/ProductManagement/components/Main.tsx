@@ -1,7 +1,7 @@
-import Header from "./Header"
-import Button from "../../components/Button"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons"
+import Header from "./Header";
+import { Button } from "primereact/button";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const Main = () => {
   const productsArray = [
@@ -24,7 +24,7 @@ const Main = () => {
     }
   ]
   return (
-    <div>
+    <div className="w-[1000px]">
       <Header />
       <table className="border-collapse border border-gray-400 w-full mt-2 rounded">
         <thead>
@@ -47,8 +47,8 @@ const Main = () => {
               <td className="border border-gray-300">{product.status}</td>
               <td className="border border-gray-300">
                 <div className="flex gap-2 ml-1">
-                  <Button size="small"><FontAwesomeIcon icon={faPen}/></Button>
-                  <Button size="small" className="!bg-[red] focus:ring-red-500"><FontAwesomeIcon icon={faTrash}/></Button>
+                  <Button severity="success" icon={<FontAwesomeIcon icon={faPen}/>} />
+                  <Button severity="danger" icon={<FontAwesomeIcon icon={faTrash}/>} />
                 </div>
               </td>
           </tr>))}

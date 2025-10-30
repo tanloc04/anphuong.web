@@ -1,6 +1,7 @@
 import Sidebar from "./UserAnalize/components/Sidebar";
 //import Analize from "./UserAnalize/layout"
-import ProductManagement from "./ProductManagement/layout";
+//import ProductManagement from "./ProductManagement/page";
+import CreateProduct from "./ProductManagement/forms/CreateProductForm";
 
 const Dashboard = () => {
   return (
@@ -8,7 +9,8 @@ const Dashboard = () => {
       <Sidebar />
       <div className="main-content">
         {/* <Analize /> */}
-        <ProductManagement />
+        {/* <ProductManagement /> */}
+        <CreateProduct />
       </div>
     </div>
   )
