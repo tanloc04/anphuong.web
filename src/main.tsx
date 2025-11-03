@@ -1,9 +1,11 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./styles/globals.css";
-import App from "./App";
 import { PrimeReactProvider } from 'primereact/api';
 import "primereact/resources/themes/lara-light-cyan/theme.css";
+import { RecoilRoot } from 'recoil';
+import { RouterProvider } from "react-router-dom";
+import { router } from "./router";
 
 const value = {
   ripple: true
@@ -11,9 +13,10 @@ const value = {
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <PrimeReactProvider value={value}>
-      <App />
-    </PrimeReactProvider>
-    {/* <RouterProvider router={router} /> */}
+    <RecoilRoot>
+      <PrimeReactProvider value={value}>
+        <RouterProvider router={router} />
+      </PrimeReactProvider>
+    </RecoilRoot>
   </StrictMode>
 );

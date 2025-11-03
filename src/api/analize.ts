@@ -1,4 +1,4 @@
-import type { SearchCondition, CustomersPageInfo, ProductsPageInfo } from "@/pages/admin/UserAnalize/types";
+import type { SearchCondition, CustomersPageInfo, ProductsPageInfo } from "@/pages/admin/Analize/types";
 
 export async function fetchCustomers(searchCondition: SearchCondition, pageInfo: CustomersPageInfo) {
   const response = await fetch('http://localhost:5273/api/Customer/search', {

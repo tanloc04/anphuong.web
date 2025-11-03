@@ -1,46 +1,66 @@
 import { useState } from "react"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { motion, AnimatePresence } from "framer-motion"
-import { faBarChart, faBars, faBox, faChevronLeft, faChevronRight, faGear, faHome, faRightFromBracket, faSearch, faUser, faUsers } from "@fortawesome/free-solid-svg-icons"
+import { 
+  faBarChart, faBars, faBox, faChevronLeft, faChevronRight, 
+  faGear, faHome, faRightFromBracket, faSearch, faUsers 
+} from "@fortawesome/free-solid-svg-icons"
+import { Link } from "react-router-dom"
+import { useRecoilState } from "recoil"
+import { tabsState, activeTabIdState } from "../store/tabAtom";
+import type { Tab } from "../ProductManagement/type";
+
+const navItems: (Tab & { icon: React.ReactElement })[] = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: <FontAwesomeIcon icon={faHome} />,
+    path: "/admin"
+  },
+  {
+    id: "users",
+    label: "Users",
+    icon: <FontAwesomeIcon icon={faUsers} />,
+    path: "/admin/users"
+  },
+  {
+    id: "products",
+    label: "Products",
+    icon: <FontAwesomeIcon icon={faBox} />,
+    path: "/admin/products"
+  }
+];
+
+const analyticsItems: (Tab & { icon: React.ReactElement })[] = [
+  {
+    id: "overview",
+    label: "Overview",
+    icon: <FontAwesomeIcon icon={faBarChart} />,
+    path: "/admin/overview"
+  },
+  {
+    id: "reports",
+    label: "Reports",
+    icon: <FontAwesomeIcon icon={faBarChart} />,
+    path: "/admin/reports"
+  }
+];
 
 const Sidebar = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [active, setActive] = useState("dashboard");
   const [showAnalytics, setShowAnalytics] = useState(true);
 
-  const navItems = [
-    {
-      id: "dashboard",
-      label: "Dashboard",
-      icon: <FontAwesomeIcon icon={faHome} />
-    },
+  const [tabs, setTabs] = useRecoilState(tabsState);
+  const [activeTabId, setActiveTabId] = useRecoilState(activeTabIdState);
 
-    {
-      id: "users",
-      label: "Users",
-      icon: <FontAwesomeIcon icon={faUsers} />
-    },
-
-    {
-      id: "products",
-      label: "Products",
-      icon: <FontAwesomeIcon icon={faBox} />
+  const handleNavClick = (tabToAdd: Tab) => {
+    const existingTab = tabs.find(tab => tab.id === tabToAdd.id);
+    
+    if (!existingTab) {
+      setTabs(prevTabs => [...prevTabs, tabToAdd]);
     }
-  ];
-
-  const analyticsItems = [
-    {
-      id: "overview",
-      label: "Overview",
-      icon: <FontAwesomeIcon icon={faBarChart} />
-    },
-
-    {
-      id: "reports",
-      label: "Reports",
-      icon: <FontAwesomeIcon icon={faBarChart} />
-    }
-  ];
+    setActiveTabId(tabToAdd.id);
+  };
 
   return (
     <aside 
@@ -85,17 +105,19 @@ const Sidebar = () => {
       <nav className="flex-1 overflow-auto px-1 py-2">
         <ul className="space-y-1">
           {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = active === item.id;
+            const isActive = activeTabId === item.id; 
             return (
               <li key={item.id}>
-                <button onClick={() => setActive(item.id)}
-                  className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${isActive ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}>
-                    <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
-                      {Icon}               
-                    </div>
-                    {!collapsed && <span className="truncate cursor-pointer">{item.label}</span>}
-                </button>
+                <Link 
+                  to={item.path}
+                  onClick={() => handleNavClick(item)}
+                  className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${isActive ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}
+                >
+                  <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
+                    {item.icon}
+                  </div>
+                  {!collapsed && <span className="truncate cursor-pointer">{item.label}</span>}
+                </Link>
               </li>
             );
           })}
@@ -106,38 +128,38 @@ const Sidebar = () => {
               <button 
                 onClick={() => setShowAnalytics((v) => !v)}
                 className={`p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 ${collapsed ? "hidden" : ""}`}
-                >
-                  <FontAwesomeIcon icon={faBars} />
+              >
+                <FontAwesomeIcon icon={faBars} />
               </button>
             </div>
 
             <AnimatePresence>
               {showAnalytics && (
-                  <motion.ul
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-1 px-1"
-                  >
-                    {analyticsItems.map((a) => {
-                      const Icon = a.icon;
-                      return (
-                        <li key={a.id}>
-                          <button
-                            onClick={() => setActive(a.id)}
-                            className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${active === a.id ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}
-                          >
-                            <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
-                              {Icon}
-                            </div>
-                            {!collapsed && <span className="cursor-pointer">{a.label}</span>}
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </motion.ul>
-                )
-              }
+                <motion.ul
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="space-y-1 px-1"
+                >
+                  {analyticsItems.map((a) => {
+                    const isActive = activeTabId === a.id;
+                    return (
+                      <li key={a.id}>
+                        <Link
+                          to={a.path}
+                          onClick={() => handleNavClick(a)}
+                          className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${isActive ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}
+                        >
+                          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
+                            {a.icon}
+                          </div>
+                          {!collapsed && <span className="cursor-pointer">{a.label}</span>}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </motion.ul>
+              )}
             </AnimatePresence>
           </li> 
         </ul>

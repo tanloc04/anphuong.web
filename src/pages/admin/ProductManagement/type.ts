@@ -1,3 +1,5 @@
+import { type ReactNode } from 'react';
+
 export interface ProductProps {
     id: number,
     name: string,
@@ -6,11 +8,11 @@ export interface ProductProps {
     description?: string,
     longSize: number,
     widthSize: number,
-    heghtSize: number,
+    heightSize: number,
     material: string,
     detailImageId: number,
     categoryId: number,
-    variantionId: number,
+    variationId: number,
     createdAt: string,
     updatedAt: string 
 }
@@ -31,4 +33,30 @@ export interface ProductFormData {
     image2: File | null,
     image3: File | null,
     image4: File | null
+}
+
+export interface PreviewUrls {
+    thumbnail: string,
+    image1: string,
+    image2: string,
+    image3: string,
+    image4: string
+}
+
+export interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: ReactNode;
+}
+
+export interface ProductListType extends ProductProps {
+  stock: number;
+  status: 'Stock' | 'Out of Stock';
+}
+
+export interface Tab {
+  id: string;
+  label: string;
+  path: string;
 }
