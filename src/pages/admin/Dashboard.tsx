@@ -1,12 +1,10 @@
-import Analize from "./Analize/page";
-import ProductManagement from "./ProductManagement/page";
+import Overview from "./Overview/components/Overview";
 
 const Dashboard = () => {
   return (
     <div className="flex">
       <div className="main-content w-full">
-        <Analize />
-        {/* <ProductManagement /> */}
+        <Overview />
       </div>
     </div>
   );

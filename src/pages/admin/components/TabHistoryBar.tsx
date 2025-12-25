@@ -3,7 +3,7 @@ import { tabsState, activeTabIdState } from '../store/tabAtom';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTimes } from '@fortawesome/free-solid-svg-icons';
-import type { Tab } from '../ProductManagement/type';
+import type { Tab } from '../ProductManagement/types';
 
 const TabHistoryBar = () => {
   const [tabs, setTabs] = useRecoilState(tabsState);

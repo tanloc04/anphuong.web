@@ -1,212 +1,140 @@
-import { useState } from "react"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { motion, AnimatePresence } from "framer-motion"
-import { 
-  faBarChart, faBars, faBox, faChevronLeft, faChevronRight, 
-  faGear, faHome, faRightFromBracket, faSearch, faUsers 
-} from "@fortawesome/free-solid-svg-icons"
-import { Link } from "react-router-dom"
-import { useRecoilState } from "recoil"
-import { tabsState, activeTabIdState } from "../store/tabAtom";
-import type { Tab } from "../ProductManagement/type";
-
-const navItems: (Tab & { icon: React.ReactElement })[] = [
-  {
-    id: "dashboard",
-    label: "Dashboard",
-    icon: <FontAwesomeIcon icon={faHome} />,
-    path: "/admin"
-  },
-  {
-    id: "users",
-    label: "Users",
-    icon: <FontAwesomeIcon icon={faUsers} />,
-    path: "/admin/users"
-  },
-  {
-    id: "products",
-    label: "Products",
-    icon: <FontAwesomeIcon icon={faBox} />,
-    path: "/admin/products"
-  }
-];
-
-const analyticsItems: (Tab & { icon: React.ReactElement })[] = [
-  {
-    id: "overview",
-    label: "Overview",
-    icon: <FontAwesomeIcon icon={faBarChart} />,
-    path: "/admin/overview"
-  },
-  {
-    id: "reports",
-    label: "Reports",
-    icon: <FontAwesomeIcon icon={faBarChart} />,
-    path: "/admin/reports"
-  }
-];
+import { useEffect, useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Avatar } from "primereact/avatar";
+import { Ripple } from "primereact/ripple";
 
 const Sidebar = () => {
-  const [collapsed, setCollapsed] = useState(false);
-  const [showAnalytics, setShowAnalytics] = useState(true);
+  const navigate = useNavigate();
 
-  const [tabs, setTabs] = useRecoilState(tabsState);
-  const [activeTabId, setActiveTabId] = useRecoilState(activeTabIdState);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme === 'dark';
+  });
 
-  const handleNavClick = (tabToAdd: Tab) => {
-    const existingTab = tabs.find(tab => tab.id === tabToAdd.id);
-    
-    if (!existingTab) {
-      setTabs(prevTabs => [...prevTabs, tabToAdd]);
+  useEffect(() => {
+    const html = document.documentElement;
+
+    if (isDarkMode) {
+      html.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      html.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
-    setActiveTabId(tabToAdd.id);
+  },[isDarkMode]);
+
+  const menuGroups = [
+    {
+      label: "TỔNG QUAN",
+      items: [
+        { label: "Dashboard", icon: "pi pi-home", to: "/admin" },
+        { label: "Doanh thu", icon: "pi pi-chart-line", to: "/revenue" }
+      ]
+    },
+    {
+      label: "QUẢN LÝ",
+      items: [
+        { label: "Sản phẩm", icon: "pi pi-box", to: "/admin/products" },
+        { label: "Đơn hàng", icon: "pi pi-shopping-cart", to: "/admin/orders" },
+        { label: "Danh mục", icon: "pi pi-list", to: "/admin/categories" },
+        { label: "Khách hàng", icon: "pi pi-users", to: "/admin/users" },
+      ]
+    },
+    {
+      label: "HỆ THỐNG",
+      items: [
+        { label: "Cài đặt", icon: "pi pi-cog", to: "/admin/settings" }
+      ]
+    }
+  ];
+
+  const handleLogout = () => {
+    navigate("/login");
+  };
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(prev => !prev);
   };
 
   return (
-    <aside 
-      className={`flex flex-col h-screen bg-white dark:bg-zinc-900 border-r dark:border-zinc-800 transition-all duration-200 shadow-sm
-        ${collapsed ? "w-20" : "w-64"}`}
-    >
-      <div className="flex items-center justify-between px-3 py-3 border-b dark:border-zinc-800">
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-violet-600 text-white">
-            A
+    <div className="h-screen w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col fixed left-0 top-0 z-50 transition-colors duration-300">
+      <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
+              <span className="text-white font-bold text-lg">A</span>
           </div>
-          {!collapsed && (
-            <div>
-              <div className="text-sm font-semibold">AP Furniture Panel</div>
-              <div className="text-xs text-zinc-500">Control center</div>
-            </div>
-          )}
-        </div>
-
-        <button
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          onClick={() => setCollapsed((v) => !v)}
-          className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800"
-        >
-          {collapsed ? <FontAwesomeIcon icon={faChevronRight} /> : <FontAwesomeIcon icon={faChevronLeft} />}
-        </button>
+          <span className="text-xl font-bold text-gray-800 dark:text-white tracking-tight">AP Furniture</span>
       </div>
 
-      <div className="p-3">
-        <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
-            <FontAwesomeIcon icon={faSearch} />
-          </div>
-
-          <input 
-            placeholder={collapsed ? "" : "Search..."}
-            className={`w-full pl-10 pr-3 py-2 text-sm rounded-md border dark:bg-zinc-900 dark:border-zinc-800 focus:outline-none focus:ring-1 focus:ring-violet-400 transition-all ${collapsed ? "opacity-0 pointer-events-none" : ""}`}
-          />
-        </div>
-      </div>
-
-      <nav className="flex-1 overflow-auto px-1 py-2">
-        <ul className="space-y-1">
-          {navItems.map((item) => {
-            const isActive = activeTabId === item.id; 
-            return (
-              <li key={item.id}>
-                <Link 
-                  to={item.path}
-                  onClick={() => handleNavClick(item)}
-                  className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${isActive ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}
-                >
-                  <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
-                    {item.icon}
+      <div className="flex-1 overflow-y-auto py-4 custom-scrollbar">
+          {menuGroups.map((group, index) => (
+              <div key={index} className="mb-6">
+                  <div className="px-6 mb-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                      {group.label}
                   </div>
-                  {!collapsed && <span className="truncate cursor-pointer">{item.label}</span>}
-                </Link>
-              </li>
-            );
-          })}
-
-          <li>
-            <div className="flex items-center justify-between px-3 mt-4 mb-1">
-              {!collapsed && <div className="text-xs uppercase text-zinc-500">Analytics</div>}
-              <button 
-                onClick={() => setShowAnalytics((v) => !v)}
-                className={`p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 ${collapsed ? "hidden" : ""}`}
-              >
-                <FontAwesomeIcon icon={faBars} />
-              </button>
-            </div>
-
-            <AnimatePresence>
-              {showAnalytics && (
-                <motion.ul
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="space-y-1 px-1"
-                >
-                  {analyticsItems.map((a) => {
-                    const isActive = activeTabId === a.id;
-                    return (
-                      <li key={a.id}>
-                        <Link
-                          to={a.path}
-                          onClick={() => handleNavClick(a)}
-                          className={`flex items-center gap-3 w-full text-sm px-3 py-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${isActive ? "bg-violet-50 dark:bg-violet-900/30 font-medium" : ""}`}
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-transparent">
-                            {a.icon}
-                          </div>
-                          {!collapsed && <span className="cursor-pointer">{a.label}</span>}
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </motion.ul>
-              )}
-            </AnimatePresence>
-          </li> 
-        </ul>
-
-        {!collapsed && 
-          (
-            <div className="mt-6 px-3">
-              <div className="text-xs text-zinc-500 mb-2">Quick stats</div>
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800 border dark:border-zinc-800">
-                  <div className="text-xs text-zinc-500">Orders</div>
-                  <div className="text-lg font-semibold">1,234 (dummy)</div>
-                </div>
-
-                <div className="p-2 rounded-lg bg-zinc-50 dark:bg-zinc-800 border dark:border-zinc-800">
-                  <div className="text-xs text-zinc-500">Revenue</div>
-                  <div className="text-lg font-semibold">$12,3k (dummy)</div>
-                </div>
+                  
+                  <ul className="list-none p-0 m-0 px-3">
+                      {group.items.map((item) => (
+                          <li key={item.to} className="mb-1">
+                              <NavLink
+                                  to={item.to}
+                                  className={({ isActive }) => `
+                                      flex items-center px-3 py-3 rounded-lg transition-all duration-200 cursor-pointer p-ripple
+                                      ${isActive 
+                                          ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium' 
+                                          
+                                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200'
+                                      }
+                                  `}
+                              >
+                                  <i className={`${item.icon} mr-3 text-lg`}></i>
+                                  <span className="text-sm">{item.label}</span>
+                                  <Ripple />
+                              </NavLink>
+                          </li>
+                      ))}
+                  </ul>
               </div>
-            </div>
-          )
-        }
-      </nav>
-
-      <div className="px-3 py-3 border-t dark:bg-zinc-800">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-zinc-200 dark:bg-zinc-700 flex items-center justify-center">T</div>
-          {!collapsed && (
-            <div className="flex-1">
-              <div className="text-sm font-medium">Trang Quoc Bao</div>
-              <div className="text-xs fext-zinc-500">Super Admin</div>
-            </div>
-          )}
-
-          {!collapsed && (
-            <div className="flex items-center gap-2">
-              <button className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Settings">
-                <FontAwesomeIcon icon={faGear} />
-              </button>
-              <button className="p-2 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800" title="Logout">
-                <FontAwesomeIcon icon={faRightFromBracket} />
-              </button>
-            </div>
-          )}
-        </div>
+          ))}
       </div>
-    </aside>
+
+      <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
+          <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-200 dark:border-gray-700 px-1">
+              <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Giao diện</span>
+              <button
+                onClick={toggleDarkMode}
+                className={`
+                    relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none
+                    ${isDarkMode ? 'bg-indigo-600' : 'bg-gray-300 dark:bg-gray-600'} 
+                `}
+                title="Chuyển đổi giao diện"
+              >
+                  <span
+                    className={`
+                        absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out flex items-center justify-center
+                        ${isDarkMode ? 'translate-x-6' : 'translate-x-0'}
+                    `}
+                  >
+                      <i className={`pi ${isDarkMode ? 'pi-moon' : 'pi-sun'} text-[0.6rem] ${isDarkMode ? 'text-indigo-600' : 'text-yellow-500'}`}></i>
+                  </span>
+              </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+              <Avatar label="T" size="large" shape="circle" className="bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-200 font-bold" />
+              <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">Trang Quoc Bao</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 truncate">Super Admin</p>
+              </div>
+              <button 
+                  onClick={handleLogout}
+                  className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+                  title="Đăng xuất"
+              >
+                  <i className="pi pi-sign-out"></i>
+              </button>
+          </div>
+      </div>
+    </div>
   )
 }
 

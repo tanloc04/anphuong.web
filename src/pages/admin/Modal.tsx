@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import type { ModalProps } from '../type'; 
+import type { ModalProps } from './ProductManagement/types'; 
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
@@ -13,7 +13,7 @@ const Modal = ({ isOpen, onClose, title, children }: ModalProps) => {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-xl w-full max-w-7xl z-50 overflow-hidden"
+        className="bg-white rounded-lg shadow-xl w-full max-w-6xl z-50 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center p-5 border-b border-gray-200">

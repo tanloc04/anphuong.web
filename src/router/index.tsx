@@ -4,17 +4,20 @@ import MainLayout from "../layouts/MainLayout";
 import AdminLayout from "../layouts/AdminLayout";
 
 import Home from "../pages/Home";
-import Login from "../pages/Login";
+import Login from "../pages/Login/components/Login";
+import Register from "@/pages/Register/components/Register";
 import NotFound from "../pages/NotFound";
 import AboutUs from "../pages/AboutUs";
 import Product from "../pages/Product";
 import News from "../pages/News";
 
 import Dashboard from "../pages/admin/Dashboard";
-import ProductList from "../pages/admin/ProductManagement/page";
+import ProductManagement from "@/pages/admin/ProductManagement/components/ProductManagement";
 // import Users from "../pages/admin/UserManagement/page";
-import AnalyticsOverview from "../pages/admin/Analize/page";
-import AnalyticsReports from "../pages/admin/Analize/page";
+import AdminRoute from "./AdminRoute";
+import CateManagement from "@/pages/admin/CategoryManagement/components/CateManagement";
+import Overview from "@/pages/admin/Overview/components/Overview";
+import HomeConfiguration from "@/pages/admin/Settings/components/HomeConfiguration";
 
 export const router = createBrowserRouter([
   {
@@ -24,6 +27,7 @@ export const router = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "home", element: <Home /> },
       { path: "account/login", element: <Login /> },
+      { path: "account/register", element: <Register /> },
       { path: "pages/about-us", element: <AboutUs /> },
       { path: "pages/product", element: <Product /> },
       { path: "pages/news", element: <News /> }
@@ -31,18 +35,24 @@ export const router = createBrowserRouter([
   },
 
   {
-    path: "/admin",
-    element: <AdminLayout />,
+    element: <AdminRoute />,
     children: [
-      { index: true, element: <Dashboard /> },
+      {
+        path: "/admin",
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <Dashboard /> },
+          { path: "overview", element: <Overview /> },
       
-      { path: "products", element: <ProductList /> },
-      
-      // { path: "users", element: <Users /> },
-      
-      { path: "overview", element: <AnalyticsOverview /> },
-      
-      { path: "reports", element: <AnalyticsReports /> },
+          { path: "products", element: <ProductManagement /> },
+        
+          // { path: "users", element: <Users /> },
+        
+          { path: "categories", element: <CateManagement /> },
+
+          { path: "settings", element:  <HomeConfiguration />}
+        ]
+      }
     ],
   },
 

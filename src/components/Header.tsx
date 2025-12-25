@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShoppingCart,
@@ -6,12 +6,42 @@ import {
   faBars,
   faTimes,
   faSearch,
+  faSignOutAlt,
 } from "@fortawesome/free-solid-svg-icons";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SearchBox from "./ui/SearchBox";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navigate = useNavigate();
+  const [user, setUser] = useState<{ username: string } | null>(null);
+
+  const checkLoginStatus = () => {
+    const token = localStorage.getItem('token');
+    const username = localStorage.getItem('username');
+
+    if (token && username) {
+      setUser({ username });
+    } else {
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    checkLoginStatus();
+    window.addEventListener("auth-change", checkLoginStatus);
+  }, []);
+ 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('username');
+    
+    window.dispatchEvent(new Event("auth-change"));
+
+    navigate('/account/login');
+  }
 
   return (
     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-white/50 backdrop-blur-md shadow-sm z-50">
@@ -80,13 +110,50 @@ const Header = () => {
         >
           <FontAwesomeIcon icon={faSearch} />
         </button>
+               
+        <div className="flex items-center gap-4">        
+          {user ? (
+            <div className="flex items-center gap-3">
+              <Link 
+                to="/account/profile"
+                className="flex flex-col items-center group"
+              >
+                <div className="relative">
+                  <FontAwesomeIcon 
+                    icon={faUser}
+                    className="text-xl text-blue-600 cursor-pointer group-hover:text-blue-800 transition"
+                  />
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75">
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                  </span>
+                </div>
+                <span className="text-xs font-semibold text-gray-700 mt-1 group-hover:text-black">
+                  {user.username}
+                </span>
+              </Link>
 
-        <Link to="/account/login">
-          <FontAwesomeIcon
-            icon={faUser}
-            className="text-xl text-gray-800 cursor-pointer hover:text-black transition"
-          />
-        </Link>
+              <button 
+                className="text-gray-400 hover:text-red-500 transition ml-2"
+                onClick={handleLogout}
+                title="Đăng xuất"
+              >
+                <FontAwesomeIcon 
+                  icon={faSignOutAlt}
+                />
+              </button>
+            </div>
+          ) : (
+            <Link to="/account/login" className="flex flex-col items-center text-gray-800 hover:text-black transition">
+              <FontAwesomeIcon 
+                icon={faUser}
+                className="text-xl cursor-pointer"
+              />
+              <span className="text-xs mt-1">Đăng nhập</span>
+            </Link>
+          )}
+        </div>
         <Link to="/cart">
           <FontAwesomeIcon
             icon={faShoppingCart}
