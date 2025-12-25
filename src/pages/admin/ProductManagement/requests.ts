@@ -70,10 +70,9 @@ export const createVariant = (data: { productId: number, colorId: number }) => {
 export const searchVariants = (productId: number) => {
   const payload = {
       searchCondition: {
-          keyword: "",
-          status: "",
+          productId: productId,
           isDeleted: false,
-          productId: productId
+          status: ""
       },
       pageInfo: {
           pageNum: 1,

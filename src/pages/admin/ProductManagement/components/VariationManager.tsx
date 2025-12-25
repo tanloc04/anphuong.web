@@ -38,15 +38,19 @@ const VariationManager = ({ visible, product, onClose }: VariationManagerProps) 
 
         try {
             const res: any = await searchVariants(product.id);
-           
-            if (res.success && res.data && res.data.pageData) {
-                setProductVariants(res.data.pageData || []);
+            
+            console.log("Check API Response:", res);
+            const responseBody = res.data ? res.data : res;
+            
+            if (responseBody && responseBody.success && responseBody.data && responseBody.data.pageData) {
+                setProductVariants(responseBody.data.pageData || []);
             } else {
                 setProductVariants([]);
             }
 
         } catch(error: any) {
-            console.error("Lỗi lấy danh sách biến thể!", error);
+            console.error("Lỗi fetch:", error);
+            setProductVariants([]);
         } finally {
             setLoading(false);
         }
@@ -59,7 +63,7 @@ const VariationManager = ({ visible, product, onClose }: VariationManagerProps) 
                 setColors(res.data.pageData || []);
             }
         } catch (error) {
-            console.error("Lỗi lấy danh sách màu:", error);
+            console.error(error);
         }
     };
 
@@ -73,6 +77,7 @@ const VariationManager = ({ visible, product, onClose }: VariationManagerProps) 
 
     const handleAddVariant = async () => {
         if (!selectedColor || !product) return;
+        
         const isExist = productVariants.some((v: any) => v.colorId === selectedColor.id);
         
         if (isExist) {
