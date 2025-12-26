@@ -200,16 +200,40 @@ const VariationManager = ({ visible, product, onClose }: VariationManagerProps) 
 
                 <div className="p-4 border border-gray-200 rounded-xl bg-gray-50/50 mb-4 shadow-sm">
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Chọn màu sắc để thêm</label>
-                    <div className="flex gap-2">
-                        <div className="flex-1">
+                    
+                    <div className="flex gap-3">                       
+                        <div className="p-inputgroup flex-1 h-3rem"> 
                             <Dropdown 
-                                value={selectedColor} onChange={(e) => setSelectedColor(e.value)} options={colors} optionLabel="name" 
-                                itemTemplate={colorOptionTemplate} valueTemplate={selectedColor ? colorOptionTemplate : undefined}
-                                placeholder="-- Chọn màu từ danh sách --" className="w-full" filter emptyMessage="Không tìm thấy màu nào." showClear
+                                value={selectedColor} 
+                                onChange={(e) => setSelectedColor(e.value)} 
+                                options={colors} 
+                                optionLabel="name" 
+                                itemTemplate={colorOptionTemplate} 
+                                valueTemplate={selectedColor ? colorOptionTemplate : undefined}
+                                placeholder="-- Chọn màu từ danh sách --" 
+                                className="w-full"
+                                filter 
+                                emptyMessage="Không tìm thấy màu nào." 
+                                showClear
+                            />
+                            <Button 
+                                icon="pi pi-plus" 
+                                severity="secondary"
+                                className="bg-white text-gray-600 border-gray-300"
+                                tooltip="Không có màu bạn cần? Tạo mới ngay!" 
+                                tooltipOptions={{ position: 'top' }}
+                                onClick={() => setShowCreateColor(true)} 
                             />
                         </div>
-                        <Button icon="pi pi-plus" className="w-3rem" severity="secondary" outlined tooltip="Tạo màu mới" onClick={() => setShowCreateColor(true)} />
-                        <Button label="Thêm Ngay" icon="pi pi-check" className="w-10rem" onClick={handleAddVariant} disabled={!selectedColor || loading} loading={loading} />
+
+                        <Button 
+                            label="Thêm Biến Thể" 
+                            icon="pi pi-check" 
+                            className="w-auto px-4"
+                            onClick={handleAddVariant} 
+                            disabled={!selectedColor || loading} 
+                            loading={loading} 
+                        />
                     </div>
                 </div>
 

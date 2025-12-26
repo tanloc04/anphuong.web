@@ -150,4 +150,4 @@ export const loginWithGoogle = async (idToken: string): Promise<ILoginResult> =>
     }
     return { success: false, message: "Lỗi kết nối!" };
   }
-}
+};
