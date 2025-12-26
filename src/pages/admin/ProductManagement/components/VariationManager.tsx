@@ -99,6 +99,7 @@ const VariationManager = ({ visible, product, onClose }: VariationManagerProps) 
                 setSelectedColor(null);
                 await fetchProductVariants();
             } else {
+                console.log(res.success);
                 toast.current?.show({ severity: "error", summary: "Lỗi", detail: res.message || "Không thể thêm!" });
             }
         } catch(error: any) {
@@ -191,7 +192,6 @@ const VariationManager = ({ visible, product, onClose }: VariationManagerProps) 
         <>
             <Dialog header={headerContent} visible={visible} style={{ width: '650px', maxWidth: '95vw' }} onHide={onClose} modal className="p-fluid">
                 <Toast ref={toast} />
-                <ConfirmDialog />
 
                 <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-5 rounded-r flex align-items-start gap-3">
                     <i className="pi pi-info-circle text-blue-500 mt-1"></i>

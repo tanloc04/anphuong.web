@@ -47,7 +47,7 @@ export const createCate = async (data: { name: string; description: string }) =>
   }
 };
 
-export const updateCate = async (id: string, data: { name: string, description: string }) => {
+export const updateCate = async (id: number, data: { name: string, description: string }) => {
   try {
     const response = await axiosClient.put(`${API_BASE_URL}/Category/${id}`, data);
     return { success: true, data: response.data };
@@ -56,7 +56,7 @@ export const updateCate = async (id: string, data: { name: string, description: 
   }
 };
 
-export const deleteCate = async (id: string) => {
+export const deleteCate = async (id: number) => {
   try {
     const response = await axiosClient.delete(`${API_BASE_URL}/Category/${id}`);
     return { success: true, data: response.data };

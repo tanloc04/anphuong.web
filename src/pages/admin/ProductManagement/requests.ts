@@ -63,8 +63,9 @@ export const createColor = async (data: { name: string, hexCode: string }): Prom
   }
 };
 
-export const createVariant = (data: { productId: number, colorId: number }) => {
-  return axiosClient.post(`/Variant/create`, data);
+export const createVariant = async (data: { productId: number, colorId: number }) => {
+  const res = await axiosClient.post('/Variant/create', data);
+  return res.data;
 };
 
 export const searchVariants = (productId: number) => {
@@ -82,6 +83,7 @@ export const searchVariants = (productId: number) => {
   return axiosClient.post('/Variant/search', payload);
 };
 
-export const deleteVariant = (variantId: number) => {
-  return axiosClient.delete(`/Variant/${variantId}`);
+export const deleteVariant = async (variantId: number) => {
+  const res = await axiosClient.delete(`/Variant/${variantId}`);
+  return res.data;
 };
