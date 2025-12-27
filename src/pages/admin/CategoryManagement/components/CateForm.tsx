@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
+import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { classNames } from 'primereact/utils';
-import Modal from '../../Modal';
 import type { ICategory } from '../types';
 
 interface CateFormProps {
@@ -37,15 +37,47 @@ const CateForm = ({ visible, onHide, onSave, initialData, loading }: CateFormPro
         }
     }, [visible, initialData, reset]);
 
+    const handleClose = () => {
+        reset();
+        onHide();
+    }
+
+    const renderFooter = () => {
+        return (
+            <div className="flex justify-end gap-2">
+                <Button 
+                    label="Hủy bỏ" 
+                    icon="pi pi-times" 
+                    onClick={handleClose} 
+                    className="p-button-text text-gray-600" 
+                    disabled={loading}
+                />
+                <Button 
+                    label={initialData ? "Lưu thay đổi" : "Tạo mới"} 
+                    icon="pi pi-check" 
+                    onClick={handleSubmit(onSave)}
+                    loading={loading}
+                    autoFocus
+                />
+            </div>
+        );
+    };
+
     return (
-        <Modal 
-            isOpen={visible} 
-            onClose={onHide} 
-            title={formTitle}
+        <Dialog 
+            header={formTitle} 
+            visible={visible} 
+            style={{ width: '32rem' }}
+            breakpoints={{ '960px': '75vw', '641px': '90vw' }}
+            onHide={handleClose} 
+            footer={renderFooter()}
+            className="p-fluid"
+            modal
+            draggable={false}
         >
-            <form onSubmit={handleSubmit(onSave)} className="flex flex-col gap-6">
-                <div className="flex flex-col gap-2">
-                    <label htmlFor="name" className="font-bold text-gray-700">
+            <form className="flex flex-col gap-5 mt-2">
+                <div className="field">
+                    <label htmlFor="name" className="font-medium text-gray-700 block mb-2">
                         Tên danh mục <span className="text-red-500">*</span>
                     </label>
                     <Controller
@@ -56,15 +88,19 @@ const CateForm = ({ visible, onHide, onSave, initialData, loading }: CateFormPro
                             <InputText 
                                 id={field.name} 
                                 {...field} 
-                                className={classNames({ 'p-invalid': fieldState.invalid }, 'w-full p-3 border rounded-md')} 
-                                placeholder="Nhập tên..."
+                                className={classNames({ 'p-invalid': fieldState.invalid })} 
+                                placeholder="Nhập tên danh mục..."
+                                autoFocus
                             />
                         )}
                     />
-                    {errors.name && <small className="text-red-500 text-sm">{errors.name.message}</small>}
+                    {errors.name && <small className="p-error block mt-1">{errors.name.message}</small>}
                 </div>
-                <div className="flex flex-col gap-2">
-                    <label htmlFor="description" className="font-bold text-gray-700">Mô tả</label>
+
+                <div className="field">
+                    <label htmlFor="description" className="font-medium text-gray-700 block mb-2">
+                        Mô tả
+                    </label>
                     <Controller
                         name="description"
                         control={control}
@@ -72,34 +108,15 @@ const CateForm = ({ visible, onHide, onSave, initialData, loading }: CateFormPro
                             <InputTextarea 
                                 id={field.name} 
                                 {...field} 
-                                rows={4} 
-                                className="w-full p-3 border rounded-md" 
-                                placeholder="Mô tả chi tiết..."
+                                rows={5} 
+                                placeholder="Nhập mô tả ngắn gọn..."
                                 autoResize 
                             />
                         )}
                     />
                 </div>
-
-                <div className="flex justify-end gap-3 mt-4 pt-4 border-t">
-                    <Button 
-                        label="Hủy bỏ" 
-                        icon="pi pi-times" 
-                        type="button"
-                        onClick={onHide} 
-                        className="p-button-text text-gray-600" 
-                    />
-                    <Button 
-                        label={initialData ? "Cập nhật" : "Tạo mới"} 
-                        icon="pi pi-check" 
-                        loading={loading}
-                        type="submit"
-                        className="bg-blue-600 hover:bg-blue-700 border-none px-6"
-                    />
-                </div>
-
             </form>
-        </Modal>
+        </Dialog>
     );
 };
 

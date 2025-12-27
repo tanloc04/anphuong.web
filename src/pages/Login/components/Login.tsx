@@ -33,13 +33,25 @@ const Login = () => {
 
     if (userResult.success && userResult.data) {
       const realUsername = userResult.data.username;
+      const userEmail = userResult.data.email;
+
       localStorage.setItem("username", realUsername);
-      localStorage.setItem("email", userResult.data.email);
+      localStorage.setItem("email", userEmail);
 
       window.dispatchEvent(new Event("auth-change"));
 
       toast.current?.show({ severity: "success", summary: "Thành công", detail: `Chào mừng ${realUsername}!`, life: 3000 });
-      setTimeout(() => navigate('/'), 1000);
+
+      const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+
+      console.log("Email từ API:", userEmail);
+      console.log("Email từ .env:", adminEmail);
+
+      if (userEmail === adminEmail) {
+        setTimeout(() => navigate('/admin'), 1000);
+      } else {
+        setTimeout(() => navigate('/'), 1000);
+      }
     } else {
       toast.current?.show({ severity: "warn", summary: "Cảnh báo", detail: "Đăng nhập thành công nhưng không tải được thông tin!", life: 3000 });
       setTimeout(() => navigate('/'), 1000);
