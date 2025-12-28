@@ -1,13 +1,13 @@
-import { Outlet } from "react-router-dom";
+import Overview from "./Overview/components/Overview";
 
-const AdminLayout = () => {
+const Dashboard = () => {
   return (
-    <div style={{ backgroundColor: 'grey' }}>
-      <div className="flex-1 p-4">
-        <Outlet /> {/* MỌI TRANG CON hiển thị ở đây */}
+    <div className="flex">
+      <div className="main-content w-full">
+        <Overview />
       </div>
     </div>
   );
 };
 
-export default AdminLayout;
+export default Dashboard;

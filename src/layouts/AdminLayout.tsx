@@ -1,13 +1,16 @@
-import Sidebar from "@/pages/admin/Sidebar";
 import { Outlet } from "react-router-dom";
+import Sidebar from "../pages/admin/components/Sidebar";
 
-export default function AdminLayout() {
+const AdminLayout = () => {
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-gray-50">
-      <Sidebar />
-      <main className="flex-1 overflow-auto p-4">
+    <div className="flex h-screen bg-gray-100 dark:bg-zinc-950">
+      <Sidebar />   
+      <main className="flex-1 flex flex-col overflow-y-auto ml-64">
         <Outlet />
       </main>
+      
     </div>
-  );
+  )
 }
+
+export default AdminLayout;
