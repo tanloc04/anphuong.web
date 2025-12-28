@@ -6,6 +6,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import Home from "../pages/Home";
 import Login from "../pages/Login/components/Login";
 import Register from "@/pages/Register/components/Register";
+import AccountConfirmation from "@/pages/Register/components/AccountConfirmation";
 import NotFound from "../pages/NotFound";
 import AboutUs from "../pages/AboutUs";
 import Product from "../pages/Product";
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
       { path: "home", element: <Home /> },
       { path: "account/login", element: <Login /> },
       { path: "account/register", element: <Register /> },
+      { path: "account/confirmation/:id", element: <AccountConfirmation />},
       { path: "pages/about-us", element: <AboutUs /> },
       { path: "pages/product", element: <Product /> },
       { path: "pages/news", element: <News /> }

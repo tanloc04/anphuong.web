@@ -52,6 +52,7 @@ const Register = () => {
 
   const toast = useRef<Toast>(null);
   const [loading, setLoading] = useState(false);
+  const [isRegistered, setIsRegistered] = useState(false);
 
   const { control, handleSubmit, setError, reset, formState: { errors } } = useForm<ICustomerProps>({
     defaultValues: {
@@ -72,10 +73,10 @@ const Register = () => {
 
     if (result.success) {
       toast.current?.show({ severity: "success", summary: "Thành công", detail: "Đăng ký tài khoản hoàn tất!", life: 3000 });
-      reset();
+      setIsRegistered(true);
     } else {
       if (result.errors && result.errors.length > 0) {
-        result.errors.forEach((err) => {
+        result.errors.forEach((err: any) => {
           setError(err.field as keyof ICustomerProps, {
             type: "server",
             message: err.message[0]
@@ -95,6 +96,31 @@ const Register = () => {
   const getFormErrorMessage = (name: keyof ICustomerProps) => {
     return errors[name] ? <small className="p-error text-red-500 text-xs mt-1 block">{errors[name]?.message}</small> : <small className="p-error">&nbsp;</small>;
   };
+
+  if (isRegistered) {
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
+        <div className="w-full max-w-lg bg-white rounded-lg shadow-lg p-8 text-center">
+          <i className="pi pi-envelope text-blue-500 text-6xl mb-4"></i>
+          <h2 className="text-3xl font-bold text-gray-800 mb-4">Kiểm tra Email của bạn</h2>
+          <p className="text-gray-600 mb-6 text-lg">
+            Chúng tôi đã gửi một liên kết xác nhận đến email của bạn. <br />
+            Vui lòng kiểm tra hộp thư đến (và cả mục Spam) để kích hoạt tài khoản.
+          </p>
+          <div className="flex flex-col gap-3">
+            <Link to="/account/login">
+              <Button label="Quay về trang đăng nhập" className="w-full"/>
+            </Link>
+            <Button 
+                label="Gửi lại email (Demo)"
+                className="w-full p-button-outlined p-button-secondary"
+                onClick={() => toast.current?.show({ severity: "info", summary: "Info", detail: "Chức năng gửi lại đang phát triển." })}
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
   
   return(
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
