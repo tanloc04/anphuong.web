@@ -16,3 +16,17 @@ export interface ILoginResult {
   errors?: IApiErrorDetail[],
   message?: string 
 }
+
+export interface IUserProfile {
+  id: number | string,
+  username: string,
+  email: string,
+  fullName: string,
+  phone: string,
+  customerAddress: string,
+  avatar?: string
+}
+
+export interface IUpdateProfileRequest {
+  
+}
