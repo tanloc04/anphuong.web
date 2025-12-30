@@ -8,11 +8,11 @@ export interface ICustomerProps {
   phone: string,
   fullName: string,
   customerAddress: string
-}
+};
 
 export interface IRegisterResponse {
   success: boolean,
   data?: any,
   errors?: IApiErrorDetail[],
   globalError?: string
-}
+};

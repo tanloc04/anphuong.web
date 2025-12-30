@@ -1,5 +1,5 @@
-import axios from 'axios'
-import type { ICustomerProps, IRegisterResponse } from './types'
+import axios from 'axios';
+import type { ICustomerProps, IRegisterResponse } from './types';
 
 const API_BASE = "http://localhost:5273/api/Customer";
 
@@ -26,7 +26,7 @@ export const registerCustomer = async (userData: ICustomerProps): Promise<IRegis
       globalError: "Không thể kết nối với máy chủ. Vui lòng thử lại sau!"
     }
   }
-}
+};
 
 export const confirmAccount = async (id: number | string) : Promise<{ success: boolean, message?: string }> => {
   try {
@@ -41,4 +41,4 @@ export const confirmAccount = async (id: number | string) : Promise<{ success: b
       message: error.response?.data?.message || "Xác thực thất bại. Vui lòng thử lại!"
     }
   }
-}
+};
