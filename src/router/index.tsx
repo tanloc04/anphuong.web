@@ -1,65 +1,68 @@
-import { createBrowserRouter } from "react-router-dom";
-
+import { createBrowserRouter, Outlet } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import AdminLayout from "../layouts/AdminLayout";
-
-import Home from "../pages/Home";
-import Login from "../pages/Login/components/Login";
-import Register from "@/pages/Register/components/Register";
-import AccountConfirmation from "@/pages/Register/components/AccountConfirmation";
-import NotFound from "../pages/NotFound";
-import AboutUs from "../pages/AboutUs";
-import Product from "../pages/Product";
-import News from "../pages/News";
-
-import Dashboard from "../pages/admin/Dashboard";
-import ProductManagement from "@/pages/admin/ProductManagement/components/ProductManagement";
-// import Users from "../pages/admin/UserManagement/page";
+import { AuthProvider } from "@/context/auth.context";
+import Home from "@/pages/components/Home";
+import Login from "@/pages/Auth/components/Login";
+import Register from "@/pages/Auth/components/Register";
+import AccountConfirmation from "@/pages/Auth/components/AccountConfirmation";
+import UserProfile from "@/pages/Auth/components/UserProfile";
+import NotFound from "@/pages/components/NotFound";
+import AboutUs from "@/pages/components/AboutUs";
+import News from "@/pages/components/News";
+import Dashboard from "@/pages/components/Dashboard";
+import ProductManagement from "@/pages/Admin/Product/ProductManagement";
 import AdminRoute from "./AdminRoute";
-import CateManagement from "@/pages/admin/CategoryManagement/components/CateManagement";
-import Overview from "@/pages/admin/Overview/components/Overview";
-import HomeConfiguration from "@/pages/admin/Settings/components/HomeConfiguration";
+import CategoryManagement from "@/pages/Admin/Category/CategoryManagement";
+import Overview from "@/pages/Admin/Overview/components/Overview";
+import HomeConfiguration from "@/pages/Admin/Settings/components/HomeConfiguration";
+
+const AppRoot = () => {
+  return (
+    <AuthProvider>
+      <Outlet />
+    </AuthProvider>
+  );
+};
 
 export const router = createBrowserRouter([
   {
-    path: "/",
-    element: <MainLayout />,
-    children: [
-      { index: true, element: <Home /> },
-      { path: "home", element: <Home /> },
-      { path: "account/login", element: <Login /> },
-      { path: "account/register", element: <Register /> },
-      { path: "account/confirmation/:id", element: <AccountConfirmation />},
-      { path: "pages/about-us", element: <AboutUs /> },
-      { path: "pages/product", element: <Product /> },
-      { path: "pages/news", element: <News /> }
-    ],
-  },
-
-  {
-    element: <AdminRoute />,
+    element: <AppRoot />,
     children: [
       {
-        path: "/admin",
-        element: <AdminLayout />,
+        path: "/",
+        element: <MainLayout />,
         children: [
-          { index: true, element: <Dashboard /> },
-          { path: "overview", element: <Overview /> },
-      
-          { path: "products", element: <ProductManagement /> },
-        
-          // { path: "users", element: <Users /> },
-        
-          { path: "categories", element: <CateManagement /> },
-
-          { path: "settings", element:  <HomeConfiguration />}
-        ]
-      }
-    ],
-  },
-
-  {
-    path: "*",
-    element: <NotFound />,
-  },
+          { index: true, element: <Home /> },
+          { path: "home", element: <Home /> },
+          { path: "account/login", element: <Login /> },
+          { path: "account/register", element: <Register /> },
+          { path: "account/confirmation/:id", element: <AccountConfirmation />},
+          { path: "account/profile", element:  <UserProfile />},
+          { path: "pages/about-us", element: <AboutUs /> },
+          { path: "pages/news", element: <News /> }
+        ],
+      },
+      {
+        element: <AdminRoute />,
+        children: [
+          {
+            path: "/admin",
+            element: <AdminLayout />,
+            children: [
+              { index: true, element: <Dashboard /> },
+              { path: "overview", element: <Overview /> },
+              { path: "products", element: <ProductManagement /> },
+              { path: "categories", element: <CategoryManagement /> },
+              { path: "settings", element:  <HomeConfiguration />}
+            ]
+          }
+        ],
+      },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ]
+  }
 ]);
