@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faShoppingCart,
@@ -10,42 +10,22 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link, useNavigate } from "react-router-dom";
 import SearchBox from "./ui/SearchBox";
+import { useAuth } from "@/context/auth.context";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-
   const navigate = useNavigate();
-  const [user, setUser] = useState<{ username: string } | null>(null);
 
-  const checkLoginStatus = () => {
-    const token = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+  const { user, logout, isAuthenticated } = useAuth();
+  const displayUsername = user?.username || localStorage.getItem('username') || user?.email;
+  const isLoggedIn = isAuthenticated || !!localStorage.getItem('token');
 
-    if (token && username) {
-      setUser({ username });
-    } else {
-      setUser(null);
-    }
-  };
-
-  useEffect(() => {
-    checkLoginStatus();
-    window.addEventListener("auth-change", checkLoginStatus);
-  }, []);
- 
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('username');
-    
-    window.dispatchEvent(new Event("auth-change"));
-
-    navigate('/account/login');
+      logout();
   }
 
   return (
     <header className="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-4 bg-white/50 backdrop-blur-md shadow-sm z-50">
-      {/* Logo */}
       <Link
         to="/home"
         className="text-2xl font-montserrat-extrabold text-gray-900"
@@ -53,7 +33,6 @@ const Header = () => {
         An Phương
       </Link>
 
-      {/* Menu desktop */}
       <nav className="hidden md:block ml-50">
         <ul className="flex space-x-8 font-montserrat-medium">
           <li>
@@ -94,25 +73,21 @@ const Header = () => {
         </ul>
       </nav>
 
-      {/* Right icons */}
       <div className="flex items-center space-x-5">
-        {/* Desktop search */}
         <div className="hidden md:block relative w-72 mb-10">
           <div className="absolute right-0">
             <SearchBox />
           </div>
         </div>
-
-        {/* Mobile search icon */}
         <button
           className="md:hidden text-xl text-gray-800"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
           <FontAwesomeIcon icon={faSearch} />
         </button>
-               
+                
         <div className="flex items-center gap-4">        
-          {user ? (
+          {isLoggedIn ? (
             <div className="flex items-center gap-3">
               <Link 
                 to="/account/profile"
@@ -130,7 +105,7 @@ const Header = () => {
                   </span>
                 </div>
                 <span className="text-xs font-semibold text-gray-700 mt-1 group-hover:text-black">
-                  {user.username}
+                  {displayUsername}
                 </span>
               </Link>
 
@@ -160,7 +135,6 @@ const Header = () => {
             className="text-xl text-gray-800 cursor-pointer hover:text-black transition"
           />
         </Link>
-        {/* Hamburger */}
         <button
           className="md:hidden text-2xl text-gray-800"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -169,7 +143,6 @@ const Header = () => {
         </button>
       </div>
 
-      {/* Mobile menu overlay */}
       {isMenuOpen && (
         <div className="absolute top-full left-0 w-full bg-white shadow-md md:hidden">
           <div className="p-6">
