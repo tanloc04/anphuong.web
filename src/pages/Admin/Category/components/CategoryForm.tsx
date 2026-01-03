@@ -16,6 +16,10 @@ const CategoryForm = ({ visible, onHide, onSave, initialData, loading }: Categor
         defaultValues: { name: '', description: '' }
     });
 
+    const onSubmitHandler = (data: IFormInput) => {
+        onSave(data);
+    }
+
     useEffect(() => {
         if (visible) {
             reset({
@@ -33,8 +37,12 @@ const CategoryForm = ({ visible, onHide, onSave, initialData, loading }: Categor
     const renderFooter = () => {
         return (
             <div className="flex justify-end gap-2">
-                <DeleteButton />
-                <CreateButton label={initialData ? "Tạo mới" : "Cập nhật"}/>
+                <DeleteButton label='Hủy' size='small'/>
+                <CreateButton 
+                    label={initialData ? "Cập nhật" : "Tạo mới"} 
+                    onClick={handleSubmit(onSubmitHandler)}
+                    loading={loading}
+                />
             </div>
         );
     };

@@ -22,8 +22,11 @@ export const authApi = {
         return axiosClient.post('/Auth/password', data);
     },
 
-    getUserProfile: () => {
-        const username = localStorage.getItem('username');
+    getAccountInfo: () => {
+        return axiosClient.get('/Auth'); 
+    },
+
+    getCustomerDetail: (username: string) => {
         return axiosClient.post('/Customer/search', {
             searchCondition: { keyword: username, isDeleted: false },
             pageInfo: { pageNum: 1, pageSize: 1 }
@@ -33,6 +36,4 @@ export const authApi = {
     updateProfile: (id: number, data: IUpdateProfileRequest) => {
         return axiosClient.put(`/Customer/${id}`, data);
     },
-
-
 };

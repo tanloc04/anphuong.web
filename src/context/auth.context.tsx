@@ -20,11 +20,11 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
         isError,
         refetch
     } = useQuery({
-        queryKey: ['user-profile'],
+        queryKey: ['user-account-info'],
         queryFn: async () => {
-            const res = await authApi.getUserProfile();
-            if (res.data?.success && res.data.data?.pageData?.length > 0) {
-                return res.data.data.pageData[0] as IUserProfile;
+            const res = await authApi.getAccountInfo();
+            if (res.data?.success) {
+                return res.data.data as IUserProfile;
             }
             return null;
         },
@@ -38,19 +38,38 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
         toast.current?.show({ severity, summary, detail, life: 3000 });
     }
 
+    const fetchAndSaveUserProfile = async () => {
+        try {
+            const profileRes = await authApi.getAccountInfo();
+            if (profileRes.data?.success) {
+                const userData = profileRes.data.data;
+                
+                if (userData.username) localStorage.setItem('username', userData.username);
+                if (userData.email) localStorage.setItem('email', userData.email);
+
+                return userData;
+            }
+        } catch (error) {
+            console.error("Error fetching profile after login", error);
+        }
+        return null;
+    };
+
     const login = async (credentials: ILoginRequest) => {
         try {
             const response = await authApi.login(credentials);
             if (response.data && response.data.success) {
-                const { token: newToken, refreshToken, username } = response.data.data;
+                const { token: newToken, refreshToken } = response.data.data;
 
                 localStorage.setItem('token', newToken);
                 localStorage.setItem('refreshToken', refreshToken);
-                localStorage.setItem('username', username);
-
                 setToken(newToken);
+
+                const userData = await fetchAndSaveUserProfile();
                 await refetch();
-                showToast('success', 'Đăng nhập thành công', `Chào mừng ${username} quay lại!`);
+
+                const displayName = userData?.username || "User";
+                showToast('success', 'Đăng nhập thành công', `Chào mừng ${displayName} quay lại!`);
                 navigate('/');
             } else {
                 showToast('error', 'Đăng nhập thất bại', response.data.message || 'Vui lòng kiểm tra lại thông tin!');
@@ -63,19 +82,24 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
 
     const loginGoogle = async (idToken: string) => {
         try {
-            const response = await authApi.loginWithGoogle(idToken);
-            if (response.data && response.data.success) {
-                const { token: newToken, refreshToken, username } = response.data.data;
-                localStorage.setItem('token', newToken);
-                localStorage.setItem('refreshToken', refreshToken);
-                localStorage.setItem('username', username);
+            const loginRes = await authApi.loginWithGoogle(idToken);
+            
+            if (loginRes.data?.success) {
+                const { token, refreshToken } = loginRes.data.data;
 
-                setToken(newToken);
+                localStorage.setItem('token', token);
+                localStorage.setItem('refreshToken', refreshToken);
+                setToken(token);
+
+                const userData = await fetchAndSaveUserProfile();
                 await refetch();
-                showToast('success', 'Thành công', 'Đăng nhập Google thành công!');
+                
+                const displayName = userData?.username || userData?.email || "User";
+                showToast('success', 'Thành công', `Xin chào ${displayName}!`);
                 navigate('/');
+
             } else {
-                showToast('error', 'Thất bại', response.data.message || 'Đăng nhập bằng Google thất bại!');
+                showToast('error', 'Thất bại', loginRes.data.message || 'Đăng nhập Google thất bại!');
             }
         } catch (error: any) {
             const msg = error.response?.data?.message || 'Lỗi xác thực Google!';
@@ -120,9 +144,10 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     };
 
     const logout = () => {
+        localStorage.removeItem('email');
         localStorage.clear();
         setToken(null);
-        queryClient.removeQueries({ queryKey: ['user-profile'] });
+        queryClient.removeQueries({ queryKey: ['user-account-info'] });
         queryClient.clear();
 
         showToast('info', 'Đăng xuất', 'Hẹn gặp lại bạn!');

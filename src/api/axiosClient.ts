@@ -9,6 +9,20 @@ const axiosClient = axios.create({
   }
 });
 
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 axiosClient.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -17,33 +31,36 @@ axiosClient.interceptors.request.use(
     }
     return config;
   }, 
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 axiosClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    if (error.response?.status === 401 && !originalRequest.url.includes('/Auth/login')) {
+      if (originalRequest._retry) {
+        return Promise.reject(error);
+      }
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+        .then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
+          return axiosClient(originalRequest);
+        })
+        .catch((err) => Promise.reject(err));
+      }
 
-    if (originalRequest.url.includes('/Auth/login')) {
-      return Promise.reject(error);
-    }
-
-    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
         const refreshToken = localStorage.getItem('refreshToken');
         const token = localStorage.getItem('token');
 
-        if (!refreshToken) {
-          throw new Error("No refresh token available");
-        }
-
+        if (!refreshToken) throw new Error("No refresh token available");
         const result = await axios.post(`${API_BASE_URL}/Auth/refresh-token`, {
           token: token,
           refreshToken: refreshToken
@@ -51,22 +68,27 @@ axiosClient.interceptors.response.use(
 
         if (result.data && result.data.success) {
           const { token: newAccessToken, refreshToken: newRefreshToken } = result.data.data;
-
           localStorage.setItem('token', newAccessToken);
           localStorage.setItem('refreshToken', newRefreshToken);
-
+          axiosClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
+          processQueue(null, newAccessToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
           return axiosClient(originalRequest);
         }
       } catch (refreshError) {
-        console.log("Phiên đăng nhập hết hạn hoặc Refresh Token không hợp lệ!");
+        processQueue(refreshError, null);
+        
+        console.log("Phiên đăng nhập hết hạn!");
         localStorage.clear();
         if (window.location.pathname !== '/account/login') {
           window.location.href = '/account/login';
         }
-        return Promise.reject(refreshError); 
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
   }
 );

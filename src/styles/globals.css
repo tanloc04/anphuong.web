@@ -234,3 +234,15 @@
     @apply bg-background text-foreground;
     }
 }
+
+@layer components {
+    /* 1. Xóa box-shadow mặc định của PrimeReact khi focus */
+    .p-component:focus,
+    .p-component:focus-visible,
+    .p-inputtext:focus,
+    .p-button:focus,
+    .p-dropdown:not(.p-disabled).p-focus {
+        box-shadow: none !important;
+        outline: none !important;
+    }  
+}

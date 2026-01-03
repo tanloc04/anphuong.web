@@ -6,9 +6,10 @@ export const CreateButton = (props: ButtonProps) => {
         <Button 
             icon="pi pi-plus"
             severity="info"
-            tooltip="Thêm"
             aria-label="Thêm mới"
+            outlined
             {...props}
+            
         />
     );
 };

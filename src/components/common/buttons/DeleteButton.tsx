@@ -6,8 +6,8 @@ export const DeleteButton = (props: ButtonProps) => {
         <Button
             severity="danger"
             icon="pi pi-trash"
-            tooltip="Xóa"
             aria-label="Xóa"
+            outlined
             {...props}
         /> 
     );

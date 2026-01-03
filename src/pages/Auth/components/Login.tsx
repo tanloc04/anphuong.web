@@ -25,6 +25,7 @@ const Login = () => {
 
   const handleGoogleSuccess = async (credentialResponse: any) => {
     if (credentialResponse.credential) {
+      console.log(`idToken: ${credentialResponse.credential}`)
       await loginGoogle(credentialResponse.credential);
     }
   };

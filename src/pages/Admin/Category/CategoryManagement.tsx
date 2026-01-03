@@ -77,8 +77,8 @@ const CategoryManagement = () => {
     const actionBodyTemplate = (rowData: ICategory) => {
         return (
             <div className="flex gap-2 justify-center">
-                <EditButton />
-                <DeleteButton />
+                <EditButton icon="pi pi-pencil" onClick={() => openEdit(rowData)}/>
+                <DeleteButton onClick={() => handleDelete(rowData)}/>
             </div>
         );
     };
@@ -109,7 +109,13 @@ const CategoryManagement = () => {
                     />
                 </div>
 
-                <CreateButton />
+                <CreateButton 
+                    label='Thêm mới'
+                    severity='success'
+                    onClick={openNew}
+                    size='small'
+                    raised
+                />
             </div>
 
             <DataTable 

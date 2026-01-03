@@ -6,8 +6,8 @@ export const EditButton = (props: ButtonProps) => {
         <Button 
             severity="success"
             icon="pi pi-cog"
-            tooltip="Cài đặt"
             aria-label="Cài đặt"
+            outlined
             {...props}
         />
     );

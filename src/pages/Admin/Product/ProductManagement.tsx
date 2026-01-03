@@ -79,6 +79,7 @@ const ProductManagement = () => {
         const options = {
             onSuccess: () => {
                 setModalVisible(false);
+                refetch();
             }
         };
 
