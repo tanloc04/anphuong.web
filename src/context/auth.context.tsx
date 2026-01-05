@@ -11,7 +11,6 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const toast = useRef<Toast>(null);
-
     const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
     const {

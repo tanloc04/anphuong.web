@@ -16,6 +16,7 @@ import AdminRoute from "./AdminRoute";
 import CategoryManagement from "@/pages/Admin/Category/CategoryManagement";
 import Overview from "@/pages/Admin/Overview/components/Overview";
 import HomeConfiguration from "@/pages/Admin/Settings/components/HomeConfiguration";
+import UserManagement from "@/pages/Admin/User/UserManagement";
 
 const AppRoot = () => {
   return (
@@ -54,6 +55,7 @@ export const router = createBrowserRouter([
               { path: "overview", element: <Overview /> },
               { path: "products", element: <ProductManagement /> },
               { path: "categories", element: <CategoryManagement /> },
+              { path: "users", element: <UserManagement/> },
               { path: "settings", element:  <HomeConfiguration />}
             ]
           }

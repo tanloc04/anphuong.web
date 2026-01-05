@@ -56,25 +56,40 @@ const UserProfile = () => {
     const toast = useRef<Toast>(null);
     const [loading, setLoading] = useState(false);
 
+    const [customerDetail, setCustomerDetail] = useState<any>(null);
+
     const { control: controlInfo, handleSubmit: handleSubmitInfo, setValue: setValueInfo } = useForm<IUpdateProfileRequest>();
     
     const { control: controlPass, handleSubmit: handleSubmitPass, reset: resetPass, setError: setErrorPass, watch } = useForm<IChangePasswordRequest>();
     const newPassword = watch('newPassword');
 
     useEffect(() => {
-        if (user) {
-            setValueInfo('fullname', user.fullname); 
-            setValueInfo('phone', user.phone);
-            setValueInfo('customerAddress', user.customerAddress);
-        }
+        const fetchCustomerData = async () => {
+            if (user?.username) {
+                try {
+                    const res = await authApi.getCustomerDetail(user.username);
+                    if (res.data?.success && res.data.data?.pageData?.length > 0) {
+                        const detail = res.data.data.pageData[0];
+                        setCustomerDetail(detail);
+                        setValueInfo('fullname', detail.fullname || '');
+                        setValueInfo('phone', detail.phone || '');
+                        setValueInfo('customerAddress', detail.customerAddress || '');
+                    } 
+                } catch (error: any) {
+                    console.error("Lỗi tải thông tin chi tiết:", error);
+                }
+            }
+        };
+        fetchCustomerData();
     }, [user, setValueInfo]);
 
     const onUpdateInfo = async (data: IUpdateProfileRequest) => {
-        if (!user || !user.id) return;
+        const idToUpdate = customerDetail?.id || user?.id;
+        if (!idToUpdate) return;
         
         setLoading(true);
         try {
-            const res = await authApi.updateProfile(user.id, data);
+            const res = await authApi.updateProfile(idToUpdate, data);
             
             if (res.data && res.data.success) {
                 toast.current?.show({ severity: 'success', summary: 'Thành công', detail: 'Cập nhật hồ sơ thành công!' });
@@ -129,7 +144,7 @@ const UserProfile = () => {
                                 shape="circle" 
                                 className="bg-blue-600 text-white text-2xl mb-4"
                             />
-                            <h2 className="text-xl font-bold text-gray-800">{user.fullname}</h2>
+                            <h2 className="text-xl font-bold text-gray-800">{customerDetail?.fullname || user.fullname}</h2>
                             <p className="text-gray-500 mb-2">@{user.username}</p>
                             <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
                                 Thành viên
