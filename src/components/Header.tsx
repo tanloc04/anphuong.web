@@ -84,10 +84,8 @@ const Header = () => {
           </ul>
         </nav>
         <div className="flex items-center space-x-3 lg:space-x-5 shrink-0">
-          <div className="hidden lg:block relative w-48 xl:w-64">
-             <div className="w-full">
-                <SearchBox />
-             </div>
+          <div className="hidden lg:block">
+             <SearchBox />
           </div>
           <button
             className="lg:hidden text-lg text-gray-600 hover:text-black"
