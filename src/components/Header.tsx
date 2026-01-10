@@ -96,7 +96,7 @@ const Header = () => {
           <div className="flex items-center gap-2 lg:gap-3">        
             {isLoggedIn ? (
               <div className="flex items-center gap-2">
-                <Link 
+                <Link
                   to="/account/profile"
                   className="flex flex-col items-center group"
                 >

@@ -1,5 +1,5 @@
 import { Controller } from "react-hook-form";
-import type { Control, FieldValues, Path , RegisterOptions} from "react-hook-form";
+import type { Control, FieldValues, Path, RegisterOptions } from "react-hook-form";
 import { Password } from "primereact/password";
 import type { PasswordProps } from "primereact/password";
 import { classNames } from "primereact/utils";
@@ -8,13 +8,22 @@ interface FormPasswordProps<T extends FieldValues> extends Omit<PasswordProps, '
     control: Control<T>,
     name: Path<T>,
     label?: string,
-    rules?: RegisterOptions<T>
+    rules?: RegisterOptions<T>,
+    labelClassName?: string,
+    inputClassName?: string
 }
 
-export const FormPassword = <T extends FieldValues>({ control, name, label, rules, className, ...props }: FormPasswordProps<T>) => {
+export const FormPassword = <T extends FieldValues>({ control, name, label, rules, className, labelClassName, inputClassName, ...props }: FormPasswordProps<T>) => {
     return (
-        <div className="flex flex-col gap-2">
-            {label && (<label htmlFor={name} className="font-medium text-gray-700">{label}</label>)}
+        <div className="flex flex-col gap-2 w-full">
+            {label && (
+                <label 
+                    htmlFor={name} 
+                    className={classNames("font-medium", labelClassName || "text-gray-700")}
+                >
+                    {label}
+                </label>
+            )}
             <Controller 
                 name={name}
                 control={control}
@@ -25,8 +34,11 @@ export const FormPassword = <T extends FieldValues>({ control, name, label, rule
                             id={name}
                             {...field}
                             {...props}
+                            // style={{ width: '100%' }} là liều thuốc mạnh nhất để ép nó bung full
+                            style={{ width: '100%' }} 
                             className={classNames({ "p-invalid": fieldState.invalid }, className, "w-full")}
-                            inputClassName="w-full p-3"
+                            inputClassName={classNames("w-full", inputClassName)}
+                            inputStyle={{ width: '100%' }} // Ép input bên trong full width
                         />
 
                         {fieldState.error && (
