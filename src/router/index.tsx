@@ -17,6 +17,7 @@ import CategoryManagement from "@/pages/Admin/Category/CategoryManagement";
 import Overview from "@/pages/Admin/Overview/components/Overview";
 import HomeConfiguration from "@/pages/Admin/Settings/components/HomeConfiguration";
 import UserManagement from "@/pages/Admin/User/UserManagement";
+import OrderManagement from "@/pages/Admin/Orders/OrderManagement";
 
 const AppRoot = () => {
   return (
@@ -56,6 +57,7 @@ export const router = createBrowserRouter([
               { path: "products", element: <ProductManagement /> },
               { path: "categories", element: <CategoryManagement /> },
               { path: "users", element: <UserManagement/> },
+              { path: "orders", element: <OrderManagement /> },
               { path: "settings", element:  <HomeConfiguration />}
             ]
           }
