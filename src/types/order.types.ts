@@ -39,3 +39,11 @@ export interface OrderFormSubmitData {
   totalPrice: number;
   orderItems: { productId: number; quantity: number; price: number }[];
 }
+
+export type OrderFilters = {
+    keyword: string;
+    status: string[];
+    paymentMethod: string | null;
+    createdDateRange: Date[] | null;   // ⬅ ngày tạo
+    shippingDateRange: Date[] | null;  // ⬅ ngày giao
+};
