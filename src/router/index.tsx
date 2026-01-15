@@ -16,8 +16,7 @@ import AdminRoute from "./AdminRoute";
 import CategoryManagement from "@/pages/Admin/Category/CategoryManagement";
 import Overview from "@/pages/Admin/Overview/components/Overview";
 import HomeConfiguration from "@/pages/Admin/Settings/components/HomeConfiguration";
-import ProductPage from "@/pages/Client/Product";
-import ProductDetail from "@/pages/Client/Product/ProductDetail";
+import UserManagement from "@/pages/Admin/User/UserManagement";
 
 const AppRoot = () => {
   return (
@@ -37,8 +36,6 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Home /> },
           { path: "home", element: <Home /> },
-          { path: "pages/products", element: <ProductPage /> },       // Trang danh sách
-          { path: "pages/products/:id", element: <ProductDetail /> },
           { path: "account/login", element: <Login /> },
           { path: "account/register", element: <Register /> },
           { path: "account/confirmation/:id", element: <AccountConfirmation />},
@@ -58,6 +55,7 @@ export const router = createBrowserRouter([
               { path: "overview", element: <Overview /> },
               { path: "products", element: <ProductManagement /> },
               { path: "categories", element: <CategoryManagement /> },
+              { path: "users", element: <UserManagement/> },
               { path: "settings", element:  <HomeConfiguration />}
             ]
           }

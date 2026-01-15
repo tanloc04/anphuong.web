@@ -8,13 +8,21 @@ interface Props<T extends FieldValues> extends InputTextProps {
     name: Path<T>,
     control: Control<T>,
     label?: string,
-    rules?: any
+    rules?: any,
+    labelClassName?: string
 }
 
-export const FormInput = <T extends FieldValues>({ name, control, label, rules, className, ...props }: Props<T>) => {
+export const FormInput = <T extends FieldValues>({ name, control, label, rules, className, labelClassName, ...props }: Props<T>) => {
     return (
-        <div className="flex flex-col gap-2">
-            {label && <label htmlFor={name} className="font-medium text-gray-700">{label}</label>}
+        <div className="flex flex-col gap-2 w-full">
+            {label && (
+                <label 
+                    htmlFor={name} 
+                    className={classNames("font-medium", labelClassName || "text-gray-700")}
+                >
+                    {label}
+                </label>
+            )}
             <Controller 
                 name={name}
                 control={control}
@@ -25,9 +33,9 @@ export const FormInput = <T extends FieldValues>({ name, control, label, rules, 
                             id={name}
                             {...field}
                             {...props}
-                            className={classNames({ "p-invalid": fieldState.invalid }, className)}
+                            className={classNames({ "p-invalid": fieldState.invalid }, className, "w-full")}
                         />
-                        {fieldState.error && <small className="p-error">{fieldState.error.message}</small>}
+                        {fieldState.error && <small className="p-error text-red-500 text-xs">{fieldState.error.message}</small>}
                     </>
                 )}
             />
