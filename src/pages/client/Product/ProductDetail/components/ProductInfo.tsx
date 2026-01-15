@@ -102,7 +102,6 @@ const ProductInfo: React.FC<ProductInfoProps> = ({ product }) => {
                 <h3 className="font-bold text-gray-900 mb-3 text-lg border-b pb-2">Mô tả sản phẩm</h3>
                 <div 
                     className="text-gray-600 leading-relaxed space-y-2"
-                    dangerouslySetInnerHTML={{ __html: product.description }} // Nếu mô tả là HTML
                 />
             </div>
         </div>

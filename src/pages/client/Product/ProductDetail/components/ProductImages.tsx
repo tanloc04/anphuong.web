@@ -1,5 +1,6 @@
 // src/pages/Client/Product/ProductDetail/components/ProductImages.tsx
 import React, { useState, useEffect } from 'react';
+import { getCloudinaryImage } from '@/utils/imageUtils'; 
 import type { IProduct } from '@/types/product.types';
 
 interface ProductImagesProps {
@@ -17,7 +18,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ product }) => {
             product.image2,
             product.image3,
             product.image4
-        ].filter(img => img); 
+        ].filter(img => img); // Lọc bỏ null
 
         setImages(imgs);
         if (imgs.length > 0) setSelectedImage(imgs[0]);
@@ -25,10 +26,10 @@ const ProductImages: React.FC<ProductImagesProps> = ({ product }) => {
 
     return (
         <div className="flex flex-col gap-4">
-            {/* Ảnh lớn hiển thị chính */}
+            {/* Ảnh lớn chính: Lấy chất lượng cao, kích thước khoảng 800px */}
             <div className="w-full aspect-square bg-gray-50 rounded-xl overflow-hidden border border-gray-100 relative">
                 <img 
-                    src={selectedImage || '/placeholder.png'} 
+                    src={getCloudinaryImage(selectedImage, 800, 800)} 
                     alt="Product Detail" 
                     className="w-full h-full object-cover animate-fade-in"
                 />
@@ -39,7 +40,7 @@ const ProductImages: React.FC<ProductImagesProps> = ({ product }) => {
                 )}
             </div>
 
-            {/* List ảnh nhỏ (Thumbnails) */}
+            {/* List ảnh nhỏ: Chỉ cần lấy size nhỏ 100x100 để nhẹ web */}
             <div className="grid grid-cols-5 gap-2">
                 {images.map((img, index) => (
                     <div 
@@ -50,7 +51,12 @@ const ProductImages: React.FC<ProductImagesProps> = ({ product }) => {
                             ${selectedImage === img ? 'border-gray-800 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}
                         `}
                     >
-                        <img src={img} alt={`thumb-${index}`} className="w-full h-full object-cover" />
+                        {/* Ảnh thumbnail tối ưu */}
+                        <img 
+                            src={getCloudinaryImage(img, 150, 150)} 
+                            alt={`thumb-${index}`} 
+                            className="w-full h-full object-cover" 
+                        />
                     </div>
                 ))}
             </div>

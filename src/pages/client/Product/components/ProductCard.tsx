@@ -1,9 +1,10 @@
+// src/pages/Client/Product/components/ProductCard.tsx
 import { Link } from 'react-router-dom';
 import { Button } from 'primereact/button';
+import { getCloudinaryImage } from '@/utils/imageUtils'; 
 import type { IProduct } from '@/types/product.types';
 
 const ProductCard = ({ product }: { product: IProduct }) => {
-    // Format giá tiền VND
     const formatCurrency = (value: number) => {
         return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
     };
@@ -14,13 +15,17 @@ const ProductCard = ({ product }: { product: IProduct }) => {
 
     const detailPath = `/pages/products/${product.id}`;
 
+    // --- SỬ DỤNG HÀM TỐI ƯU ẢNH ---
+    // Card thường nhỏ nên chỉ cần ảnh rộng khoảng 400px là đủ nét
+    const imageUrl = getCloudinaryImage(product.thumbnail, 400, 300);
+
     return (
         <div className="bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full group">
-            {/* Ảnh sản phẩm */}
             <div className="relative aspect-[4/3] overflow-hidden bg-gray-50">
                 <img 
-                    src={product.thumbnail || '/placeholder.png'} 
+                    src={imageUrl} 
                     alt={product.name}
+                    loading="lazy" // Tải chậm để tăng tốc trang
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {product.discount > 0 && (
@@ -29,8 +34,8 @@ const ProductCard = ({ product }: { product: IProduct }) => {
                     </span>
                 )}
             </div>
-
-            {/* Nội dung */}
+            
+            {/* ... Phần nội dung giữ nguyên ... */}
             <div className="p-4 flex flex-col flex-1">
                 <Link to={detailPath} className="block">
                     <h3 className="text-gray-800 font-semibold text-lg mb-1 line-clamp-2 hover:text-orange-600 transition-colors min-h-[3.5rem]">
@@ -38,7 +43,6 @@ const ProductCard = ({ product }: { product: IProduct }) => {
                     </h3>
                 </Link>
 
-                {/* Giá tiền */}
                 <div className="mb-4">
                     <span className="text-xl font-bold text-gray-900 block">
                         {formatCurrency(finalPrice)}
@@ -50,7 +54,6 @@ const ProductCard = ({ product }: { product: IProduct }) => {
                     )}
                 </div>
 
-                {/* Nút Xem chi tiết */}
                 <div className="mt-auto">
                     <Link to={detailPath}>
                         <Button 
