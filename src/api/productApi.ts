@@ -1,4 +1,4 @@
-import type { IProductRequest, IProductSearchRequest } from "@/types/product.types";
+import type { IClientProductSearchRequest, IProductRequest, IProductSearchRequest } from "@/types/product.types";
 import axiosClient from "./axiosClient";
 
 export const productApi = {
@@ -20,5 +20,9 @@ export const productApi = {
 
     delete: (id: number) => {
         return axiosClient.delete(`/Product/${id}`);
-    }
+    },
+
+    searchClient: (data: IClientProductSearchRequest) => {
+        return axiosClient.post('/Product/search', data);
+    },
 };

@@ -83,3 +83,21 @@ export interface IProductRequest {
     image3: string | File | null;
     image4: string | null | File;
 }
+
+export interface IClientProductSearchCondition {
+    keyword: string;
+    status: string;
+    isDeleted: boolean;
+    categoryIds?: number[];
+    minPrice?: number;
+    maxPrice?: number; 
+    sortBy?: string; // 'price_asc', 'price_desc', 'newest'
+}
+
+export interface IClientProductSearchRequest {
+    searchCondition: IClientProductSearchCondition;
+    pageInfo: {
+        pageNum: number;
+        pageSize: number;
+    };
+}
