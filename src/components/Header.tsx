@@ -37,7 +37,7 @@ const Header = () => {
         <ul className="flex space-x-8 font-montserrat-medium">
           <li>
             <Link
-              to="/pages/product"
+              to="/pages/products"
               className="text-gray-600 hover:text-gray-900 transition"
             >
               Sản phẩm

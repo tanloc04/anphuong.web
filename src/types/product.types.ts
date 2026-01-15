@@ -88,16 +88,17 @@ export interface IClientProductSearchCondition {
     keyword: string;
     status: string;
     isDeleted: boolean;
-    categoryIds?: number[];
+    categoryIds?: number[]; 
     minPrice?: number;
-    maxPrice?: number; 
-    sortBy?: string; // 'price_asc', 'price_desc', 'newest'
+    maxPrice?: number;
+    sortBy?: string; 
 }
 
 export interface IClientProductSearchRequest {
-    searchCondition: IClientProductSearchCondition;
-    pageInfo: {
-        pageNum: number;
-        pageSize: number;
-    };
+    searchCondition: {
+        keyword: string;
+        status: string;
+        isDeleted: boolean;
+    }; 
+    pageInfo: IPageInfo;
 }
