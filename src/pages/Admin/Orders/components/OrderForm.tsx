@@ -8,7 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { classNames } from 'primereact/utils';
-import type { IOrderFormProps, OrderFormSubmitData } from '@/types/order.types';
+import type { IOrderFormProps, OrderFormData, OrderFormSubmitData, OrderItemForm } from '@/types/order.types';
 
 /* ===== MOCK DATA ===== */
 const customers = [
@@ -37,20 +37,7 @@ const paymentOptions = [
   { label: 'Bank Transfer', value: 'Bank Transfer' },
 ];
 
-/* ===== TYPES ===== */
-interface OrderItemForm {
-  productId: number | null;
-  quantity: number;
-  price: number;
-}
 
-interface OrderFormData {
-  customerId: number | null;
-  paymentMethod: string;
-  status: string;
-  shippingDate: Date | null;
-  totalPrice: number;
-}
 
 /* ===== COMPONENT ===== */
 const OrderForm = ({
