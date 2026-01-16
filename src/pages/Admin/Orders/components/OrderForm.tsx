@@ -37,8 +37,6 @@ const paymentOptions = [
   { label: 'Bank Transfer', value: 'Bank Transfer' },
 ];
 
-
-
 /* ===== COMPONENT ===== */
 const OrderForm = ({
   visible,

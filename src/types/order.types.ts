@@ -9,6 +9,21 @@ export interface OrderItem {
   subtotal: number;
 }
 
+/* ===== TYPES ===== */
+export interface OrderItemForm {
+  productId: number | null;
+  quantity: number;
+  price: number;
+}
+
+export interface OrderFormData {
+  customerId: number | null;
+  paymentMethod: string;
+  status: string;
+  shippingDate: Date | null;
+  totalPrice: number;
+}
+
 export interface Order {
   id: number;
   customerId: number;
