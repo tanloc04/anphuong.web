@@ -6,19 +6,17 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Image } from 'primereact/image';
 import { Dialog } from 'primereact/dialog';
-import { InputText } from 'primereact/inputtext';
 import { Tag } from 'primereact/tag';
 import { useProducts, useProductMutations } from './hooks'; 
 import ProductForm from './components/ProductForm';
 import VariationManager from './components/VariationManager';
+import ManagementLayout from '@/components/common/layout/ManagementLayout';
 
 const ProductManagement = () => {
     const [lazyParams, setLazyParams] = useState({ first: 0, rows: 10, page: 0 });
     const [keyword, setKeyword] = useState("");
-    
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
-
     const [variationModalVisible, setVariationModalVisible] = useState(false);
     const [selectedProductForVariant, setSelectedProductForVariant] = useState<any>(null);
 
@@ -29,25 +27,22 @@ const ProductManagement = () => {
         isLoading, 
         isFetching, 
         refetch 
-    } = useProducts(
-        {
-            searchCondition: {
-                keyword: keyword,
-                status: "",
-                isDeleted: false
-            },
-            pageInfo: {
-                pageNum: lazyParams.page + 1,
-                pageSize: lazyParams.rows
-            }
+    } = useProducts({
+        searchCondition: {
+            keyword: keyword,
+            status: "",
+            isDeleted: false
+        },
+        pageInfo: {
+            pageNum: lazyParams.page + 1,
+            pageSize: lazyParams.rows
         }
-    );
+    });
 
     const products = apiResponse?.pageData || [];
     const totalRecords = apiResponse?.pageInfo?.totalItems || 0;
 
     const { create, update, remove, isPending: isMutating } = useProductMutations(toast);
-
     const openNew = () => {
         setSelectedProductId(null);
         setModalVisible(true);
@@ -82,7 +77,6 @@ const ProductManagement = () => {
                 refetch();
             }
         };
-
         if (selectedProductId) {
             update({ id: selectedProductId, data: formData }, options);
         } else {
@@ -148,39 +142,23 @@ const ProductManagement = () => {
         );
     };
 
-    const renderHeader = () => {
-        return (
-            <div className="flex flex-wrap gap-2 align-items-center justify-content-between">
-                <h4 className="m-0 text-xl font-bold text-gray-800">Quản lý Sản Phẩm</h4>
-                <div className="flex gap-3">
-                    <span className="relative flex items-center">
-                        <i className="pi pi-search absolute left-3 text-gray-500 z-10" />
-                        <InputText 
-                            type="search" 
-                            value={keyword}
-                            onChange={(e) => {
-                                setKeyword(e.target.value);
-                                setLazyParams(prev => ({ ...prev, first: 0, page: 0 }));
-                            }} 
-                            placeholder="Tìm kiếm..." 
-                            className="p-inputtext-sm !pl-10 w-64"
-                        />
-                    </span>
-                    <Button label="Thêm mới" icon="pi pi-plus" severity="success" onClick={openNew} size="small" raised />
-                </div>
-            </div>
-        );
-    };
-
     return (
-        <div className="card bg-white p-4 rounded-lg shadow-sm">
+        <ManagementLayout
+            title="Quản lý Sản Phẩm"
+            searchTerm={keyword}
+            onSearchChange={(val: any) => {
+                setKeyword(val);
+                setLazyParams(prev => ({ ...prev, first: 0, page: 0 }));
+            }}
+            onCreate={openNew}
+            createButtonLabel="Thêm sản phẩm"
+        >
             <Toast ref={toast} />
             <ConfirmDialog />
             <DataTable 
                 value={products} 
                 lazy 
                 paginator 
-                header={renderHeader()}
                 first={lazyParams.first} 
                 rows={lazyParams.rows} 
                 totalRecords={totalRecords}
@@ -205,6 +183,7 @@ const ProductManagement = () => {
                 <Column field="material" header="Chất liệu" style={{ width: '10%' }} className="text-gray-600 text-sm" />
                 <Column header="Thao tác" body={actionBodyTemplate} style={{ width: '140px' }} className="text-center"/>
             </DataTable>
+
             <Dialog 
                 visible={modalVisible} 
                 style={{ width: '90vw', maxWidth: '1200px' }}
@@ -230,7 +209,7 @@ const ProductManagement = () => {
                 product={selectedProductForVariant}
                 onClose={() => setVariationModalVisible(false)}
             />
-        </div>
+        </ManagementLayout>
     );
 };
 

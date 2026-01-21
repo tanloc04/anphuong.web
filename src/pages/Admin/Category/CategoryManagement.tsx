@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { CreateButton, EditButton, DeleteButton } from '@/components/common/buttons';
-import { InputText } from 'primereact/inputtext';
+import { EditButton, DeleteButton } from '@/components/common/buttons';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
-import { useRef } from 'react';
 import { useCategories, useCategoryMutations } from './hooks'; 
 import CateForm from './components/CategoryForm';
 import type { ICategory } from '@/types/category.types';
+import ManagementLayout from '@/components/common/layout/ManagementLayout';
 
 const CategoryManagement = () => {
     const toast = useRef<Toast>(null);
@@ -21,7 +20,7 @@ const CategoryManagement = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedCate, setSelectedCate] = useState<ICategory | null>(null);
 
-    const { data: queryData, isLoading } = useCategories({
+    const { data: queryData, isLoading, refetch } = useCategories({
         searchCondition: { keyword, isDeleted: false, status: "" },
         pageInfo: { 
             pageNum: (lazyParams.first / lazyParams.rows) + 1, 
@@ -33,7 +32,6 @@ const CategoryManagement = () => {
 
     const categories = queryData?.pageData || [];
     const totalRecords = queryData?.pageInfo?.totalItems || 0;
-
     const onPage = (event: any) => {
         setLazyParams(event);
     };
@@ -52,6 +50,7 @@ const CategoryManagement = () => {
         const options = {
             onSuccess: () => {
                 setModalVisible(false);
+                refetch(); 
             }
         };
 
@@ -86,37 +85,18 @@ const CategoryManagement = () => {
     const indexBodyTemplate = (_: any, options: any) => options.rowIndex + 1;
 
     return (
-        <div className="p-4 bg-white rounded-lg shadow-sm">
+        <ManagementLayout
+            title="Quản lý Danh mục"
+            searchTerm={keyword}
+            onSearchChange={(val: any) => {
+                setKeyword(val);
+                setLazyParams(prev => ({ ...prev, first: 0 }));
+            }}
+            onCreate={openNew}
+            createButtonLabel="Thêm mới"
+        >
             <Toast ref={toast} />
             <ConfirmDialog />
-            <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-xl font-bold text-gray-800 m-0 mr-2">
-                    Quản lý Danh mục
-                </h2>
-
-                <div className="relative">
-                    <i className="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 z-10" />
-                    <InputText
-                        type='search'
-                        placeholder="Tìm kiếm..." 
-                        value={keyword}
-                        onChange={(e) => {
-                            setKeyword(e.target.value);
-                            setLazyParams(prev => ({ ...prev, first: 0 }));
-                        }} 
-                        className="p-inputtext-sm !pl-10 w-64"
-                        style={{ paddingLeft: '2.5rem' }}
-                    />
-                </div>
-
-                <CreateButton 
-                    label='Thêm mới'
-                    severity='success'
-                    onClick={openNew}
-                    size='small'
-                    raised
-                />
-            </div>
 
             <DataTable 
                 value={categories} 
@@ -134,6 +114,8 @@ const CategoryManagement = () => {
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 currentPageReportTemplate="Hiển thị {first} đến {last} trong tổng số {totalRecords} danh mục"
                 rowsPerPageOptions={[5, 10, 25]}
+                className="p-datatable-sm"
+                stripedRows
             >
                 <Column header="STT" body={indexBodyTemplate} alignHeader={'center'} align="center" style={{ width: '5%' }} />
                 <Column field="name" header="Tên danh mục" sortable style={{ width: '30%' }} />
@@ -148,7 +130,7 @@ const CategoryManagement = () => {
                 initialData={selectedCate}
                 loading={isPending}
             />
-        </div>
+        </ManagementLayout>
     );
 };
 
