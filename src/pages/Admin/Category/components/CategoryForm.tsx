@@ -37,7 +37,7 @@ const CategoryForm = ({ visible, onHide, onSave, initialData, loading }: Categor
     const renderFooter = () => {
         return (
             <div className="flex justify-end gap-2">
-                <DeleteButton label='Hủy' size='small'/>
+                <DeleteButton label='Hủy' size='small' onClick={handleClose}/>
                 <CreateButton 
                     label={initialData ? "Cập nhật" : "Tạo mới"} 
                     onClick={handleSubmit(onSubmitHandler)}
