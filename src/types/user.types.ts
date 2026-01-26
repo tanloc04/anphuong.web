@@ -6,20 +6,24 @@ export interface IUserFormProps {
     loading?: boolean;
 }
 
-export interface IUpdateUserRequest {
-    status: string
-}
-
-export interface ISearchCondition {
-    keyword: string,
-    status: string,
-    isDeleted: boolean
+export interface ISearchUserCondition {
+    keyword: string;
+    status: string;
+    isDeleted: boolean;
 }
 
 export interface ISearchUserRequest {
-    searchCondition: ISearchCondition,
+    searchCondition: ISearchUserCondition;
     pageInfo: {
-        pageNum: number,
-        pageSize: number
-    }
+        pageNum: number;
+        pageSize: number;
+    };
+}
+
+export interface IUpdateUserRequest {
+    username?: string;
+    email?: string;
+    fullname?: string;
+    phone?: string;
+    status?: string;
 }

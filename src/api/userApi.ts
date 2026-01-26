@@ -2,19 +2,19 @@ import type { IUpdateUserRequest, ISearchUserRequest } from "@/types/user.types"
 import axiosClient from "./axiosClient";
 
 export const userApi = {
-    search : (data: ISearchUserRequest) => {
-        return axiosClient.post('/User/search', data);
+    search: (data: ISearchUserRequest): Promise<any> => {
+        return axiosClient.post('/Customer/search', data);
     },
 
-    getById : (id: number) => {
-        return axiosClient.get(`/User/${id}`);
-    },
-    
-    update : (id: number, data: IUpdateUserRequest) => {
-        return axiosClient.put(`/User/${id}`, data);
+    getById: (id: number): Promise<any> => {
+        return axiosClient.get(`/Customer/${id}`);
     },
 
-    delete : (id: number) => {
-        return axiosClient.delete(`/User/${id}`);
+    update: (id: number, data: IUpdateUserRequest): Promise<any> => {
+        return axiosClient.put(`/Customer/${id}`, data);
+    },
+
+    delete: (id: number): Promise<any> => {
+        return axiosClient.delete(`/Customer/${id}`);
     }
 };
