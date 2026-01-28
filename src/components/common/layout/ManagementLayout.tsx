@@ -25,6 +25,7 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({
                             onChange={(e) => onSearchChange(e.target.value)}
                             placeholder='Tìm kiếm...'
                             containerClassName='w-full sm:w-64'
+                            className='!pl-10 focus:!border-purple-500 focus:!ring-purple-200 hover:!border-purple-300'
                         />
                     </div>
                 )}
@@ -33,7 +34,7 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({
                     <CreateButton 
                         label={createButtonLabel}
                         icon={<FontAwesomeIcon icon={faPlus} className='mr-2'/>}
-                        className='bg-green-500 border-green-500 hover:bg-green-600 focus:shadow-none font-medium px-4 py-2 text-sm'
+                        className='!bg-purple-600 !border-purple-600 hover:!bg-purple-700 focus:!ring-purple-200 transition-all shadow-sm !text-white'
                         onClick={onCreate}
                     />
                 )}

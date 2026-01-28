@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { Button } from 'primereact/button';
+import { EditButton } from '@/components/common/buttons';
 import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Tag } from 'primereact/tag';
@@ -84,7 +84,7 @@ const UserManagement = () => {
 
     const actionBodyTemplate = (rowData: any) => (
         <div className="flex gap-2 justify-center">
-            <Button icon="pi pi-user-edit" rounded text severity="info" onClick={() => openEdit(rowData)} />
+            <EditButton icon="pi pi-user-edit" onClick={() => openEdit(rowData)}/>
         </div>
     );
 
@@ -112,7 +112,7 @@ const UserManagement = () => {
                 <Column field="phone" header="SĐT" style={{ width: '15%' }} />
                 <Column header="Vai trò" body={roleBodyTemplate} style={{ width: '10%' }} className="text-center" />
                 <Column field="status" header="Trạng thái" body={statusBodyTemplate} style={{ width: '15%' }} className="text-center" />
-                <Column header="Thao tác" body={actionBodyTemplate} style={{ width: '100px' }} className="text-center"/>
+                <Column header="Thao tác" body={actionBodyTemplate} style={{ width: '100px' }} className="text-center" alignHeader="center" align="center"/>
             </DataTable>
 
             <UserForm 

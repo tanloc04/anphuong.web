@@ -93,7 +93,7 @@ const CategoryManagement = () => {
                 setLazyParams(prev => ({ ...prev, first: 0 }));
             }}
             onCreate={openNew}
-            createButtonLabel="Thêm mới"
+            createButtonLabel="Thêm danh mục"
         >
             <Toast ref={toast} />
             <ConfirmDialog />

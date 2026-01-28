@@ -1,270 +1,146 @@
 import React, { useEffect } from 'react';
-import { useForm, Controller } from 'react-hook-form';
 import { Dialog } from 'primereact/dialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { Password } from 'primereact/password';
 import { Dropdown } from 'primereact/dropdown';
-import { TabView, TabPanel } from 'primereact/tabview';
+import { useForm, Controller } from 'react-hook-form';
 import { classNames } from 'primereact/utils';
-import type { IUserFormProps } from '@/types/user.types';
 
+interface UserFormProps {
+    visible: boolean;
+    onHide: () => void;
+    onSave: (data: any) => void;
+    initialData?: any | null;
+    loading?: boolean;
+}
 
-const roles = [
-    { label: 'Quản trị viên (Admin)', value: 'Admin' },
-    { label: 'Khách hàng (Customer)', value: 'Customer' }
-];
-
-const provinces = [
-  {label: "Tuyên Quang", value: "Tuyên Quang"},
-  {label: "Cao Bằng", value: "Cao Bằng"},
-  {label: "Lai Châu", value: "Lai Châu"},
-  {label: "Lào Cai", value: "Lào Cai"},
-  {label: "Thái Nguyên", value: "Thái Nguyên"},
-  {label: "Điện Biên", value: "Điện Biên"},
-  {label: "Lạng Sơn", value: "Lạng Sơn"},
-  {label: "Sơn La", value: "Sơn La"},
-  {label: "Phú Thọ", value: "Phú Thọ"},
-  {label: "Bắc Ninh", value: "Bắc Ninh"},
-  {label: "Quảng Ninh", value: "Quảng Ninh"},
-  {label: "TP. Hà Nội", value: "TP. Hà Nội"},
-  {label: "TP. Hải Phòng", value: "TP. Hải Phòng"},
-  {label: "Hưng Yên", value: "Hưng Yên"},
-  {label: "Ninh Bình", value: "Ninh Bình"},
-  {label: "Thanh Hóa", value: "Thanh Hóa"},
-  {label: "Nghệ An", value: "Nghệ An"},
-  {label: "Hà Tĩnh", value: "Hà Tĩnh"},
-  {label: "Quảng Trị", value: "Quảng Trị"},
-  {label: "TP. Huế", value: "TP. Huế"},
-  {label: "TP. Đà Nẵng", value: "TP. Đà Nẵng"},
-  {label: "Quảng Ngãi", value: "Quảng Ngãi"},
-  {label: "Gia Lai", value: "Gia Lai"},
-  {label: "Đắk Lắk", value: "Đắk Lắk"},
-  {label: "Khánh Hoà", value: "Khánh Hoà"},
-  {label: "Lâm Đồng", value: "Lâm Đồng"},
-  {label: "Đồng Nai", value: "Đồng Nai"},
-  {label: "Tây Ninh", value: "Tây Ninh"},
-  {label: "TP. Hồ Chí Minh", value: "TP. Hồ Chí Minh"},
-  {label: "Đồng Tháp", value: "Đồng Tháp"},
-  {label: "An Giang", value: "An Giang"},
-  {label: "Vĩnh Long", value: "Vĩnh Long"},
-  {label: "TP. Cần Thơ", value: "TP. Cần Thơ"},
-  {label: "Cà Mau", value: "Cà Mau"},
-];
-
-const UserForm = ({ visible, onHide, onSave, initialData, loading }: IUserFormProps) => {
-    
-    const isEditMode = !!initialData;
-    const headerTitle = isEditMode ? "Cập nhật thông tin người dùng" : "Thêm mới người dùng";
-
-    const { control, handleSubmit, reset, setValue, formState: { errors } } = useForm({
-        defaultValues: {
-            username: '',
-            email: '',
-            password: '',
-            role: 'Customer',
-            fullname: '',
-            phone: '',
-            address: ''
-        }
-    });
-
-    useEffect(() => {
-        if (visible) {
-            if (initialData) {
-                setValue('username', initialData.username);
-                setValue('email', initialData.email);
-                setValue('role', initialData.role || 'Customer');
-                setValue('fullname', initialData.fullname || '');
-                setValue('phone', initialData.phone || '');
-                setValue('address', initialData.address || '');
-            } else {
-                reset({
-                    username: '',
-                    email: '',
-                    password: '',
-                    role: 'Customer',
-                    fullname: '',
-                    phone: '',
-                    address: ''
-                });
-            }
-        }
-    }, [visible, initialData, reset, setValue]);
-
-    const handleClose = () => {
-        reset();
-        onHide();
+const UserForm = ({ visible, onHide, onSave, initialData, loading }: UserFormProps) => {
+    const defaultValues = {
+        username: '',
+        email: '',
+        fullname: '',
+        phone: '',
+        status: 'ACTIVE'
     };
 
-    const onSubmitHandler = (data: any) => {
+    const { control, handleSubmit, reset, formState: { errors }, setValue } = useForm({ defaultValues });
+
+    useEffect(() => {
+        if (initialData) {
+            reset({
+                username: initialData.username || '',
+                email: initialData.email || '',
+                fullname: initialData.fullname || '',
+                phone: initialData.phone || '',
+                status: initialData.status || 'ACTIVE'
+            });
+        } else {
+            reset(defaultValues);
+        }
+    }, [initialData, reset, visible]);
+
+    const onSubmit = (data: any) => {
         onSave(data);
     };
 
+    const statusOptions = [
+        { label: 'Hoạt động (Active)', value: 'ACTIVE' },
+        { label: 'Đã khóa (Deactive)', value: 'DEACTIVE' }
+    ];
+
     const renderFooter = () => {
         return (
-            <div className="flex justify-end gap-2 mt-4">
-                <Button label="Hủy" icon="pi pi-times" text onClick={handleClose} className="p-button-secondary" />
+            <div className="flex gap-3 justify-end pt-6 border-t border-gray-50">
                 <Button 
-                    label={isEditMode ? "Cập nhật" : "Tạo mới"} 
+                    label="Hủy bỏ" 
+                    icon="pi pi-times" 
+                    text 
+                    onClick={onHide} 
+                    className="!text-gray-500 hover:!bg-gray-100 hover:!text-gray-800 transition-all"
+                />
+                <Button 
+                    label="Lưu thay đổi" 
                     icon="pi pi-check" 
-                    onClick={handleSubmit(onSubmitHandler)} 
                     loading={loading} 
-                    autoFocus 
+                    onClick={handleSubmit(onSubmit)} 
+                    className="!bg-purple-600 !border-purple-600 hover:!bg-purple-700 focus:!ring-purple-200 transition-all shadow-sm"
                 />
             </div>
         );
     };
 
+    const renderField = (name: string, label: string, icon: string, disabled = false) => (
+        <div className="flex flex-col gap-2">
+            <label htmlFor={name} className="font-medium text-gray-700 text-sm ml-1">
+                {label} {disabled && <span className="text-gray-400 text-xs font-normal">(Không thể sửa)</span>}
+            </label>
+            <div className="relative">
+                <i className={`pi ${icon} absolute left-3 top-1/2 -translate-y-1/2 text-gray-400`} />
+                <Controller
+                    name={name as any}
+                    control={control}
+                    rules={{ required: !disabled && `${label} là bắt buộc.` }}
+                    render={({ field, fieldState }) => (
+                        <InputText 
+                            id={name} 
+                            {...field} 
+                            className={classNames('w-full !pl-10 !py-2.5 !rounded-md !border-gray-300 focus:!border-purple-500 focus:!ring-purple-200', { 'p-invalid': fieldState.invalid })} 
+                            disabled={disabled}
+                            placeholder={`Nhập ${label.toLowerCase()}...`}
+                        />
+                    )}
+                />
+            </div>
+            {errors[name as keyof typeof errors] && <small className="text-red-500 ml-1">{(errors[name as keyof typeof errors] as any).message}</small>}
+        </div>
+    );
+
     return (
         <Dialog 
-            header={headerTitle} 
+            header={
+                <div className="flex align-items-center gap-3 text-purple-800">
+                    <i className={`pi ${initialData ? 'pi-user-edit' : 'pi-user-plus'} text-xl`} />
+                    <span className="font-bold text-lg">{initialData ? 'Cập nhật thông tin' : 'Thêm người dùng mới'}</span>
+                </div>
+            }
             visible={visible} 
-            style={{ width: '50rem' }} 
-            breakpoints={{ '960px': '75vw', '641px': '95vw' }} 
-            onHide={handleClose}
-            footer={renderFooter}
-            modal
-            className="p-fluid"
+            style={{ width: '95%', maxWidth: '700px' }}
+            modal 
+            className="p-fluid overflow-hidden rounded-lg"
+            onHide={onHide}
+            footer={renderFooter()}
+            contentClassName="!py-6 !px-6 bg-white"
+            headerClassName="!py-4 !px-6 !bg-purple-50 border-b border-purple-100"
         >
-            <div className="card">
-                <TabView>
-                    <TabPanel header="Tài khoản" leftIcon="pi pi-id-card mr-2">
-                        <div className="formgrid grid gap-4">
-                            <div className="field col-12 md:col-6">
-                                <label htmlFor="username" className="font-medium">Username <span className="text-red-500">*</span></label>
-                                <Controller
-                                    name="username"
-                                    control={control}
-                                    rules={{ required: 'Vui lòng nhập Username' }}
-                                    render={({ field, fieldState }) => (
-                                        <InputText 
-                                            id={field.name} 
-                                            {...field} 
-                                            disabled={isEditMode}
-                                            className={classNames({ 'p-invalid': fieldState.invalid })} 
-                                            placeholder="VD: nguyenvan_a"
-                                        />
-                                    )}
-                                />
-                                {errors.username && <small className="p-error">{errors.username.message?.toString()}</small>}
-                            </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+                {renderField('username', 'Tên đăng nhập', 'pi-user', true)}
+                {renderField('fullname', 'Họ và tên', 'pi-id-card')}
+                {renderField('email', 'Địa chỉ Email', 'pi-envelope', true)}
+                {renderField('phone', 'Số điện thoại', 'pi-phone')}
 
-                            <div className="field col-12 md:col-6">
-                                <label htmlFor="email" className="font-medium">Email <span className="text-red-500">*</span></label>
-                                <Controller
-                                    name="email"
-                                    control={control}
-                                    rules={{ 
-                                        required: 'Vui lòng nhập Email',
-                                        pattern: {
-                                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                                            message: "Email không hợp lệ"
-                                        }
-                                    }}
-                                    render={({ field, fieldState }) => (
-                                        <InputText 
-                                            id={field.name} 
-                                            {...field} 
-                                            // disabled={isEditMode}
-                                            className={classNames({ 'p-invalid': fieldState.invalid })} 
-                                            placeholder="example@gmail.com"
-                                        />
-                                    )}
-                                />
-                                {errors.email && <small className="p-error">{errors.email.message?.toString()}</small>}
-                            </div>
-
-                            {!isEditMode && (
-                                <div className="field col-12">
-                                    <label htmlFor="password" className="font-medium">Mật khẩu <span className="text-red-500">*</span></label>
-                                    <Controller
-                                        name="password"
-                                        control={control}
-                                        rules={{ required: 'Vui lòng nhập mật khẩu' }}
-                                        render={({ field, fieldState }) => (
-                                            <Password 
-                                                id={field.name} 
-                                                {...field} 
-                                                toggleMask 
-                                                feedback={false}
-                                                className={classNames({ 'p-invalid': fieldState.invalid })} 
-                                                inputClassName="w-full"
-                                            />
-                                        )}
-                                    />
-                                    {errors.password && <small className="p-error">{errors.password.message?.toString()}</small>}
-                                </div>
-                            )}
-
-                            <div className="field col-12">
-                                <label htmlFor="role" className="font-medium">Vai trò</label>
-                                <Controller
-                                    name="role"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Dropdown 
-                                            id={field.name} 
-                                            value={field.value} 
-                                            onChange={(e) => field.onChange(e.value)} 
-                                            options={roles} 
-                                            optionLabel="label" 
-                                            placeholder="Chọn vai trò"
-                                            className="w-full"
-                                        />
-                                    )}
-                                />
-                            </div>
-                        </div>
-                    </TabPanel>
-
-                    <TabPanel header="Thông tin cá nhân" leftIcon="pi pi-user mr-2">
-                        <div className="formgrid grid gap-4">
-                            <div className="field col-12">
-                                <label htmlFor="fullname" className="font-medium">Họ và tên</label>
-                                <Controller
-                                    name="fullname"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <InputText id={field.name} {...field} placeholder="Nhập họ tên đầy đủ" />
-                                    )}
-                                />
-                            </div>
-
-                            <div className="field col-12 md:col-6">
-                                <label htmlFor="phone" className="font-medium">Số điện thoại</label>
-                                <Controller
-                                    name="phone"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <InputText id={field.name} {...field} keyfilter="int" placeholder="VD: 0987654321" />
-                                    )}
-                                />
-                            </div>
-
-                            <div className="field col-12 md:col-6">
-                                <label htmlFor="address" className="font-medium">Địa chỉ</label>
-                                <Controller
-                                    name="address"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Dropdown 
-                                            value={field.value} 
-                                            options={provinces} 
-                                            onChange={(e) => field.onChange(e.value)} 
-                                            optionLabel="label" 
-                                            placeholder="Chọn tỉnh thành" 
-                                            filter 
-                                            showClear
-                                            className="w-full"
-                                        />
-                                    )}
-                                />
-                            </div>
-                        </div>
-                    </TabPanel>
-                </TabView>
-            </div>
+                <div className="flex flex-col gap-2 md:col-span-2">
+                    <label htmlFor="status" className="font-medium text-gray-700 text-sm ml-1">Trạng thái hoạt động</label>
+                    <Controller
+                        name="status"
+                        control={control}
+                        render={({ field }) => (
+                            <Dropdown 
+                                id="status" 
+                                {...field} 
+                                options={statusOptions} 
+                                optionLabel="label" optionValue="value"
+                                className="w-full !rounded-md !border-gray-300 focus:!border-purple-500 focus:!ring-purple-200"
+                                itemTemplate={(option) => (
+                                    <div className="flex align-items-center gap-2">
+                                        <i className={`pi pi-circle-fill text-sm ${option.value === 'ACTIVE' ? 'text-green-500' : 'text-red-500'}`} />
+                                        <span>{option.label}</span>
+                                    </div>
+                                )}
+                            />
+                        )}
+                    />
+                </div>
+            </form>
         </Dialog>
     );
 };
