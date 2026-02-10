@@ -1,9 +1,9 @@
-import type { ICreateOrderRequest, IOrderRequest } from "@/types/order.types";
+import type { CreateOrderRequest, OrderRequest } from "@/@types/order.types";
 import axiosClient from "./axiosClient";
 
 
 export const orderApi = {
-    search: (data: IOrderRequest): Promise<any> => {
+    search: (data: OrderRequest): Promise<any> => {
         return axiosClient.post('/Order/search', data);
     },
 
@@ -11,7 +11,7 @@ export const orderApi = {
         return axiosClient.get(`/Order/${id}`);
     },
 
-    create: (data: ICreateOrderRequest): Promise<any> => {
+    create: (data: CreateOrderRequest): Promise<any> => {
         return axiosClient.post('/Order/create', data);
     },
 

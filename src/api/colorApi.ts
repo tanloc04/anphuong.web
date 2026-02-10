@@ -1,8 +1,8 @@
-import type { IColorRequest, ISearchColorRequest } from "@/types/color.types";
+import type { ColorRequest, SearchColorRequest } from "@/@types/color.types";
 import axiosClient from "./axiosClient";
 
 export const colorApi = {
-    search: (data: ISearchColorRequest) => {
+    search: (data: SearchColorRequest) => {
         return axiosClient.post('/Color/search', data);
     },
 
@@ -10,11 +10,11 @@ export const colorApi = {
         return axiosClient.get(`/Color/${id}`);
     },
 
-    create: (data: IColorRequest) => {
+    create: (data: ColorRequest) => {
         return axiosClient.post('/Color/create', data);
     },
 
-    update: (id: number, data: IColorRequest) => {
+    update: (id: number, data: ColorRequest) => {
         return axiosClient.put(`/Color/${id}`, data);
     }
 };

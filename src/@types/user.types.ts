@@ -1,4 +1,4 @@
-export interface IUserFormProps {
+export interface UserFormProps {
     visible: boolean;
     onHide: () => void;
     onSave: (data: any) => void;
@@ -6,21 +6,21 @@ export interface IUserFormProps {
     loading?: boolean;
 }
 
-export interface ISearchUserCondition {
+export interface SearchUserCondition {
     keyword: string;
     status: string;
     isDeleted: boolean;
 }
 
-export interface ISearchUserRequest {
-    searchCondition: ISearchUserCondition;
+export interface SearchUserRequest {
+    searchCondition: SearchUserCondition;
     pageInfo: {
         pageNum: number;
         pageSize: number;
     };
 }
 
-export interface IUpdateUserRequest {
+export interface UpdateUserRequest {
     username?: string;
     email?: string;
     fullname?: string;

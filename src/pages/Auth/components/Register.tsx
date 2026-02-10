@@ -6,49 +6,16 @@ import { Button } from "primereact/button"
 import { classNames } from "primereact/utils"
 import { Link } from "react-router-dom"
 import { useAuth } from "../../../context/auth.context"
-import type { IRegisterRequest } from "@/types/auth.types"
+import type { RegisterRequest } from "@/@types/auth.types"
+import { useProvinces } from "../hooks"
 
-const provinces = [
-  {label: "Tuyên Quang", value: "Tuyên Quang"},
-  {label: "Cao Bằng", value: "Cao Bằng"},
-  {label: "Lai Châu", value: "Lai Châu"},
-  {label: "Lào Cai", value: "Lào Cai"},
-  {label: "Thái Nguyên", value: "Thái Nguyên"},
-  {label: "Điện Biên", value: "Điện Biên"},
-  {label: "Lạng Sơn", value: "Lạng Sơn"},
-  {label: "Sơn La", value: "Sơn La"},
-  {label: "Phú Thọ", value: "Phú Thọ"},
-  {label: "Bắc Ninh", value: "Bắc Ninh"},
-  {label: "Quảng Ninh", value: "Quảng Ninh"},
-  {label: "TP. Hà Nội", value: "TP. Hà Nội"},
-  {label: "TP. Hải Phòng", value: "TP. Hải Phòng"},
-  {label: "Hưng Yên", value: "Hưng Yên"},
-  {label: "Ninh Bình", value: "Ninh Bình"},
-  {label: "Thanh Hóa", value: "Thanh Hóa"},
-  {label: "Nghệ An", value: "Nghệ An"},
-  {label: "Hà Tĩnh", value: "Hà Tĩnh"},
-  {label: "Quảng Trị", value: "Quảng Trị"},
-  {label: "TP. Huế", value: "TP. Huế"},
-  {label: "TP. Đà Nẵng", value: "TP. Đà Nẵng"},
-  {label: "Quảng Ngãi", value: "Quảng Ngãi"},
-  {label: "Gia Lai", value: "Gia Lai"},
-  {label: "Đắk Lắk", value: "Đắk Lắk"},
-  {label: "Khánh Hoà", value: "Khánh Hoà"},
-  {label: "Lâm Đồng", value: "Lâm Đồng"},
-  {label: "Đồng Nai", value: "Đồng Nai"},
-  {label: "Tây Ninh", value: "Tây Ninh"},
-  {label: "TP. Hồ Chí Minh", value: "TP. Hồ Chí Minh"},
-  {label: "Đồng Tháp", value: "Đồng Tháp"},
-  {label: "An Giang", value: "An Giang"},
-  {label: "Vĩnh Long", value: "Vĩnh Long"},
-  {label: "TP. Cần Thơ", value: "TP. Cần Thơ"},
-  {label: "Cà Mau", value: "Cà Mau"},
-];
 
 const Register = () => {
   const { register, loading } = useAuth();
 
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<IRegisterRequest>({
+  const { provinces, isLoading } = useProvinces();
+
+  const { control, handleSubmit, watch, formState: { errors } } = useForm<RegisterRequest>({
     defaultValues: {
       email: "", password: "", confirmPassword: "",
       username: "", phone: "", customerAddress: ""
@@ -57,13 +24,15 @@ const Register = () => {
 
   const password = watch("password");
 
-  const onSubmit = async (data: IRegisterRequest) => {
+  const onSubmit = async (data: RegisterRequest) => {
     await register(data);
   };
 
-  const getFormErrorMessage = (name: keyof IRegisterRequest) => {
+  const getFormErrorMessage = (name: keyof RegisterRequest) => {
     return errors[name] ? <small className="p-error text-red-500 text-xs mt-1 block">{errors[name]?.message}</small> : <small className="p-error">&nbsp;</small>;
   };
+
+  
 
   return(
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
@@ -136,8 +105,9 @@ const Register = () => {
                   onChange={(e) => field.onChange(e.value)}
                   options={provinces}
                   optionLabel="label"
-                  placeholder="Chọn tỉnh/thành phố"
+                  placeholder={isLoading ? "Đang tải..." : "Chọn tỉnh thành"}
                   filter
+                  disabled={isLoading}
                   showClear
                   className={classNames({ "p-invalid": fieldState.invalid }, "w-full")}
                 />

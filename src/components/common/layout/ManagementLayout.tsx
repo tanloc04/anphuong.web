@@ -1,4 +1,4 @@
-import type { ManagementLayoutProps } from '@/types/management.layout.types'
+import type { ManagementLayoutProps } from '@/@types/management.layout.types'
 import React from 'react'
 import { SearchInput } from '../form'
 import { CreateButton } from '../buttons'

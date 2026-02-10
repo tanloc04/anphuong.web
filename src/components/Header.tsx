@@ -128,7 +128,7 @@ const Header = () => {
                   icon={faUser}
                   className="text-lg lg:text-xl cursor-pointer"
                 />
-                <span className="hidden lg:block text-xs mt-1 whitespace-nowrap">Đăng nhập</span>
+                <span className="hidden lg:block text-xs mt-1 whitespace-nowrap"></span>
               </Link>
             )}
           </div>

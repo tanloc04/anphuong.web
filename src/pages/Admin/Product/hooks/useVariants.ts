@@ -1,8 +1,8 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { variantApi } from "@/api/variantApi";
 import { colorApi } from "@/api/colorApi";
-import type { ISearchVariantRequest } from "@/types/variant.types";
-import type { ISearchColorRequest } from "@/types/color.types";
+import type { ISearchVariantRequest } from "@/@types/variant.types";
+import type { ISearchColorRequest } from "@/@types/color.types";
 
 export const useColors = (searchParams?: Partial<ISearchColorRequest>) => {
     const defaultParams: ISearchColorRequest = {

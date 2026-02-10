@@ -1,9 +1,9 @@
-import type { ICategory, ISearchCategoryRequest, ICategoryRequest } from "@/types/category.types";
+import type { Category, SearchCategoryRequest, CategoryRequest } from "@/@types/category.types";
 import axiosClient from "./axiosClient";
 
 
 export const categoryApi = {
-    search: (data: ISearchCategoryRequest) => {
+    search: (data: SearchCategoryRequest) => {
         return axiosClient.post('/Category/search', data);
     },
 
@@ -11,11 +11,11 @@ export const categoryApi = {
         return axiosClient.get(`/Category/${id}`);
     },
 
-    create: (data: ICategoryRequest) => {
+    create: (data: CategoryRequest) => {
         return axiosClient.post('/Category/create', data);
     },
 
-    update: (id: number, data: ICategoryRequest) => {
+    update: (id: number, data: CategoryRequest) => {
         return axiosClient.put(`/Category/${id}`, data);
     },
 

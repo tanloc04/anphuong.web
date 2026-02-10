@@ -1,8 +1,8 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { orderApi } from "@/api/orderApi";
-import type { IOrderRequest, IOrderResponse } from "@/types/order.types";
+import type { OrderRequest, OrderResponse } from "@/@types/order.types";
 
-export const useOrders = (params: IOrderRequest) => {
+export const useOrders = (params: OrderRequest) => {
     return useQuery({
         queryKey: ['orders', params],
         queryFn: () => orderApi.search(params),

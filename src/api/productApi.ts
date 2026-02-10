@@ -1,8 +1,8 @@
-import type { IProductRequest, IProductSearchRequest } from "@/types/product.types";
+import type { ProductRequest, ProductSearchRequest } from "@/@types/product.types";
 import axiosClient from "./axiosClient";
 
 export const productApi = {
-    search: (data: IProductSearchRequest) => {
+    search: (data: ProductSearchRequest) => {
         return axiosClient.post('/Product/search', data);
     },
 
@@ -10,11 +10,11 @@ export const productApi = {
         return axiosClient.get(`/Product/${id}`);
     },
 
-    create: (data: IProductRequest) => {
+    create: (data: ProductRequest) => {
         return axiosClient.post('/Product/create', data);
     },
 
-    update: (id: number, data: IProductRequest) => {
+    update: (id: number, data: ProductRequest) => {
         return axiosClient.put(`/Product/${id}`, data);
     },  
 

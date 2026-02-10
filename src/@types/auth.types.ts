@@ -1,23 +1,23 @@
-import type { IApiErrorDetail } from "./common.types"
+import type { ApiErrorDetail } from "./common.types"
 
-export interface ILoginRequest {
+export interface LoginRequest {
   email: string,
   password: string
 }
 
-export interface ILoginResponse {
+export interface LoginResponse {
   token: string,
   refreshToken: string
 }
 
-export interface ILoginResult {
+export interface LoginResult {
   success: boolean,
-  data?: ILoginResponse,
-  errors?: IApiErrorDetail[],
+  data?: LoginResponse,
+  errors?: ApiErrorDetail[],
   message?: string 
 }
 
-export interface IUserProfile {
+export interface UserProfile {
   id: number,
   fullname: string,
   phone: string,
@@ -26,13 +26,13 @@ export interface IUserProfile {
   email: string,
 }
 
-export interface IUpdateProfileRequest {
+export interface UpdateProfileRequest {
   fullname: string,
   phone: string,
   customerAddress: string
 }
 
-export interface IChangePasswordRequest {
+export interface ChangePasswordRequest {
   oldPassword: string,
   newPassword: string,
   confirmPassword: string
@@ -40,16 +40,16 @@ export interface IChangePasswordRequest {
 
 export interface AuthContextType {
     isAuthenticated: boolean,
-    user: IUserProfile | null,
+    user: UserProfile | null,
     loading: boolean,
-    login: (data: ILoginRequest) => Promise<void>,
+    login: (data: LoginRequest) => Promise<void>,
     loginGoogle: (idToken: string) => Promise<void>,
     logout: () => void,
-    register: (data: IRegisterRequest) => Promise<void>,
-    changePassword: (data: IChangePasswordRequest) => Promise<boolean> 
+    register: (data: RegisterRequest) => Promise<void>,
+    changePassword: (data: ChangePasswordRequest) => Promise<boolean> 
 }
 
-export interface IRegisterRequest {
+export interface RegisterRequest {
   username: string,
   email: string,
   password: string,

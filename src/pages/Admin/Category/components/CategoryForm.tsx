@@ -5,18 +5,18 @@ import { CreateButton, DeleteButton } from '@/components/common/buttons';
 import { InputText } from 'primereact/inputtext';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { classNames } from 'primereact/utils';
-import type { ICategory, CategoryFormProps } from '@/types/category.types';
-import type { IFormInput } from '@/types/common.types';
+import type { Category, CategoryFormProps } from '@/@types/category.types';
+import type { FormInput } from '@/@types/common.types';
 
 const CategoryForm = ({ visible, onHide, onSave, initialData, loading }: CategoryFormProps) => {
     
     const formTitle = initialData ? "Cập nhật danh mục" : "Thêm mới danh mục";
 
-    const { control, handleSubmit, reset, formState: { errors } } = useForm<IFormInput>({
+    const { control, handleSubmit, reset, formState: { errors } } = useForm<FormInput>({
         defaultValues: { name: '', description: '' }
     });
 
-    const onSubmitHandler = (data: IFormInput) => {
+    const onSubmitHandler = (data: FormInput) => {
         onSave(data);
     }
 

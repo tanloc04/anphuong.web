@@ -1,23 +1,23 @@
-import type { IPageInfo } from "./common.types"
+import type { PageInfo } from "./common.types"
 
-export interface ICategory {
+export interface Category {
     id: number,
     name: string,
     description: string
 }
 
-export interface ISearchCategoryCondition {
+export interface SearchCategoryCondition {
     keyword: string,
     status: string,
     isDeleted: boolean
 }
 
-export interface ISearchCategoryRequest {
-    searchCondition: ISearchCategoryCondition,
-    pageInfo: IPageInfo
+export interface SearchCategoryRequest {
+    searchCondition: SearchCategoryCondition,
+    pageInfo: PageInfo
 }
 
-export interface ICategoryRequest {
+export interface CategoryRequest {
     name: string,
     description: string
 }
@@ -26,6 +26,6 @@ export interface CategoryFormProps {
     visible: boolean;
     onHide: () => void;
     onSave: (data: any) => void;
-    initialData?: ICategory | null;
+    initialData?: Category | null;
     loading?: boolean;
 }

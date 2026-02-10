@@ -12,8 +12,8 @@ import { faUser, faLock, faCamera, faMapMarkerAlt, faEnvelope, faPhone } from "@
 
 import { useAuth } from '../../../context/auth.context';
 import { authApi } from '@/api/authApi';
-import { locationApi } from '@/api/locationApi';
-import type { IUpdateProfileRequest, IChangePasswordRequest } from '@/types/auth.types';
+import { useProvinces } from '../hooks';
+import type { UpdateProfileRequest, ChangePasswordRequest } from '@/@types/auth.types';
 
 const UserProfile = () => {
     const { user } = useAuth(); 
@@ -21,29 +21,15 @@ const UserProfile = () => {
     const [loading, setLoading] = useState(false);
     
     const [activeTab, setActiveTab] = useState<'info' | 'security'>('info');
-    const [provinces, setProvinces] = useState<{label: string, value: string}[]>([]);
     const [customerDetail, setCustomerDetail] = useState<any>(null);
 
-    const { control: controlInfo, handleSubmit: handleSubmitInfo, setValue: setValueInfo } = useForm<IUpdateProfileRequest>();
-    const { control: controlPass, handleSubmit: handleSubmitPass, reset: resetPass, setError: setErrorPass, watch } = useForm<IChangePasswordRequest>();
+    const { provinces, isLoading } = useProvinces();
+
+    const { control: controlInfo, handleSubmit: handleSubmitInfo, setValue: setValueInfo } = useForm<UpdateProfileRequest>();
+    const { control: controlPass, handleSubmit: handleSubmitPass, reset: resetPass, setError: setErrorPass, watch } = useForm<ChangePasswordRequest>();
     const newPassword = watch('newPassword');
 
-    useEffect(() => {
-        const fetchProvinces = async () => {
-            try {
-                const data = await locationApi.getAllProvinces();
-                const formattedProvinces = data.map((p) => ({
-                    label: p.name,
-                    value: p.name
-                }));
-                setProvinces(formattedProvinces);
-            } catch(error) {
-                console.error("Lỗi danh sách tỉnh:", error);
-            }
-        };
-        fetchProvinces();
-    }, []);
-
+    
     useEffect(() => {
         const fetchProfile = async () => {
             if (user) {
@@ -62,7 +48,7 @@ const UserProfile = () => {
         fetchProfile();
     }, [user, setValueInfo]);
 
-    const onUpdateInfo = async (data: IUpdateProfileRequest) => {
+    const onUpdateInfo = async (data: UpdateProfileRequest) => {
         const idToUpdate = customerDetail?.id || user?.id;
         if (!idToUpdate) return;
         setLoading(true);
@@ -80,7 +66,7 @@ const UserProfile = () => {
         } finally { setLoading(false); }
     };
 
-    const onChangePass = async (data: IChangePasswordRequest) => {
+    const onChangePass = async (data: ChangePasswordRequest) => {
         if (data.newPassword !== data.confirmPassword) {
             setErrorPass("confirmPassword", { type: "manual", message: "Mật khẩu xác nhận không khớp" });
             return;
@@ -223,8 +209,9 @@ const UserProfile = () => {
                                                             onChange={(e) => field.onChange(e.value)} 
                                                             optionLabel="label" 
                                                             optionValue="value"
-                                                            placeholder="Chọn tỉnh / thành phố"
+                                                            placeholder={isLoading ? "Đang tải..." : "Chọn tỉnh thành"}
                                                             filter showClear
+                                                            disabled={isLoading}
                                                             className="w-full p-inputtext-sm"
                                                             emptyFilterMessage="Không tìm thấy"
                                                         />

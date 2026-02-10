@@ -1,11 +1,11 @@
-export interface IPageInfo {
+export interface PageInfo {
     totalItems: number,
     totalPages: number,
     pageNum: number,
     pageSize: number
 }
 
-export interface IOrderRequest {
+export interface OrderRequest {
     searchCondition: {
         keyword: string,
         status: string,
@@ -20,7 +20,7 @@ export interface IOrderRequest {
     }
 }
 
-export interface IOrderCustomer {
+export interface OrderCustomer {
     id: number,
     fullName: string,
     phone: string,
@@ -28,7 +28,7 @@ export interface IOrderCustomer {
     email: string
 }
 
-export interface IOrderDetailItem {
+export interface OrderDetailItem {
     id: number,
     productId: number,
     productName: string,
@@ -42,7 +42,7 @@ export interface IOrderDetailItem {
     subTotalPrice: number
 }
 
-export interface IOrder {
+export interface Order {
     id: number
     createdAt: string,
     updatedAt: string,
@@ -52,11 +52,11 @@ export interface IOrder {
     shippingDate: string,
     totalPrice: number,
     customerId: number,
-    customer: IOrderCustomer,
-    orderDetail: IOrderDetailItem[]
+    customer: OrderCustomer,
+    orderDetail: OrderDetailItem[]
 }
 
-export interface IOrderResponse {
+export interface OrderResponse {
     success: boolean,
     error: [{
             field: string,
@@ -65,8 +65,8 @@ export interface IOrderResponse {
     ]
     message: string
     data: {
-        pageInfo: IPageInfo,
-        pageData: IOrder[]
+        pageInfo: PageInfo,
+        pageData: Order[]
     }
 }
 
@@ -76,10 +76,10 @@ export interface OrderDetailProps {
     order: any;
 }
 
-export interface ICreateOrderRequest {
+export interface CreateOrderRequest {
     paymentMethod: number,
     status: number,
     shippingDate: string,
     customerId: number,
-    orderDetails: IOrderDetailItem []
+    orderDetails: OrderDetailItem []
 }

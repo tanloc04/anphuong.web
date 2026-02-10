@@ -8,7 +8,7 @@ import { Button } from 'primereact/button';
 import { Image } from 'primereact/image';
 import { formatCurrency, formatDate } from '@/utils/format';
 import { getStatusSeverity, getStatusLabel } from '@/utils/orderHelper';
-import type { OrderDetailProps } from '@/types/order.types';
+import type { OrderDetailProps } from '@/@types/order.types';
 
 const OrderDetailDialog = ({ visible, onHide, order }: OrderDetailProps) => {
     if (!order) return null;

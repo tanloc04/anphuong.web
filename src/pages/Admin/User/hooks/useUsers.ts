@@ -1,8 +1,8 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { userApi } from "@/api/userApi";
-import type { ISearchUserRequest } from "@/types/user.types";
+import type { SearchUserRequest } from "@/@types/user.types";
 
-export const useUsers = (params: ISearchUserRequest) => {
+export const useUsers = (params: SearchUserRequest) => {
   return useQuery({
     queryKey: ['users', params],
     queryFn: () => userApi.search(params),

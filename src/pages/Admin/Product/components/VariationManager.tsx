@@ -11,14 +11,14 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { Tag } from 'primereact/tag';
 
 import { useColors, useVariants, useVariantMutations } from '../hooks';
-import type { IColor } from '@/types/color.types';
-import type { VariationManagerProps } from '@/types/variant.types';
+import type { Color } from '@/@types/color.types';
+import type { VariationManagerProps } from '@/@types/variant.types';
 
 
 
 const VariationManager = ({ visible, product, onClose }: VariationManagerProps) => {
     const toast = useRef<Toast>(null);
-    const [selectedColor, setSelectedColor] = useState<IColor | null>(null);
+    const [selectedColor, setSelectedColor] = useState<Color | null>(null);
 
     const [showCreateColor, setShowCreateColor] = useState(false);
     const [newColorName, setNewColorName] = useState("");
@@ -91,7 +91,7 @@ const VariationManager = ({ visible, product, onClose }: VariationManagerProps) 
         });
     };
 
-    const colorOptionTemplate = (option: IColor) => {
+    const colorOptionTemplate = (option: Color) => {
         return (
             <div className="flex align-items-center gap-2">
                 <div className="w-4 h-4 rounded-full border border-gray-300 shadow-sm" style={{ backgroundColor: option.hexCode }}></div>

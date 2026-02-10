@@ -1,8 +1,8 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { productApi } from "@/api/productApi";
-import type { IProductSearchRequest } from "@/types/product.types";
+import type { ProductSearchRequest } from "@/@types/product.types";
 
-const defaultSearch: IProductSearchRequest = {
+const defaultSearch: ProductSearchRequest = {
     searchCondition: {
         keyword: "",
         status: "",
@@ -12,7 +12,7 @@ const defaultSearch: IProductSearchRequest = {
     pageInfo: { pageNum: 1, pageSize: 100 }
 };
 
-export const useProducts = (searchParams?: Partial<IProductSearchRequest>) => {
+export const useProducts = (searchParams?: Partial<ProductSearchRequest>) => {
     const params = {
         ...defaultSearch,
         ...searchParams,

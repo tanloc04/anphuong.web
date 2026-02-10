@@ -1,21 +1,21 @@
-export interface IApiErrorDetail {
+export interface ApiErrorDetail {
   field: string,
   message: string[]
 }
 
-export interface IApiResponse<T> {
+export interface ApiResponse<T> {
   success: boolean,
   message?: string,
   data?: T,
   errors?: any[]
 }
 
-export interface IPageInfo {
+export interface PageInfo {
   pageNum: number,
   pageSize: number
 }
 
-export interface IFormInput {
+export interface FormInput {
     name: string;
     description: string;
 }

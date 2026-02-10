@@ -1,8 +1,8 @@
 import axiosClient from "./axiosClient";
-import type { ILoginRequest, IChangePasswordRequest, IUpdateProfileRequest, IRegisterRequest } from "@/types/auth.types";
+import type { LoginRequest, ChangePasswordRequest, UpdateProfileRequest, RegisterRequest } from "@/@types/auth.types";
 
 export const authApi = {
-    login: (data: ILoginRequest) => {
+    login: (data: LoginRequest) => {
         return axiosClient.post('/Auth/login', data);
     },
 
@@ -10,7 +10,11 @@ export const authApi = {
         return axiosClient.post('/Auth/google-login', { idToken });
     },
 
-    register: (data: IRegisterRequest) => {
+    logout: () => {
+
+    },
+
+    register: (data: RegisterRequest) => {
         return axiosClient.post('/Customer/register', data);
     },
 
@@ -18,7 +22,7 @@ export const authApi = {
         return axiosClient.post('/Auth/refresh-token', { token, refreshToken });
     },
 
-    changePassword: (data: IChangePasswordRequest) => {
+    changePassword: (data: ChangePasswordRequest) => {
         return axiosClient.post('/Auth/password', data);
     },
 
@@ -33,7 +37,7 @@ export const authApi = {
         });
     },
 
-    updateProfile: (id: number, data: IUpdateProfileRequest) => {
+    updateProfile: (id: number, data: UpdateProfileRequest) => {
         return axiosClient.put(`/Customer/${id}`, data);
     },
 };

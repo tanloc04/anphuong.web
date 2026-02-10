@@ -6,7 +6,7 @@ import { Toast } from 'primereact/toast';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { useCategories, useCategoryMutations } from './hooks'; 
 import CateForm from './components/CategoryForm';
-import type { ICategory } from '@/types/category.types';
+import type { Category } from '@/@types/category.types';
 import ManagementLayout from '@/components/common/layout/ManagementLayout';
 
 const CategoryManagement = () => {
@@ -18,7 +18,7 @@ const CategoryManagement = () => {
         page: 1,
     });
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedCate, setSelectedCate] = useState<ICategory | null>(null);
+    const [selectedCate, setSelectedCate] = useState<Category | null>(null);
 
     const { data: queryData, isLoading, refetch } = useCategories({
         searchCondition: { keyword, isDeleted: false, status: "" },
@@ -41,7 +41,7 @@ const CategoryManagement = () => {
         setModalVisible(true);
     };
 
-    const openEdit = (category: ICategory) => {
+    const openEdit = (category: Category) => {
         setSelectedCate(category);
         setModalVisible(true);
     };
@@ -61,7 +61,7 @@ const CategoryManagement = () => {
         }
     };
 
-    const handleDelete = (category: ICategory) => {
+    const handleDelete = (category: Category) => {
         confirmDialog({
             message: `Bạn có chắc muốn xóa danh mục "${category.name}"?`,
             header: 'Xác nhận xóa',
@@ -73,7 +73,7 @@ const CategoryManagement = () => {
         });
     };
 
-    const actionBodyTemplate = (rowData: ICategory) => {
+    const actionBodyTemplate = (rowData: Category) => {
         return (
             <div className="flex gap-2 justify-center">
                 <EditButton icon="pi pi-pencil" onClick={() => openEdit(rowData)}/>

@@ -3,14 +3,15 @@ import { Button } from "primereact/button";
 import { GoogleLogin } from '@react-oauth/google'; 
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../context/auth.context";
-import type { ILoginRequest } from "@/types/auth.types";
+import type { LoginRequest } from "@/@types/auth.types";
 import { FormInput } from "@/components/common/form";
 import { FormPassword } from "@/components/common/form";
+import { ProgressSpinner } from 'primereact/progressspinner';
 
 const Login = () => {
   const { login, loginGoogle, loading } = useAuth();
 
-  const { control, handleSubmit } = useForm<ILoginRequest>({
+  const { control, handleSubmit } = useForm<LoginRequest>({
     defaultValues: {
       email: "",
       password: ""
@@ -23,7 +24,7 @@ const Login = () => {
     }
   };
 
-  const onSubmit = async (data: ILoginRequest) => {
+  const onSubmit = async (data: LoginRequest) => {
     await login(data);
   };
 
@@ -32,6 +33,24 @@ const Login = () => {
 
   return (
     <div className="relative flex justify-center items-center min-h-screen bg-gray-900 overflow-hidden">
+      
+      {loading && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300">
+           <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md shadow-2xl border border-white/20 flex flex-col items-center gap-4">
+              <ProgressSpinner 
+                style={{width: '50px', height: '50px'}} 
+                strokeWidth="4" 
+                fill="transparent" 
+                animationDuration=".5s"
+                className="!stroke-[#c4a484]" 
+              />
+              <span className="text-white font-medium tracking-wide text-sm animate-pulse">
+                Đang đăng nhập...
+              </span>
+           </div>
+        </div>
+      )}
+
       <div className="absolute inset-0 z-0">
         <img 
             src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=2000&auto=format&fit=crop" 
@@ -88,14 +107,15 @@ const Login = () => {
           <Button
             label="Đăng Nhập" 
             loading={loading} 
+            disabled={loading}
             className="w-full p-3.5 mt-2 font-bold text-white !bg-[#c4a484] !border-none !rounded-lg !hover:bg-[#a88b6e] transition-all shadow-lg !hover:shadow-[#c4a484]/40" 
           />
           
           <div className="text-center mt-1">
-             <span className="text-gray-300 text-sm">Chưa có tài khoản? </span>
-             <Link to="/account/register" className="text-[#c4a484] hover:text-white font-semibold transition-colors underline decoration-solid ml-1">
-               Đăng ký ngay
-             </Link>
+              <span className="text-gray-300 text-sm">Chưa có tài khoản? </span>
+              <Link to="/account/register" className={`text-[#c4a484] hover:text-white font-semibold transition-colors underline decoration-solid ml-1 ${loading ? 'pointer-events-none opacity-50' : ''}`}>
+                Đăng ký ngay
+              </Link>
           </div>
 
           <div className="relative mt-2 w-full">
@@ -107,20 +127,20 @@ const Login = () => {
             </div>
           </div>
 
-          <div className="flex justify-center mt-4 w-full">         
-             <div className="w-full flex justify-center"> 
-                <GoogleLogin 
-                  onSuccess={handleGoogleSuccess}
-                  onError={() => console.log("Google Login Failed")}
-                  useOneTap
-                  type="standard"       
-                  theme="filled_blue"   
-                  size="large"          
-                  text="signin_with"    
-                  shape="rectangular"   
-                  width="100%"          
-                />
-             </div>
+          <div className="flex justify-center mt-4 w-full h-[40px]">
+              <div className="w-full flex justify-center"> 
+                  <GoogleLogin 
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => console.log("Google Login Failed")}
+                    useOneTap
+                    type="standard"       
+                    theme="filled_blue"   
+                    size="large"          
+                    text="signin_with"    
+                    shape="rectangular"   
+                    width="100%"          
+                  />
+              </div>
           </div>
         </form>
       </div>
