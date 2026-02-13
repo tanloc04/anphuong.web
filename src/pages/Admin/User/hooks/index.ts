@@ -1,2 +1,2 @@
-export * from './useUserMutations';
-export * from './useUsers';
+export * from './useCustomerMutations';
+export * from './useCustomers';

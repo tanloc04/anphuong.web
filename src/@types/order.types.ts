@@ -83,3 +83,10 @@ export interface CreateOrderRequest {
     customerId: number,
     orderDetails: OrderDetailItem []
 }
+
+export interface OrderFormProps {
+  visible: boolean;
+  onHide: () => void;
+  onSave: (data: any) => void;
+  loading?: boolean;
+}

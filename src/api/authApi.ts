@@ -11,11 +11,17 @@ export const authApi = {
     },
 
     logout: () => {
-
+        return axiosClient.post('/Auth/logout');
     },
 
     register: (data: RegisterRequest) => {
         return axiosClient.post('/Customer/register', data);
+    },
+
+    sendEmail: async (email: string) => {
+        return axiosClient.post('/Customer/send-email', null, {
+            params: { email: email }
+        });
     },
 
     refreshToken: (token: string, refreshToken: string) => {

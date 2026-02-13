@@ -20,7 +20,7 @@ export const useVariantMutations = (toastRef: RefObject<Toast>) => {
 
     const createColorMutation = useMutation({
         mutationFn: (data: ColorRequest) => colorApi.create(data),
-        onSuccess: () => onSuccess('Tạo màu sắc thành công!', ['colors']),
+        onSuccess: () => onSuccess('Tạo màu sắc thành công!', ['color']),
         onError
     });
 

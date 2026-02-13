@@ -19,3 +19,35 @@ export interface FormInput {
     name: string;
     description: string;
 }
+
+export interface Customer {
+    id: number;
+    fullName: string;
+    phone: string;
+}
+
+export interface Product {
+    id: number;
+    name: string;
+    price: number;
+}
+
+export interface Variant {
+    id: number;
+    variantImage: string;
+    color: {
+        id: number;
+        name: string;
+        hexCode: string;
+    };
+}
+
+export interface CartItem {
+    variantId: number;
+    productName: string;
+    colorName?: string;
+    image?: string;
+    price: number;
+    quantity: number;
+    total: number;
+}

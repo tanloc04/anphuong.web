@@ -20,7 +20,8 @@ export interface SearchVariantRequest {
 
 export interface VariantRequest {
     colorId: number,
-    productId: number
+    productId: number,
+    variantImage: string
 }
 
 export interface VariationManagerProps {

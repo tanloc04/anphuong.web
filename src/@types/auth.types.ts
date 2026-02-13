@@ -46,7 +46,8 @@ export interface AuthContextType {
     loginGoogle: (idToken: string) => Promise<void>,
     logout: () => void,
     register: (data: RegisterRequest) => Promise<void>,
-    changePassword: (data: ChangePasswordRequest) => Promise<boolean> 
+    changePassword: (data: ChangePasswordRequest) => Promise<boolean>,
+    resendEmail: (email: string) => Promise<void> 
 }
 
 export interface RegisterRequest {
@@ -57,4 +58,10 @@ export interface RegisterRequest {
   fullName: string,
   phone: string,
   customerAddress: string
+}
+
+export interface ConfirmAccountResponse {
+  success: boolean,
+  message: string,
+  data?: any
 }

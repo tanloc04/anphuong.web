@@ -1,6 +1,6 @@
 import { Mutation, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productApi } from "@/api/productApi";
-import { uploadToCloudinary } from "@/services/uploadCloudinary";
+import { uploadToCloudinary } from "@/services/uploadCloudinaryService";
 import { Toast } from "primereact/toast";
 import type { RefObject } from "react";
 import type { ProductFormData, ProductRequest } from "@/@types/product.types";
