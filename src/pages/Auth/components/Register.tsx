@@ -1,145 +1,189 @@
-import { useForm, Controller } from "react-hook-form"
-import { InputText } from "primereact/inputtext"
-import { Dropdown } from "primereact/dropdown"
-import { Password } from "primereact/password"
-import { Button } from "primereact/button"
-import { classNames } from "primereact/utils"
-import { Link } from "react-router-dom"
-import { useAuth } from "../../../context/auth.context"
-import type { IRegisterRequest } from "@/types/auth.types"
-
-const provinces = [
-  {label: "Tuyên Quang", value: "Tuyên Quang"},
-  {label: "Cao Bằng", value: "Cao Bằng"},
-  {label: "Lai Châu", value: "Lai Châu"},
-  {label: "Lào Cai", value: "Lào Cai"},
-  {label: "Thái Nguyên", value: "Thái Nguyên"},
-  {label: "Điện Biên", value: "Điện Biên"},
-  {label: "Lạng Sơn", value: "Lạng Sơn"},
-  {label: "Sơn La", value: "Sơn La"},
-  {label: "Phú Thọ", value: "Phú Thọ"},
-  {label: "Bắc Ninh", value: "Bắc Ninh"},
-  {label: "Quảng Ninh", value: "Quảng Ninh"},
-  {label: "TP. Hà Nội", value: "TP. Hà Nội"},
-  {label: "TP. Hải Phòng", value: "TP. Hải Phòng"},
-  {label: "Hưng Yên", value: "Hưng Yên"},
-  {label: "Ninh Bình", value: "Ninh Bình"},
-  {label: "Thanh Hóa", value: "Thanh Hóa"},
-  {label: "Nghệ An", value: "Nghệ An"},
-  {label: "Hà Tĩnh", value: "Hà Tĩnh"},
-  {label: "Quảng Trị", value: "Quảng Trị"},
-  {label: "TP. Huế", value: "TP. Huế"},
-  {label: "TP. Đà Nẵng", value: "TP. Đà Nẵng"},
-  {label: "Quảng Ngãi", value: "Quảng Ngãi"},
-  {label: "Gia Lai", value: "Gia Lai"},
-  {label: "Đắk Lắk", value: "Đắk Lắk"},
-  {label: "Khánh Hoà", value: "Khánh Hoà"},
-  {label: "Lâm Đồng", value: "Lâm Đồng"},
-  {label: "Đồng Nai", value: "Đồng Nai"},
-  {label: "Tây Ninh", value: "Tây Ninh"},
-  {label: "TP. Hồ Chí Minh", value: "TP. Hồ Chí Minh"},
-  {label: "Đồng Tháp", value: "Đồng Tháp"},
-  {label: "An Giang", value: "An Giang"},
-  {label: "Vĩnh Long", value: "Vĩnh Long"},
-  {label: "TP. Cần Thơ", value: "TP. Cần Thơ"},
-  {label: "Cà Mau", value: "Cà Mau"},
-];
+import { useForm, Controller } from "react-hook-form";
+import { InputText } from "primereact/inputtext";
+import { Dropdown } from "primereact/dropdown";
+import { Password } from "primereact/password";
+import { Button } from "primereact/button";
+import { classNames } from "primereact/utils";
+import { Link } from "react-router-dom";
+import { useAuth } from "../../../context/auth.context";
+import type { RegisterRequest } from "@/@types/auth.types";
+import { useProvinces } from "../hooks";
 
 const Register = () => {
   const { register, loading } = useAuth();
 
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<IRegisterRequest>({
+  const { provinces, isLoading } = useProvinces();
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<RegisterRequest>({
     defaultValues: {
-      email: "", password: "", confirmPassword: "",
-      username: "", phone: "", customerAddress: ""
-    }
+      email: "",
+      password: "",
+      confirmPassword: "",
+      username: "",
+      phone: "",
+      customerAddress: "",
+    },
   });
 
   const password = watch("password");
 
-  const onSubmit = async (data: IRegisterRequest) => {
+  const onSubmit = async (data: RegisterRequest) => {
     await register(data);
   };
 
-  const getFormErrorMessage = (name: keyof IRegisterRequest) => {
-    return errors[name] ? <small className="p-error text-red-500 text-xs mt-1 block">{errors[name]?.message}</small> : <small className="p-error">&nbsp;</small>;
+  const getFormErrorMessage = (name: keyof RegisterRequest) => {
+    return errors[name] ? (
+      <small className="p-error text-red-500 text-xs mt-1 block">
+        {errors[name]?.message}
+      </small>
+    ) : (
+      <small className="p-error">&nbsp;</small>
+    );
   };
 
-  return(
+  return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
       <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Đăng Ký Tài Khoản</h2>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
+          Đăng Ký Tài Khoản
+        </h2>
+
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
           <div className="flex flex-col">
-            <label htmlFor="username" className="mb-2 font-medium text-gray-700">Tên đăng nhập</label>
-            <Controller 
+            <label
+              htmlFor="username"
+              className="mb-2 font-medium text-gray-700"
+            >
+              Tên đăng nhập
+            </label>
+            <Controller
               name="username"
               control={control}
               rules={{ required: "Nhập tên đăng nhập" }}
               render={({ field, fieldState }) => (
-                <InputText id={field.name} {...field} className={classNames({ "p-invalid": fieldState.invalid }, "w-full")}/>
+                <InputText
+                  id={field.name}
+                  {...field}
+                  className={classNames(
+                    { "p-invalid": fieldState.invalid },
+                    "w-full",
+                  )}
+                />
               )}
             />
             {getFormErrorMessage("username")}
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="fullName" className="mb-2 font-medium text-gray-700">Họ và tên</label>
-            <Controller 
+            <label
+              htmlFor="fullName"
+              className="mb-2 font-medium text-gray-700"
+            >
+              Họ và tên
+            </label>
+            <Controller
               name="fullName"
               control={control}
               rules={{ required: "Nhập họ và tên" }}
               render={({ field, fieldState }) => (
-                <InputText id={field.name} {...field} className={classNames({ "p-invalid": fieldState.invalid }, "w-full")}/>
+                <InputText
+                  id={field.name}
+                  {...field}
+                  className={classNames(
+                    { "p-invalid": fieldState.invalid },
+                    "w-full",
+                  )}
+                />
               )}
             />
             {getFormErrorMessage("fullName")}
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="email" className="mb-2 font-medium text-gray-700">Email</label>
-            <Controller 
+            <label htmlFor="email" className="mb-2 font-medium text-gray-700">
+              Email
+            </label>
+            <Controller
               name="email"
               control={control}
-              rules={{ required: "Nhập email", pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i, message: "Email không hợp lệ!" } }}
+              rules={{
+                required: "Nhập email",
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+                  message: "Email không hợp lệ!",
+                },
+              }}
               render={({ field, fieldState }) => (
-                <InputText id={field.name} {...field} className={classNames({ "p-invalid": fieldState.invalid }, "w-full")}/>
+                <InputText
+                  id={field.name}
+                  {...field}
+                  className={classNames(
+                    { "p-invalid": fieldState.invalid },
+                    "w-full",
+                  )}
+                />
               )}
             />
             {getFormErrorMessage("email")}
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="phone" className="mb-2 font-medium text-gray-700">Số điện thoại</label>
-            <Controller 
+            <label htmlFor="phone" className="mb-2 font-medium text-gray-700">
+              Số điện thoại
+            </label>
+            <Controller
               name="phone"
               control={control}
               rules={{ required: "Nhập số điện thoại" }}
               render={({ field, fieldState }) => (
-                <InputText id={field.name} keyfilter="int" {...field} className={classNames({ "p-invalid": fieldState.invalid }, "w-full")}/>
+                <InputText
+                  id={field.name}
+                  keyfilter="int"
+                  {...field}
+                  className={classNames(
+                    { "p-invalid": fieldState.invalid },
+                    "w-full",
+                  )}
+                />
               )}
             />
             {getFormErrorMessage("phone")}
           </div>
-          
+
           <div className="flex flex-col md:col-span-2">
-            <label htmlFor="customerAddress" className="mb-2 font-medium text-gray-700">Tỉnh/Thành phố</label>
-            <Controller 
+            <label
+              htmlFor="customerAddress"
+              className="mb-2 font-medium text-gray-700"
+            >
+              Tỉnh/Thành phố
+            </label>
+            <Controller
               name="customerAddress"
               control={control}
               rules={{ required: "Vui lòng chọn tỉnh/thành phố" }}
               render={({ field, fieldState }) => (
-                <Dropdown 
+                <Dropdown
                   id={field.name}
                   value={field.value}
                   onChange={(e) => field.onChange(e.value)}
                   options={provinces}
                   optionLabel="label"
-                  placeholder="Chọn tỉnh/thành phố"
+                  placeholder={isLoading ? "Đang tải..." : "Chọn tỉnh thành"}
                   filter
+                  disabled={isLoading}
                   showClear
-                  className={classNames({ "p-invalid": fieldState.invalid }, "w-full")}
+                  className={classNames(
+                    { "p-invalid": fieldState.invalid },
+                    "w-full",
+                  )}
                 />
               )}
             />
@@ -147,16 +191,25 @@ const Register = () => {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="password" className="mb-2 font-medium text-gray-700">Mật khẩu</label>
-            <Controller 
+            <label
+              htmlFor="password"
+              className="mb-2 font-medium text-gray-700"
+            >
+              Mật khẩu
+            </label>
+            <Controller
               name="password"
               control={control}
               rules={{ required: "Nhập mật khẩu" }}
               render={({ field, fieldState }) => (
-                <Password 
-                  id={field.name} {...field}
+                <Password
+                  id={field.name}
+                  {...field}
                   toggleMask
-                  className={classNames({ "p-invalid" : fieldState.invalid }, "w-full")}
+                  className={classNames(
+                    { "p-invalid": fieldState.invalid },
+                    "w-full",
+                  )}
                   inputClassName="w-full"
                   feedback={false}
                 />
@@ -166,19 +219,29 @@ const Register = () => {
           </div>
 
           <div className="flex flex-col">
-            <label htmlFor="confirmPassword" className="mb-2 font-medium text-gray-700">Xác nhận mật khẩu</label>
-            <Controller 
+            <label
+              htmlFor="confirmPassword"
+              className="mb-2 font-medium text-gray-700"
+            >
+              Xác nhận mật khẩu
+            </label>
+            <Controller
               name="confirmPassword"
               control={control}
-              rules={{ 
-                  required: "Xác nhận lại mật khẩu",
-                  validate: (value) => value === password || "Mật khẩu xác nhận không khớp!"
+              rules={{
+                required: "Xác nhận lại mật khẩu",
+                validate: (value) =>
+                  value === password || "Mật khẩu xác nhận không khớp!",
               }}
               render={({ field, fieldState }) => (
-                <Password 
-                  id={field.name} {...field}
+                <Password
+                  id={field.name}
+                  {...field}
                   toggleMask
-                  className={classNames({ "p-invalid" : fieldState.invalid }, "w-full")}
+                  className={classNames(
+                    { "p-invalid": fieldState.invalid },
+                    "w-full",
+                  )}
                   inputClassName="w-full"
                   feedback={false}
                 />
@@ -188,22 +251,29 @@ const Register = () => {
           </div>
 
           <div className="text-center md:col-span-2">
-            <p className="text-center justify-center">Bạn đã có 1 tài khoản?<Link to="/account/login" className="text-blue-600 hover:underline font-semibold ml-1">Đăng nhập</Link></p>
+            <p className="text-center justify-center">
+              Bạn đã có 1 tài khoản?
+              <Link
+                to="/account/login"
+                className="text-blue-600 hover:underline font-semibold ml-1"
+              >
+                Đăng nhập
+              </Link>
+            </p>
           </div>
 
           <div className="md:col-span-2 mt-4">
             <Button
               label="Đăng Ký"
               icon="pi pi-check"
-              loading={loading} 
+              loading={loading}
               className="w-full p-3 font-bold"
             />
           </div>
-
         </form>
       </div>
     </div>
   );
-}
+};
 
-export default Register
+export default Register;

@@ -1,13 +1,22 @@
 import { useEffect, useState, type ChangeEvent, type FormEvent } from "react";
-import type { ProductFormData, PreviewUrls, ProductFormProps } from "@/types/product.types";
+import type { ProductFormData, PreviewUrls, ProductFormProps } from "@/@types/product.types";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
 import { InputNumber } from "primereact/inputnumber";
 import { InputTextarea } from "primereact/inputtextarea";
+import { RadioButton } from "primereact/radiobutton";
 import { Dropdown } from "primereact/dropdown";
 import { Skeleton } from "primereact/skeleton";
 import { useCategories } from "../../Category/hooks";
 import { useProductDetail } from "../hooks";
+import { Controller, useForm } from "react-hook-form";
+
+const materialOptions = [
+    { label: 'Gỗ', value: 'Gỗ' },
+    { label: 'Thép', value: 'Thép' },
+    { label: 'Sắt', value: 'Sắt' },
+    { label: 'Kính', value: 'Kính' },
+];
 
 const emptyFormData: ProductFormData = {
   name: '',
@@ -44,6 +53,8 @@ const ProductForm = ({ productId, onSubmitForm, onClose, loading }: ProductFormP
     pageInfo: { pageNum: 1, pageSize: 100 },
     searchCondition: { keyword: "", isDeleted: false, status: "" }
   });
+
+  const { control } = useForm();
 
   useEffect(() => {
     if (!productId) {
@@ -203,9 +214,34 @@ const ProductForm = ({ productId, onSubmitForm, onClose, loading }: ProductFormP
                     </div>
                     <div>
                         <label htmlFor="material" className={labelClass}>Chất Liệu</label>
-                        <InputText 
-                            id="material" name="material" value={formData.material} onChange={handleChange} 
-                            className="w-full" placeholder="Ví dụ: Gỗ sồi, Da thật..."
+                        <Controller 
+                            name="material"
+                            control={control}
+                            rules={{ required: "Vui lòng chọn chất liệu" }}
+                            render={({ field, fieldState }) => (
+                                <>
+                                    <div className="flex flex-wrap gap-3">
+                                        {materialOptions.map((option) => (
+                                            <div key={option.value} className="flex align-items-center">
+                                                <RadioButton 
+                                                    inputId={option.value}
+                                                    name="material"
+                                                    value={option.value}
+                                                    onChange={(e) => field.onChange(e.value)}
+                                                    checked={field.value === option.value}
+                                                />
+                                                <label htmlFor={option.label} className="ml-2 cursor-pointer">
+                                                    {option.label}
+                                                </label>
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    {fieldState.error && (
+                                        <small className="p-error block mt-2">{fieldState.error.message}</small>
+                                    )}
+                                </>
+                            )}
                         />
                     </div>
                 </div>

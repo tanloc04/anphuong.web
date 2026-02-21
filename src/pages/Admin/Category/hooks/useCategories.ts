@@ -1,13 +1,13 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { categoryApi } from "@/api/categoryApi";
-import type { ISearchCategoryRequest } from "@/types/category.types";
+import type { SearchCategoryRequest } from "@/@types/category.types";
 
-const defaultSearch: ISearchCategoryRequest = {
+const defaultSearch: SearchCategoryRequest = {
     searchCondition: { keyword: "", isDeleted: false, status: "" },
     pageInfo: { pageNum: 1, pageSize: 100 }
 };
 
-export const useCategories = (searchParams?: Partial<ISearchCategoryRequest>) => {
+export const useCategories = (searchParams?: Partial<SearchCategoryRequest>) => {
     const params = { ...defaultSearch, ...searchParams };
 
     return useQuery({

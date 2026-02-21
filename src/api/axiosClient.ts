@@ -1,12 +1,15 @@
 import axios from "axios";
 
-export const API_BASE_URL = "http://localhost:5273/api";
+// export const API_BASE_URL = "http://localhost:5273/api"; // Hardcode thế này dễ lỗi khi deploy
+// Nên dùng biến môi trường, fallback về localhost nếu không có
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5273/api";
 
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json'
-  }
+  },
+  withCredentials: true
 });
 
 let isRefreshing = false;
@@ -25,12 +28,8 @@ const processQueue = (error: any, token: string | null = null) => {
 
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
     return config;
-  }, 
+  },
   (error) => Promise.reject(error)
 );
 
@@ -38,18 +37,19 @@ axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest.url.includes('/Auth/login')) {
-      if (originalRequest._retry) {
-        return Promise.reject(error);
-      }
+    
+    // 👇 QUAN TRỌNG: Thêm điều kiện !includes('/Auth/refresh-token')
+    // Để tránh việc chính API refresh bị lỗi lại kích hoạt interceptor lần nữa
+    if (error.response?.status === 401 && 
+        !originalRequest.url.includes('/Auth/login') && 
+        !originalRequest.url.includes('/Auth/refresh-token') && 
+        !originalRequest._retry) {
+      
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-        .then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          return axiosClient(originalRequest);
-        })
+        .then(() => axiosClient(originalRequest))
         .catch((err) => Promise.reject(err));
       }
 
@@ -57,31 +57,21 @@ axiosClient.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        const token = localStorage.getItem('token');
-
-        if (!refreshToken) throw new Error("No refresh token available");
-        const result = await axios.post(`${API_BASE_URL}/Auth/refresh-token`, {
-          token: token,
-          refreshToken: refreshToken
-        });
-
-        if (result.data && result.data.success) {
-          const { token: newAccessToken, refreshToken: newRefreshToken } = result.data.data;
-          localStorage.setItem('token', newAccessToken);
-          localStorage.setItem('refreshToken', newRefreshToken);
-          axiosClient.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-          processQueue(null, newAccessToken);
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-          return axiosClient(originalRequest);
-        }
+        // 👇 QUAN TRỌNG: Thêm {} vào body để tránh lỗi 400 Bad Request từ phía C# [FromBody]
+        await axiosClient.post('/Auth/refresh-token', {}); 
+        
+        processQueue(null, 'success');
+        
+        // Gọi lại request ban đầu (Lúc này trình duyệt tự kẹp cookie mới vào)
+        return axiosClient(originalRequest);
+        
       } catch (refreshError) {
         processQueue(refreshError, null);
+        console.log("Phiên đăng nhập hết hạn hoặc lỗi Refresh!");
         
-        console.log("Phiên đăng nhập hết hạn!");
-        localStorage.clear();
+        // Chỉ redirect nếu không phải đang ở trang login
         if (window.location.pathname !== '/account/login') {
-          window.location.href = '/account/login';
+             window.location.href = '/account/login';
         }
         return Promise.reject(refreshError);
       } finally {

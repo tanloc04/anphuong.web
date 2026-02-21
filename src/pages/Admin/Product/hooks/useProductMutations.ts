@@ -1,14 +1,14 @@
 import { Mutation, useMutation, useQueryClient } from "@tanstack/react-query";
 import { productApi } from "@/api/productApi";
-import { uploadToCloudinary } from "@/services/uploadCloudinary";
+import { uploadToCloudinary } from "@/services/uploadCloudinaryService";
 import { Toast } from "primereact/toast";
 import type { RefObject } from "react";
-import type { ProductFormData, IProductRequest } from "@/types/product.types";
+import type { ProductFormData, ProductRequest } from "@/@types/product.types";
 
 export const useProductMutations = (toastRef: RefObject<Toast>) => {
     const queryClient = useQueryClient();
 
-    const prepareDataBeforeSubmit = async (formData: ProductFormData): Promise<IProductRequest> => {
+    const prepareDataBeforeSubmit = async (formData: ProductFormData): Promise<ProductRequest> => {
         const payload: any = { ...formData };
         const imageFields = ['thumbnail', 'image1', 'image2', 'image3', 'image4'];
 
@@ -25,7 +25,7 @@ export const useProductMutations = (toastRef: RefObject<Toast>) => {
                 payload[field] = "";
             }
         }
-        return payload as IProductRequest;
+        return payload as ProductRequest;
     };
 
     const createMutation = useMutation({
@@ -46,7 +46,7 @@ export const useProductMutations = (toastRef: RefObject<Toast>) => {
     });
 
     const updateMutation = useMutation({
-        mutationFn: async ({ id, data }: {id: number, data: IProductRequest}) => {
+        mutationFn: async ({ id, data }: {id: number, data: ProductRequest}) => {
             const apiPayload = await prepareDataBeforeSubmit(data);
             return productApi.update(id, apiPayload);
         },

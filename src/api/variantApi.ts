@@ -1,8 +1,8 @@
-import type { ISearchVariantRequest, IVariantRequest } from "@/types/variant.types";
+import type { SearchVariantRequest, VariantRequest } from "@/@types/variant.types";
 import axiosClient from "./axiosClient";
 
 export const variantApi = {
-    search: (data: ISearchVariantRequest) => {
+    search: (data: SearchVariantRequest) => {
         return axiosClient.post('/Variant/search', data);
     },
 
@@ -10,11 +10,11 @@ export const variantApi = {
         return axiosClient.get(`/Variant/${id}`);
     },
 
-    create: (data: IVariantRequest) => {
+    create: (data: VariantRequest) => {
         return axiosClient.post('/Variant/create', data);
     },
 
-    update: (id: number, data: IVariantRequest) => {
+    update: (id: number, data: VariantRequest) => {
         return axiosClient.put(`/Variant/${id}`, data);
     },
 

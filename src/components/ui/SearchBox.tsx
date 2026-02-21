@@ -18,9 +18,9 @@ const SearchBox = () => {
 
   return (
     <div
-      className={`flex items-center justify-end rounded-full border bg-white shadow-sm transition-all duration-500 ease-in-out ${
+      className={`flex items-center rounded-full border bg-white shadow-sm transition-all duration-500 ease-in-out ${
         isExpanded 
-          ? "w-64 border-[#c4a484] px-4 py-2"
+          ? "w-64 border-[#c4a484] px-4 py-2 justify-between"
           : "w-10 h-10 border-transparent justify-center cursor-pointer hover:bg-gray-100"
       } ${isFocused ? "ring-2 ring-[#c4a484]/20" : ""}`}
       
@@ -35,7 +35,7 @@ const SearchBox = () => {
         className={`bg-transparent outline-none text-sm text-gray-700 placeholder-gray-400 transition-all duration-500 ease-in-out ${
           isExpanded 
             ? "w-full opacity-100 mr-2"
-            : "w-0 opacity-0" 
+            : "w-0 opacity-0 p-0" 
         }`}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}

@@ -3,8 +3,8 @@ import { variantApi } from "@/api/variantApi";
 import { colorApi } from "@/api/colorApi";
 import { Toast } from "primereact/toast";
 import type { RefObject } from "react";
-import type { IColorRequest } from "@/types/color.types";
-import type { IVariantRequest } from "@/types/variant.types";
+import type { ColorRequest } from "@/@types/color.types";
+import type { VariantRequest } from "@/@types/variant.types";
 
 export const useVariantMutations = (toastRef: RefObject<Toast>) => {
     const queryClient = useQueryClient();
@@ -19,19 +19,19 @@ export const useVariantMutations = (toastRef: RefObject<Toast>) => {
     }
 
     const createColorMutation = useMutation({
-        mutationFn: (data: IColorRequest) => colorApi.create(data),
-        onSuccess: () => onSuccess('Tạo màu sắc thành công!', ['colors']),
+        mutationFn: (data: ColorRequest) => colorApi.create(data),
+        onSuccess: () => onSuccess('Tạo màu sắc thành công!', ['color']),
         onError
     });
 
     const createVariantMutation = useMutation({
-        mutationFn: (data: IVariantRequest) => variantApi.create(data),
+        mutationFn: (data: VariantRequest) => variantApi.create(data),
         onSuccess: () => onSuccess('Thêm biến thể thành công!', ['variants']),
         onError
     });
 
     const updateVariantMutation = useMutation({
-        mutationFn: ({ id, data }: {id: number, data: IVariantRequest }) => variantApi.update(id, data),
+        mutationFn: ({ id, data }: {id: number, data: VariantRequest }) => variantApi.update(id, data),
         onSuccess: () => onSuccess('Cập nhật biến thể thành công!', ['variants']),
         onError
     });

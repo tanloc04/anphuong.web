@@ -1,11 +1,11 @@
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { variantApi } from "@/api/variantApi";
 import { colorApi } from "@/api/colorApi";
-import type { ISearchVariantRequest } from "@/types/variant.types";
-import type { ISearchColorRequest } from "@/types/color.types";
+import type { SearchVariantRequest } from "@/@types/variant.types";
+import type { SearchColorRequest } from "@/@types/color.types";
 
-export const useColors = (searchParams?: Partial<ISearchColorRequest>) => {
-    const defaultParams: ISearchColorRequest = {
+export const useColors = (searchParams?: Partial<SearchColorRequest>) => {
+    const defaultParams: SearchColorRequest = {
         searchCondition: { keyword: "", status: "", isDeleted: false },
         pageInfo: { pageNum: 1, pageSize: 100 }
     };
@@ -22,10 +22,10 @@ export const useColors = (searchParams?: Partial<ISearchColorRequest>) => {
     });
 };
 
-export const useVariants = (productId: number | null, searchParams?: Partial<ISearchVariantRequest>) => {
+export const useVariants = (productId: number | null, searchParams?: Partial<SearchVariantRequest>) => {
     const isEnabled = !!productId;
 
-    const defaultParams: ISearchVariantRequest = {
+    const defaultParams: SearchVariantRequest = {
         searchCondition: {
             productId: productId || 0,
             status: "",

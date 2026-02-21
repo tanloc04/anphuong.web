@@ -1,6 +1,6 @@
-import type { IPageInfo } from "./common.types";
+import type { PageInfo } from "./common.types";
 
-export interface IProduct {
+export interface Product {
     id: number,
     name: string,
     description: string,
@@ -54,18 +54,18 @@ export interface ProductFormProps {
   onClose: () => void;
 }
 
-export interface IProductSearchCondition {
+export interface ProductSearchCondition {
     keyword: string,
     status: string,
     isDeleted: boolean
 }
 
-export interface IProductSearchRequest {
-    searchCondition: IProductSearchCondition,
-    pageInfo: IPageInfo
+export interface ProductSearchRequest {
+    searchCondition: ProductSearchCondition,
+    pageInfo: PageInfo
 }
 
-export interface IProductRequest {
+export interface ProductRequest {
     name: string;
     description: string;
     price: number;

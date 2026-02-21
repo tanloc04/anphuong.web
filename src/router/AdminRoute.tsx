@@ -1,24 +1,24 @@
-import { Navigate, Outlet } from "react-router-dom"
-import { Toast } from "primereact/toast";
-import { useRef } from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "@/context/auth.context";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const AdminRoute = () => {
-  const token = localStorage.getItem("token");
-  const userEmail = localStorage.getItem("email");
-  const toast = useRef<Toast>(null);
-
+  const { user, loading, isAuthenticated } = useAuth();
   const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
 
-  if (!token) {
-    return <Navigate to="/account/login" replace/>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-gray-100">
+         <ProgressSpinner style={{width: '50px', height: '50px'}} strokeWidth="4" />
+      </div>
+    );
   }
 
-  if (userEmail !== adminEmail) {
-    toast.current?.show({ severity: "warn", summary: "Cảnh báo", detail: "Bạn không có quyền truy cập vào trang này!" });
-    return <Navigate to="/" replace/>
+  if (!isAuthenticated || !user || user.email !== adminEmail) {
+    return <Navigate to="/" replace />;
   }
 
-  return <Outlet />
+  return <Outlet />;
 };
 
 export default AdminRoute;
