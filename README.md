@@ -37,8 +37,8 @@ This application is built using a Component-based architecture to maximize code 
 
 ## Related Resources
 
-* **Backend API Repository:** github.com/tanloc04/anphuong.api
-* **System Documentation:** The detailed system architecture and database design (PDF) can be found in the Backend repository or directly accessed here: github.com/tanloc04/anphuong.api/blob/1e35162c30ad7cfc0b5fc30282f00a6a40293afd/docs/AnPhuongDocument.pdf.
+* **Backend API Repository:** [tanloc04/anphuong.api](https://github.com/tanloc04/anphuong.api)
+* **System Documentation:** The detailed system architecture and database design (PDF) can be found in the Backend repository or directly accessed here: [AnPhuongDocument.pdf](https://github.com/tanloc04/anphuong.api/blob/1e35162c30ad7cfc0b5fc30282f00a6a40293afd/docs/AnPhuongDocument.pdf)
 
 ## Local Setup Instructions
 
