@@ -4,13 +4,12 @@ import Sidebar from "@/pages/components/common/Sidebar";
 const AdminLayout = () => {
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-zinc-950">
-      <Sidebar />   
+      <Sidebar />
       <main className="flex-1 flex flex-col overflow-y-auto ml-64">
         <Outlet />
       </main>
-      
     </div>
-  )
-}
+  );
+};
 
 export default AdminLayout;
