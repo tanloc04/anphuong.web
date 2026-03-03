@@ -1,25 +1,16 @@
-import { useForm, Controller } from "react-hook-form";
-import { InputText } from "primereact/inputtext";
-import { Dropdown } from "primereact/dropdown";
-import { Password } from "primereact/password";
+import { useForm } from "react-hook-form";
 import { Button } from "primereact/button";
-import { classNames } from "primereact/utils";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../../context/auth.context";
 import type { RegisterRequest } from "@/@types/auth.types";
-import { useProvinces } from "../hooks";
+import { FormInput } from "@/components/common/form";
+import { FormPassword } from "@/components/common/form";
+import { ProgressSpinner } from "primereact/progressspinner";
 
 const Register = () => {
   const { register, loading } = useAuth();
 
-  const { provinces, isLoading } = useProvinces();
-
-  const {
-    control,
-    handleSubmit,
-    watch,
-    formState: { errors },
-  } = useForm<RegisterRequest>({
+  const { control, handleSubmit, watch } = useForm<RegisterRequest>({
     defaultValues: {
       email: "",
       password: "",
@@ -36,239 +27,155 @@ const Register = () => {
     await register(data);
   };
 
-  const getFormErrorMessage = (name: keyof RegisterRequest) => {
-    return errors[name] ? (
-      <small className="p-error text-red-500 text-xs mt-1 block">
-        {errors[name]?.message}
-      </small>
-    ) : (
-      <small className="p-error">&nbsp;</small>
-    );
-  };
+  const inputStyleClass =
+    "w-full p-3.5 text-gray-800 bg-white/90 !border-none rounded-lg shadow-sm placeholder:text-gray-400 focus:outline-none focus:!shadow-[0_0_0_2px_#c4a484]";
+  const labelStyleClass = "text-gray-200 font-medium ml-1 text-sm";
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50 p-4">
-      <div className="w-full max-w-4xl bg-white rounded-lg shadow-lg p-8">
-        <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Đăng Ký Tài Khoản
-        </h2>
+    <div className="relative flex justify-center items-center min-h-screen bg-gray-900 overflow-hidden">
+      {loading && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300">
+          <div className="bg-white/10 p-6 rounded-2xl backdrop-blur-md shadow-2xl border border-white/20 flex flex-col items-center gap-4">
+            <ProgressSpinner
+              style={{ width: "50px", height: "50px" }}
+              strokeWidth="4"
+              fill="transparent"
+              animationDuration=".5s"
+              className="!stroke-[#c4a484]"
+            />
+            <span className="text-white font-medium tracking-wide text-sm animate-pulse">
+              Đang đăng ký...
+            </span>
+          </div>
+        </div>
+      )}
+
+      <div className="absolute inset-0 z-0">
+        <img
+          src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?q=80&w=2000&auto=format&fit=crop"
+          alt="Background"
+          className="w-full h-full object-cover opacity-60"
+        />
+        <div className="absolute inset-0 bg-black/40"></div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md p-8 sm:p-10 rounded-3xl shadow-2xl border border-white/20 bg-white/10 backdrop-blur-lg">
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold text-white mb-2 drop-shadow-md tracking-wide">
+            Đăng Ký Tài Khoản
+          </h2>
+          <p className="text-gray-200 text-sm font-light">
+            Tạo tài khoản để quản lý ngôi nhà của bạn
+          </p>
+        </div>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+          className="flex flex-col gap-5 w-full"
         >
-          <div className="flex flex-col">
-            <label
-              htmlFor="username"
-              className="mb-2 font-medium text-gray-700"
-            >
-              Tên đăng nhập
-            </label>
-            <Controller
+          <div className="w-full">
+            <FormInput
               name="username"
               control={control}
-              rules={{ required: "Nhập tên đăng nhập" }}
-              render={({ field, fieldState }) => (
-                <InputText
-                  id={field.name}
-                  {...field}
-                  className={classNames(
-                    { "p-invalid": fieldState.invalid },
-                    "w-full",
-                  )}
-                />
-              )}
+              label="Tên đăng nhập"
+              placeholder="Nhập tên đăng nhập"
+              className={inputStyleClass}
+              labelClassName={labelStyleClass}
+              rules={{ required: "Vui lòng nhập tên đăng nhập" }}
             />
-            {getFormErrorMessage("username")}
           </div>
 
-          <div className="flex flex-col">
-            <label
-              htmlFor="fullName"
-              className="mb-2 font-medium text-gray-700"
-            >
-              Họ và tên
-            </label>
-            <Controller
+          <div className="w-full">
+            <FormInput
               name="fullName"
               control={control}
-              rules={{ required: "Nhập họ và tên" }}
-              render={({ field, fieldState }) => (
-                <InputText
-                  id={field.name}
-                  {...field}
-                  className={classNames(
-                    { "p-invalid": fieldState.invalid },
-                    "w-full",
-                  )}
-                />
-              )}
+              label="Họ và tên"
+              placeholder="Nhập họ và tên"
+              className={inputStyleClass}
+              labelClassName={labelStyleClass}
+              rules={{ required: "Vui lòng nhập họ và tên" }}
             />
-            {getFormErrorMessage("fullName")}
           </div>
 
-          <div className="flex flex-col">
-            <label htmlFor="email" className="mb-2 font-medium text-gray-700">
-              Email
-            </label>
-            <Controller
+          <div className="w-full">
+            <FormInput
               name="email"
               control={control}
+              label="Email"
+              placeholder="Nhập email của bạn"
+              className={inputStyleClass}
+              labelClassName={labelStyleClass}
               rules={{
-                required: "Nhập email",
+                required: "Vui lòng nhập email",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
                   message: "Email không hợp lệ!",
                 },
               }}
-              render={({ field, fieldState }) => (
-                <InputText
-                  id={field.name}
-                  {...field}
-                  className={classNames(
-                    { "p-invalid": fieldState.invalid },
-                    "w-full",
-                  )}
-                />
-              )}
             />
-            {getFormErrorMessage("email")}
           </div>
 
-          <div className="flex flex-col">
-            <label htmlFor="phone" className="mb-2 font-medium text-gray-700">
-              Số điện thoại
-            </label>
-            <Controller
+          <div className="w-full">
+            <FormInput
               name="phone"
               control={control}
-              rules={{ required: "Nhập số điện thoại" }}
-              render={({ field, fieldState }) => (
-                <InputText
-                  id={field.name}
-                  keyfilter="int"
-                  {...field}
-                  className={classNames(
-                    { "p-invalid": fieldState.invalid },
-                    "w-full",
-                  )}
-                />
-              )}
+              label="Số điện thoại"
+              placeholder="Nhập số điện thoại"
+              className={inputStyleClass}
+              labelClassName={labelStyleClass}
+              rules={{ required: "Vui lòng nhập số điện thoại" }}
             />
-            {getFormErrorMessage("phone")}
           </div>
 
-          <div className="flex flex-col md:col-span-2">
-            <label
-              htmlFor="customerAddress"
-              className="mb-2 font-medium text-gray-700"
-            >
-              Tỉnh/Thành phố
-            </label>
-            <Controller
-              name="customerAddress"
-              control={control}
-              rules={{ required: "Vui lòng chọn tỉnh/thành phố" }}
-              render={({ field, fieldState }) => (
-                <Dropdown
-                  id={field.name}
-                  value={field.value}
-                  onChange={(e) => field.onChange(e.value)}
-                  options={provinces}
-                  optionLabel="label"
-                  placeholder={isLoading ? "Đang tải..." : "Chọn tỉnh thành"}
-                  filter
-                  disabled={isLoading}
-                  showClear
-                  className={classNames(
-                    { "p-invalid": fieldState.invalid },
-                    "w-full",
-                  )}
-                />
-              )}
-            />
-            {getFormErrorMessage("customerAddress")}
-          </div>
-
-          <div className="flex flex-col">
-            <label
-              htmlFor="password"
-              className="mb-2 font-medium text-gray-700"
-            >
-              Mật khẩu
-            </label>
-            <Controller
+          <div className="w-full">
+            <FormPassword
               name="password"
               control={control}
-              rules={{ required: "Nhập mật khẩu" }}
-              render={({ field, fieldState }) => (
-                <Password
-                  id={field.name}
-                  {...field}
-                  toggleMask
-                  className={classNames(
-                    { "p-invalid": fieldState.invalid },
-                    "w-full",
-                  )}
-                  inputClassName="w-full"
-                  feedback={false}
-                />
-              )}
+              label="Mật khẩu"
+              placeholder="Nhập mật khẩu"
+              toggleMask
+              feedback={false}
+              className="w-full"
+              inputClassName={inputStyleClass}
+              labelClassName={labelStyleClass}
+              rules={{ required: "Vui lòng nhập mật khẩu" }}
             />
-            {getFormErrorMessage("password")}
           </div>
 
-          <div className="flex flex-col">
-            <label
-              htmlFor="confirmPassword"
-              className="mb-2 font-medium text-gray-700"
-            >
-              Xác nhận mật khẩu
-            </label>
-            <Controller
+          <div className="w-full">
+            <FormPassword
               name="confirmPassword"
               control={control}
+              label="Xác nhận mật khẩu"
+              placeholder="Nhập lại mật khẩu"
+              toggleMask
+              feedback={false}
+              className="w-full"
+              inputClassName={inputStyleClass}
+              labelClassName={labelStyleClass}
               rules={{
-                required: "Xác nhận lại mật khẩu",
+                required: "Vui lòng xác nhận mật khẩu",
                 validate: (value) =>
                   value === password || "Mật khẩu xác nhận không khớp!",
               }}
-              render={({ field, fieldState }) => (
-                <Password
-                  id={field.name}
-                  {...field}
-                  toggleMask
-                  className={classNames(
-                    { "p-invalid": fieldState.invalid },
-                    "w-full",
-                  )}
-                  inputClassName="w-full"
-                  feedback={false}
-                />
-              )}
             />
-            {getFormErrorMessage("confirmPassword")}
           </div>
 
-          <div className="text-center md:col-span-2">
-            <p className="text-center justify-center">
-              Bạn đã có 1 tài khoản?
-              <Link
-                to="/account/login"
-                className="text-blue-600 hover:underline font-semibold ml-1"
-              >
-                Đăng nhập
-              </Link>
-            </p>
-          </div>
+          <Button
+            label="Đăng Ký"
+            loading={loading}
+            disabled={loading}
+            className="w-full p-3.5 mt-2 font-bold text-white !bg-[#c4a484] !border-none !rounded-lg !hover:bg-[#a88b6e] transition-all shadow-lg !hover:shadow-[#c4a484]/40"
+          />
 
-          <div className="md:col-span-2 mt-4">
-            <Button
-              label="Đăng Ký"
-              icon="pi pi-check"
-              loading={loading}
-              className="w-full p-3 font-bold"
-            />
+          <div className="text-center mt-1">
+            <span className="text-gray-300 text-sm">Đã có tài khoản? </span>
+            <Link
+              to="/account/login"
+              className={`text-[#c4a484] hover:text-white font-semibold transition-colors underline decoration-solid ml-1 ${loading ? "pointer-events-none opacity-50" : ""}`}
+            >
+              Đăng nhập ngay
+            </Link>
           </div>
         </form>
       </div>
