@@ -26,14 +26,11 @@ export interface ProductFormData {
     description: string;
     price: number;
     discount: number;
-    material: string;
     longSize: number;
     widthSize: number;
     heightSize: number;
+    isCustomize: boolean;
     categoryId: number | null;
-    variationId: number | null;
-    stock: number;
-    thumbnail: string | File | null;
     image1: string | File | null;
     image2: string | File | null;
     image3: string | File | null;
@@ -41,7 +38,6 @@ export interface ProductFormData {
 }
 
 export interface PreviewUrls {
-    thumbnail: string | null;
     image1: string | null;
     image2: string | null;
     image3: string | null;
@@ -70,14 +66,10 @@ export interface ProductRequest {
     description: string;
     price: number;
     discount: number;
-    material: string;
     longSize: number;
     widthSize: number;
     heightSize: number;
-    categoryId: number | null;
-    variationId: number | null;
-    stock: number;
-    thumbnail: string | File | null;
+    isCustomize: boolean;
     image1: string | File | null;
     image2: string | File | null;
     image3: string | File | null;
