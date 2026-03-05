@@ -7,7 +7,11 @@ import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Image } from "primereact/image";
 import { Dialog } from "primereact/dialog";
 import { Tag } from "primereact/tag";
+import { Dropdown } from "primereact/dropdown";
+import { Calendar } from "primereact/calendar";
+import { Button } from "primereact/button";
 import { useProducts, useProductMutations } from "./hooks";
+import { useCategories } from "../Category/hooks";
 import ProductForm from "./components/ProductForm";
 import VariationManager from "./components/VariationManager";
 import ManagementLayout from "@/components/common/layout/ManagementLayout";
@@ -15,6 +19,10 @@ import ManagementLayout from "@/components/common/layout/ManagementLayout";
 const ProductManagement = () => {
   const [lazyParams, setLazyParams] = useState({ first: 0, rows: 10, page: 0 });
   const [keyword, setKeyword] = useState("");
+
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [dateRange, setDateRange] = useState<Date[] | null>(null);
+
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(
     null,
@@ -24,6 +32,12 @@ const ProductManagement = () => {
     useState<any>(null);
 
   const toast = useRef<Toast>(null);
+
+  const { data: categoryData } = useCategories({
+    pageInfo: { pageNum: 1, pageSize: 100 },
+    searchCondition: { keyword: "", isDeleted: false, status: "" },
+  });
+  const categories = categoryData?.pageData || [];
 
   const {
     data: apiResponse,
@@ -35,6 +49,9 @@ const ProductManagement = () => {
       keyword: keyword,
       status: "",
       isDeleted: false,
+      categoryId: selectedCategory,
+      startDate: dateRange && dateRange[0] ? dateRange[0].toISOString() : null,
+      endDate: dateRange && dateRange[1] ? dateRange[1].toISOString() : null,
     },
     pageInfo: {
       pageNum: lazyParams.page + 1,
@@ -51,6 +68,7 @@ const ProductManagement = () => {
     remove,
     isPending: isMutating,
   } = useProductMutations(toast);
+
   const openNew = () => {
     setSelectedProductId(null);
     setModalVisible(true);
@@ -92,12 +110,85 @@ const ProductManagement = () => {
     }
   };
 
+  // ================= TẠO GIAO DIỆN THANH FILTER =================
+  const renderHeader = () => {
+    return (
+      <div className="flex items-center justify-between bg-gray-50/50 p-3 rounded-lg border border-gray-200 mb-2">
+        {/* Đổi flex-wrap thành flex-row để ép nằm ngang */}
+        <div className="flex flex-row items-center gap-4 overflow-x-auto">
+          <span className="font-semibold text-gray-600 whitespace-nowrap">
+            <i className="pi pi-filter mr-2"></i>Bộ lọc:
+          </span>
+
+          {/* Lọc Danh mục - Chốt cứng w-[250px] */}
+          <div className="p-inputgroup h-10 w-[250px]">
+            <span className="p-inputgroup-addon bg-white">
+              <i className="pi pi-th-large text-gray-400"></i>
+            </span>
+            <Dropdown
+              value={selectedCategory}
+              options={categories}
+              onChange={(e) => {
+                setSelectedCategory(e.value);
+                setLazyParams((prev) => ({ ...prev, first: 0, page: 0 }));
+              }}
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Tất cả danh mục"
+              showClear
+              filter
+              className="flex align-items-center"
+            />
+          </div>
+
+          {/* Lọc Ngày tháng */}
+          <div className="p-inputgroup h-10 w-[500px]">
+            <span className="p-inputgroup-addon bg-white">
+              <i className="pi pi-calendar text-gray-400"></i>
+            </span>
+            <Calendar
+              value={dateRange}
+              onChange={(e) => {
+                setDateRange(e.value as Date[]);
+                setLazyParams((prev) => ({ ...prev, first: 0, page: 0 }));
+              }}
+              selectionMode="range"
+              readOnlyInput
+              hideOnRangeSelection
+              placeholder="Từ ngày - Đến ngày"
+              dateFormat="dd/mm/yy"
+              showButtonBar
+              className="w-full"
+            />
+          </div>
+
+          {/* Nút Xóa Lọc */}
+          {(selectedCategory || dateRange) && (
+            <Button
+              icon="pi pi-filter-slash"
+              label="Bỏ lọc"
+              severity="secondary"
+              text
+              className="h-10 text-gray-500 hover:text-gray-800 whitespace-nowrap"
+              onClick={() => {
+                setSelectedCategory(null);
+                setDateRange(null);
+                setLazyParams((prev) => ({ ...prev, first: 0, page: 0 }));
+              }}
+            />
+          )}
+        </div>
+      </div>
+    );
+  };
+  // ==============================================================
+
   const imageBodyTemplate = (rowData: any) => {
     return (
       <div className="flex justify-center relative group">
-        {rowData.thumbnail ? (
+        {rowData.image1 ? (
           <Image
-            src={rowData.thumbnail}
+            src={rowData.image1}
             alt={rowData.name}
             width="50"
             preview
@@ -133,7 +224,7 @@ const ProductManagement = () => {
   };
 
   const stockBodyTemplate = (rowData: any) => {
-    const stock = rowData.stock ?? 0;
+    const stock = rowData.totalStock ?? rowData.stock ?? 0;
     return (
       <Tag
         value={stock > 0 ? stock : "Hết"}
@@ -163,7 +254,7 @@ const ProductManagement = () => {
         <EditButton
           icon="pi pi-sitemap"
           rounded
-          severity="help"
+          severity={rowData.isMissingVariants ? "warning" : "help"} // Đổi màu cảnh báo nếu chưa có biến thể
           tooltip="Quản lý biến thể"
           onClick={() => openVariationManager(rowData)}
           aria-label="Variants"
@@ -211,6 +302,7 @@ const ProductManagement = () => {
         className="p-datatable-sm"
         stripedRows
         size="small"
+        header={renderHeader()}
       >
         <Column
           field="id"
@@ -244,7 +336,7 @@ const ProductManagement = () => {
           style={{ width: "12%" }}
         />
         <Column
-          field="stock"
+          field="totalStock"
           header="Kho"
           body={stockBodyTemplate}
           sortable
@@ -271,12 +363,6 @@ const ProductManagement = () => {
           body={(r) => sizeBodyTemplate(r.heightSize)}
           style={{ width: "70px" }}
           className="text-center text-sm"
-        />
-        <Column
-          field="material"
-          header="Chất liệu"
-          style={{ width: "10%" }}
-          className="text-gray-600 text-sm"
         />
         <Column
           header="Thao tác"

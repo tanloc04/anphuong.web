@@ -53,7 +53,10 @@ export interface ProductFormProps {
 export interface ProductSearchCondition {
     keyword: string,
     status: string,
-    isDeleted: boolean
+    isDeleted: boolean,
+    categoryId: number | null,
+    startDate: string | null,
+    endDate: string | null
 }
 
 export interface ProductSearchRequest {
@@ -70,6 +73,7 @@ export interface ProductRequest {
     widthSize: number;
     heightSize: number;
     isCustomize: boolean;
+    categoryId: number | null;
     image1: string | File | null;
     image2: string | File | null;
     image3: string | File | null;
