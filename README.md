@@ -20,6 +20,10 @@ This application is built using a Component-based architecture to maximize code 
 * Established the core project structure and routing mechanisms.
 * Developed reusable base UI components.
 * Completed layouts for Authentication views, Dashboard layout, Product Management, Category Management, User Management.
+## Application UI (Screenshots & Demos)
+
+### 1. Customer Storefront (Giao diện Khách hàng)
+> *Responsive web design for end-users to browse products, manage carts, and checkout.*
   ![Homepage Demo](https://github.com/tanloc04/anphuong.web/blob/Loc/assets/homepage.gif)
 <img width="1903" height="948" alt="image" src="https://github.com/user-attachments/assets/5970a8e9-2a14-414e-bdef-347c44df23a5" />
 <img width="1915" height="948" alt="image" src="https://github.com/user-attachments/assets/d9c0723c-7a78-446d-b0d2-4418258ad457" />
