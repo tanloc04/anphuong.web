@@ -25,6 +25,7 @@ This application is built using a Component-based architecture to maximize code 
 ### 1. Customer Storefront (Giao diện Khách hàng)
 > *Responsive web design for end-users to browse products, manage carts, and checkout.*
   ![Homepage Demo](https://github.com/tanloc04/anphuong.web/blob/Loc/assets/homepage.gif)
+
 **Detailed Views:**
 <p align = "center">
   <img width="1903" height="948" alt="image" src="https://github.com/user-attachments/assets/5970a8e9-2a14-414e-bdef-347c44df23a5" />
