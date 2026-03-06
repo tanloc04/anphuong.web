@@ -31,6 +31,8 @@ This application is built using a Component-based architecture to maximize code 
   <img width="1903" height="948" alt="image" src="https://github.com/user-attachments/assets/5970a8e9-2a14-414e-bdef-347c44df23a5" />
   <img width="1902" height="948" alt="image" src="https://github.com/user-attachments/assets/aad80fa8-a26c-42d7-99d9-09d0589585a4" />
   <img width="1915" height="948" alt="image" src="https://github.com/user-attachments/assets/d9c0723c-7a78-446d-b0d2-4418258ad457" />
+  <img width="1201" height="2112" alt="localhost_5173_product_1" src="https://github.com/user-attachments/assets/4f293dc4-97d7-471f-b3e6-cd2bebd0818d" />
+  <img width="1904" height="948" alt="image" src="https://github.com/user-attachments/assets/bbcd9e75-1a40-4c4c-bf85-72804e5693dc" />
 </p>
 
 ---
