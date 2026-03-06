@@ -19,6 +19,7 @@ import Overview from "@/pages/Admin/Overview/components/Overview";
 import HomeConfiguration from "@/pages/Admin/Settings/components/HomeConfiguration";
 import UserManagement from "@/pages/Admin/User/UserManagement";
 import OrderManagement from "@/pages/Admin/Order/OrderManagement";
+import CartManagement from "@/pages/components/CartManagement";
 
 const AppRoot = () => {
   return (
@@ -39,6 +40,7 @@ export const router = createBrowserRouter([
           { index: true, element: <Home /> },
           { path: "home", element: <Home /> },
           { path: "product/:id", element: <DetailProduct /> },
+          { path: "cart", element: <CartManagement /> },
           { path: "account/login", element: <Login /> },
           { path: "account/register", element: <Register /> },
           {
