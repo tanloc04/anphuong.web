@@ -40,7 +40,7 @@ This application is built using a Component-based architecture to maximize code 
 ### 2. Admin Dashboard (Giao diện Quản trị)
 > *Management panel for administrators to control products, categories, and users.*
 
-![Admin Demo](link_file_gif_admin_cua_ban.gif)
+![Admin Demo](https://github.com/tanloc04/anphuong.web/blob/Loc/assets/admin_dashboard.gif)
 
 **Detailed Views:**
 <p align="center">
