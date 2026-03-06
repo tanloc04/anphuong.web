@@ -1,13 +1,11 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
-import { Calendar } from "primereact/calendar";
+import { AutoComplete } from "primereact/autocomplete";
+
+import type { AutoCompleteCompleteEvent } from "primereact/autocomplete";
 import { InputNumber } from "primereact/inputnumber";
-import { Checkbox } from "primereact/checkbox";
-import { InputText } from "primereact/inputtext";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
-import { classNames } from "primereact/utils";
 import type { OrderFormProps } from "@/@types/order.types";
 import type {
   Customer,
@@ -26,15 +24,28 @@ import { Column } from "primereact/column";
 
 const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
   const [customerFilter, setCustomerFilter] = useState("");
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | any>(
     null,
   );
+
+  // 🚀 Hook tự động gọi lại mỗi khi customerFilter thay đổi
   const { data: customers, isLoading: loadCust } =
     useCustomersSelect(customerFilter);
 
+  const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Ép tạo ra một mảng mới trong RAM để PrimeReact nhận diện được sự thay đổi và tắt Loading
+    if (customers) {
+      setCustomerSuggestions([...customers]);
+    } else {
+      setCustomerSuggestions([]);
+    }
+  }, [customers]);
+
   const [productFilter, setProductFilter] = useState("");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedVariant, setSelectedVariant] = useState<Variant | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<Variant | any>(null);
   const [quantity, setQuantity] = useState(1);
 
   const toast = useRef<Toast | null>(null);
@@ -45,7 +56,13 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
     selectedProduct?.id ?? null,
   );
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[] | any[]>([]);
+
+  // 👇 HÀM TÌM KIẾM KHÁCH HÀNG (Gọi khi gõ phím)
+  const searchCustomer = (event: AutoCompleteCompleteEvent) => {
+    // PrimeReact tự động debounce, ta chỉ việc set state để Hook gọi API mới
+    setCustomerFilter(event.query);
+  };
 
   const handleAddToCart = () => {
     if (!selectedVariant || !selectedProduct) return;
@@ -53,6 +70,11 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
     const existItemIndex = cartItems.findIndex(
       (x) => x.variantId === selectedVariant.id,
     );
+
+    // 🚀 LẤY CẢ MÀU VÀ CHẤT LIỆU
+    const colorName = selectedVariant.color?.name || "N/A";
+    const materialName = selectedVariant.material?.name || "N/A";
+    const fullVariantName = `${colorName} - ${materialName}`;
 
     if (existItemIndex !== -1) {
       const newCart = [...cartItems];
@@ -64,11 +86,11 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
       const newItem = {
         variantId: selectedVariant.id,
         productName: selectedProduct.name,
-        colorName: selectedVariant.color?.name,
+        colorName: fullVariantName, // Cập nhật tên hiển thị ở đây
         image: selectedVariant.variantImage,
-        price: selectedProduct.price,
+        price: selectedVariant.price ?? selectedProduct.price, // Ưu tiên giá của biến thể, nếu không có lấy giá gốc
         quantity: quantity,
-        total: selectedProduct.price * quantity,
+        total: (selectedVariant.price ?? selectedProduct.price) * quantity,
       };
       setCartItems([...cartItems, newItem]);
     }
@@ -84,11 +106,12 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
   const totalOrderPrice = cartItems.reduce((acc, item) => acc + item.total, 0);
 
   const handleSaveOrder = () => {
-    if (!selectedCustomer) {
+    // ⚠️ Kiểm tra nếu selectedCustomer chỉ là string (người dùng gõ text nhưng chưa bấm chọn item)
+    if (!selectedCustomer || typeof selectedCustomer === "string") {
       toast.current?.show({
         severity: "warn",
         summary: "Chú ý!",
-        detail: "Vui lòng chọn khách hàng.",
+        detail: "Vui lòng chọn khách hàng từ danh sách gợi ý.",
       });
       return;
     }
@@ -116,6 +139,37 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
     onSave(payload);
   };
 
+  // 👇 GIAO DIỆN GỢI Ý KHÁCH HÀNG TÌM ĐƯỢC
+  const customerItemTemplate = (item: any) => {
+    const displayName =
+      item.fullName ||
+      item.FullName ||
+      item.name ||
+      item.username ||
+      item.email ||
+      "Khách hàng ẩn danh";
+    const displayPhone =
+      item.phoneNumber || item.phone || item.Phone || "Không có SĐT";
+    return (
+      <div className="flex align-items-center gap-3 py-1">
+        <div
+          className="bg-blue-100 text-blue-600 border-circle flex align-items-center justify-content-center"
+          style={{ width: "32px", height: "32px" }}
+        >
+          <i className="pi pi-user"></i>
+        </div>
+        <div>
+          <div className="font-bold text-gray-800">{displayName}</div>
+          <div className="text-xs text-gray-500 mt-1">
+            <i className="pi pi-phone text-xs mr-1"></i>
+            {displayPhone}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // 👇 GIAO DIỆN DROPDOWN BIẾN THỂ (Thêm Chất liệu)
   const variantOptionTemplate = (option: any) => {
     return (
       <div className="flex align-items-center gap-2">
@@ -123,18 +177,31 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
           <img
             src={option.variantImage}
             alt="img"
-            style={{ width: "20px", height: "20px", objectFit: "cover" }}
+            style={{
+              width: "24px",
+              height: "24px",
+              objectFit: "cover",
+              borderRadius: "4px",
+            }}
           />
         )}
         <div
           style={{
-            width: "15px",
-            height: "15px",
+            width: "16px",
+            height: "16px",
             background: option.color?.hexCode,
             border: "1px solid #ccc",
+            borderRadius: "50%",
           }}
         ></div>
-        <span>{option.color?.name}</span>
+        <span className="font-semibold">{option.color?.name}</span>
+        <span className="text-gray-400 mx-1">|</span>
+        <span className="text-gray-600">
+          {option.material?.name || "Chưa rõ"}
+        </span>
+        <span className="text-green-600 font-bold ml-auto text-sm">
+          {option.price?.toLocaleString("vi-VN")} ₫
+        </span>
       </div>
     );
   };
@@ -150,17 +217,22 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
       <div className="grid">
         <div className="col-12 md:col-4 border-right-1 surface-border">
           <div className="mb-4">
-            <label className="font-bold block mb-2">1. Khách hàng</label>
-            <Dropdown
+            <label className="font-bold block mb-2">
+              1. Khách hàng <span className="text-red-500">*</span>
+            </label>
+            <AutoComplete
               value={selectedCustomer}
-              options={customers}
+              suggestions={customerSuggestions}
+              completeMethod={searchCustomer}
+              field="fullName"
+              itemTemplate={customerItemTemplate}
               onChange={(e) => setSelectedCustomer(e.value)}
-              optionLabel="fullName"
-              filter
-              onFilter={(e) => setCustomerFilter(e.filter)}
-              placeholder="Tìm khách hàng..."
+              placeholder="Nhập tên hoặc số điện thoại..."
               className="w-full"
-              emptyMessage="Không tìm thấy"
+              inputClassName="w-full"
+              panelClassName="shadow-3"
+              emptyMessage="Không tìm thấy khách hàng nào"
+              dropdown // Hiện nút bấm mũi tên sổ xuống như Dropdown
             />
           </div>
 
@@ -184,7 +256,7 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
 
           <div className="mb-3">
             <label className="font-bold block mb-2">
-              3. Chọn phiên bản (Màu)
+              3. Chọn phiên bản (Màu & Chất liệu)
             </label>
             <Dropdown
               value={selectedVariant}
@@ -192,9 +264,25 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
               onChange={(e) => setSelectedVariant(e.value)}
               optionLabel="color.name"
               itemTemplate={variantOptionTemplate}
+              // Hiển thị sau khi chọn cũng đầy đủ Màu + Chất liệu
+              valueTemplate={(val) => {
+                if (!val)
+                  return (
+                    <span className="text-gray-500">
+                      Chọn màu và chất liệu...
+                    </span>
+                  );
+                return (
+                  <div className="flex align-items-center gap-2">
+                    <span className="font-bold">{val.color?.name}</span>
+                    <span>-</span>
+                    <span>{val.material?.name}</span>
+                  </div>
+                );
+              }}
               placeholder={
                 selectedProduct
-                  ? "Chọn màu sắc..."
+                  ? "Chọn màu sắc và chất liệu..."
                   : "Vui lòng chọn sản phẩm trước"
               }
               className="w-full"
@@ -258,7 +346,10 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
                   />
                   <div>
                     <div className="font-bold text-sm">{row.productName}</div>
-                    <div className="text-xs text-gray-500">{row.colorName}</div>
+                    {/* Tên Màu & Chất liệu hiển thị ở đây */}
+                    <div className="text-xs font-semibold text-purple-600">
+                      {row.colorName}
+                    </div>
                   </div>
                 </div>
               )}
@@ -273,14 +364,14 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
 
             <Column
               header="Đơn giá"
-              body={(row) => row.price?.toLocaleString()}
+              body={(row) => row.price?.toLocaleString("vi-VN")}
               align="center"
               style={{ width: "100px" }}
             />
 
             <Column
               header="Thành tiền"
-              body={(row) => row.total?.toLocaleString()}
+              body={(row) => row.total?.toLocaleString("vi-VN")}
               align="right"
               style={{ width: "120px" }}
               className="font-bold text-green-600"
@@ -302,7 +393,7 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
           <div className="flex justify-content-end align-items-center mt-4 pt-3 border-top-1 surface-border">
             <span className="text-xl mr-3 text-gray-600">Tổng cộng:</span>
             <span className="text-2xl font-bold text-primary">
-              {totalOrderPrice.toLocaleString()} đ
+              {totalOrderPrice.toLocaleString("vi-VN")} ₫
             </span>
           </div>
 
@@ -311,6 +402,7 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
               label="Hủy bỏ"
               icon="pi pi-times"
               severity="secondary"
+              text
               onClick={onHide}
             />
             <Button
