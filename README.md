@@ -25,14 +25,17 @@ This application is built using a Component-based architecture to maximize code 
 ### 1. Customer Storefront (Giao diện Khách hàng)
 > *Responsive web design for end-users to browse products, manage carts, and checkout.*
   ![Homepage Demo](https://github.com/tanloc04/anphuong.web/blob/Loc/assets/homepage.gif)
-<img width="1903" height="948" alt="image" src="https://github.com/user-attachments/assets/5970a8e9-2a14-414e-bdef-347c44df23a5" />
-<img width="1915" height="948" alt="image" src="https://github.com/user-attachments/assets/d9c0723c-7a78-446d-b0d2-4418258ad457" />
-<img width="1917" height="948" alt="image" src="https://github.com/user-attachments/assets/924234e0-fc45-451d-b6c2-75835a33cce3" />
-<img width="1908" height="951" alt="image" src="https://github.com/user-attachments/assets/3f7ba329-606c-4965-8739-c837ad0b64f4" />
-<img width="1918" height="947" alt="image" src="https://github.com/user-attachments/assets/50ef857e-2083-46b6-a4be-b748a332824f" />
-<img width="1917" height="949" alt="image" src="https://github.com/user-attachments/assets/5db7f7fd-4561-4058-af30-2799f496790f" />
-<img width="1915" height="949" alt="image" src="https://github.com/user-attachments/assets/b5043c33-1d04-4706-ae8e-90b1491fa56a" />
-<img width="1918" height="951" alt="image" src="https://github.com/user-attachments/assets/93629f48-2d53-4de8-9d18-b001b653b0ae" />
+**Detailed Views:**
+<p align = "center">
+  <img width="1903" height="948" alt="image" src="https://github.com/user-attachments/assets/5970a8e9-2a14-414e-bdef-347c44df23a5" />
+  <img width="1915" height="948" alt="image" src="https://github.com/user-attachments/assets/d9c0723c-7a78-446d-b0d2-4418258ad457" />
+  <img width="1917" height="948" alt="image" src="https://github.com/user-attachments/assets/924234e0-fc45-451d-b6c2-75835a33cce3" />
+  <img width="1908" height="951" alt="image" src="https://github.com/user-attachments/assets/3f7ba329-606c-4965-8739-c837ad0b64f4" />
+  <img width="1918" height="947" alt="image" src="https://github.com/user-attachments/assets/50ef857e-2083-46b6-a4be-b748a332824f" />
+  <img width="1917" height="949" alt="image" src="https://github.com/user-attachments/assets/5db7f7fd-4561-4058-af30-2799f496790f" />
+  <img width="1915" height="949" alt="image" src="https://github.com/user-attachments/assets/b5043c33-1d04-4706-ae8e-90b1491fa56a" />
+  <img width="1918" height="951" alt="image" src="https://github.com/user-attachments/assets/93629f48-2d53-4de8-9d18-b001b653b0ae" />
+</p>
 
 ## Upcoming Features (Phase 2 Roadmap)
 
