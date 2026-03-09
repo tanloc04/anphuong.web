@@ -48,7 +48,6 @@ export interface AuthContextType {
     logout: () => void,
     register: (data: RegisterRequest) => Promise<void>,
     changePassword: (data: ChangePasswordRequest) => Promise<boolean>,
-    resendEmail: (email: string) => Promise<void> 
 }
 
 export interface RegisterRequest {

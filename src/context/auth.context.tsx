@@ -99,17 +99,17 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     }
   };
 
-  const resendEmail = async (email: string) => {
-    try {
-      setIsActionLoading(true);
-      await authApi.sendEmail(email);
-      showToast("success", "Đã gửi", "Vui lòng kiểm tra hộp thư của bạn.");
-    } catch (error) {
-      showToast("error", "Lỗi", "Không thể gửi email kích hoạt!");
-    } finally {
-      setIsActionLoading(false);
-    }
-  };
+  // const resendEmail = async (email: string) => {
+  //   try {
+  //     setIsActionLoading(true);
+  //     await authApi.sendEmail(email);
+  //     showToast("success", "Đã gửi", "Vui lòng kiểm tra hộp thư của bạn.");
+  //   } catch (error) {
+  //     showToast("error", "Lỗi", "Không thể gửi email kích hoạt!");
+  //   } finally {
+  //     setIsActionLoading(false);
+  //   }
+  // };
 
   const login = async (credentials: LoginRequest) => {
     try {
@@ -166,11 +166,11 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       setIsActionLoading(true);
       const response = await authApi.register(data);
       if (response.data && response.data.success) {
-        try {
-          await authApi.sendEmail(data.email);
-        } catch (emailError) {
-          console.warn("Đăng ký thành công nhưng gửi mail lỗi:", emailError);
-        }
+        // try {
+        //   await authApi.sendEmail(data.email);
+        // } catch (emailError) {
+        //   console.warn("Đăng ký thành công nhưng gửi mail lỗi:", emailError);
+        // }
 
         showToast(
           "success",
@@ -248,7 +248,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
         loading: isLoadingProfile || isActionLoading,
         login,
         loginGoogle,
-        resendEmail,
+        // resendEmail,
         logout,
         register,
         changePassword,
