@@ -4,7 +4,6 @@ import { ProgressSpinner } from "primereact/progressspinner";
 
 const AdminRoute = () => {
   const { user, loading, isAuthenticated } = useAuth();
-  const adminEmail = import.meta.env.VITE_ALLOWED_EMAILS;
 
   if (loading) {
     return (
@@ -17,7 +16,7 @@ const AdminRoute = () => {
     );
   }
 
-  if (!isAuthenticated || !user || user.email !== adminEmail) {
+  if (!isAuthenticated || !user || user.role === false) {
     return <Navigate to="/" replace />;
   }
 

@@ -24,6 +24,7 @@ export interface UserProfile {
   customerAddress: string,
   username: string,
   email: string,
+  role: boolean
 }
 
 export interface UpdateProfileRequest {
