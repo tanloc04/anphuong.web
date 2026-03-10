@@ -8,6 +8,7 @@ import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
 import { Calendar } from "primereact/calendar";
 import { RadioButton } from "primereact/radiobutton";
+import { Checkbox } from "primereact/checkbox";
 import type { OrderFormProps } from "@/@types/order.types";
 import type {
   Customer,
@@ -58,7 +59,14 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<Variant | any>(null);
   const [quantity, setQuantity] = useState(1);
-  const [cartItems, setCartItems] = useState<CartItem[] | any[]>([]);
+  const [cartItems, setCartItems] = useState<any[]>([]);
+
+  const [isCustomized, setIsCustomized] = useState(false);
+  const [customSizes, setCustomSizes] = useState({
+    height: null as number | null,
+    width: null as number | null,
+    long: null as number | null,
+  });
 
   const toast = useRef<Toast | null>(null);
   const { data: products } = useProductSelect(productFilter);
@@ -108,14 +116,42 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
   const handleAddToCart = () => {
     if (!selectedVariant || !selectedProduct) return;
 
-    const existItemIndex = cartItems.findIndex(
-      (x) => x.variantId === selectedVariant.id,
-    );
+    if (
+      isCustomized &&
+      (!customSizes.long || !customSizes.width || !customSizes.height)
+    ) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Chú ý!",
+        detail: "Vui lòng nhập đầy đủ Dài, Rộng, Cao cho sản phẩm Customize.",
+      });
+      return;
+    }
+
+    const availableStock =
+      selectedVariant.quantityInStock ?? selectedVariant.stock ?? 0;
+
     const colorName = selectedVariant.color?.name || "N/A";
     const materialName = selectedVariant.material?.name || "N/A";
     const fullVariantName = `${colorName} - ${materialName}`;
 
-    if (existItemIndex !== -1) {
+    const existItemIndex = cartItems.findIndex(
+      (x) =>
+        x.variantId === selectedVariant.id && !x.isCustomize && !isCustomized,
+    );
+
+    const currentCartQty =
+      existItemIndex !== -1 ? cartItems[existItemIndex].quantity : 0;
+
+    if (!isCustomized && currentCartQty + quantity > availableStock) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Không đủ hàng",
+        detail: `Sản phẩm này chỉ còn ${availableStock - currentCartQty} cái trong kho!`,
+      });
+      return;
+    }
+    if (existItemIndex !== -1 && !isCustomized) {
       const newCart = [...cartItems];
       newCart[existItemIndex].quantity += quantity;
       newCart[existItemIndex].total =
@@ -123,6 +159,7 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
       setCartItems(newCart);
     } else {
       const newItem = {
+        cartItemId: Date.now() + Math.random(),
         variantId: selectedVariant.id,
         productName: selectedProduct.name,
         colorName: fullVariantName,
@@ -130,15 +167,22 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
         price: selectedVariant.price ?? selectedProduct.price,
         quantity: quantity,
         total: (selectedVariant.price ?? selectedProduct.price) * quantity,
+        isCustomize: isCustomized,
+        customizeHeight: isCustomized ? customSizes.height : null,
+        customizeWidth: isCustomized ? customSizes.width : null,
+        customizeLong: isCustomized ? customSizes.long : null,
       };
       setCartItems([...cartItems, newItem]);
     }
+
     setSelectedVariant(null);
     setQuantity(1);
+    setIsCustomized(false);
+    setCustomSizes({ height: null, width: null, long: null });
   };
 
-  const removeFromCart = (variantId: any) => {
-    setCartItems(cartItems.filter((x) => x.variantId !== variantId));
+  const removeFromCart = (cartItemId: any) => {
+    setCartItems(cartItems.filter((x) => x.cartItemId !== cartItemId));
   };
 
   const totalOrderPrice = cartItems.reduce((acc, item) => acc + item.total, 0);
@@ -205,6 +249,10 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
         variantId: item.variantId,
         quantity: item.quantity,
         unitPrice: item.price,
+        isCustomize: item.isCustomize,
+        customizeHeight: item.customizeHeight,
+        customizeWidth: item.customizeWidth,
+        customizeLong: item.customizeLong,
       })),
     };
 
@@ -238,6 +286,9 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
   };
 
   const variantOptionTemplate = (option: any) => {
+    const stock = option.quantityInStock ?? option.stock ?? 0;
+    const isOutOfStock = stock <= 0;
+
     return (
       <div className="flex items-center gap-2">
         {option.variantImage && (
@@ -255,6 +306,11 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
         <span className="text-gray-300 mx-1">|</span>
         <span className="text-gray-600 text-sm">
           {option.material?.name || "Chưa rõ"}
+        </span>
+        <span
+          className={`ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded ${isOutOfStock ? "bg-red-100 text-red-600" : "bg-green-100 text-green-700"}`}
+        >
+          Tồn: {stock}
         </span>
         <span className="text-green-600 font-bold ml-auto text-sm">
           {option.price?.toLocaleString("vi-VN")} ₫
@@ -504,6 +560,53 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
                 loading={loadVar}
                 emptyMessage="Sản phẩm này chưa có biến thể nào"
               />
+
+              <div className="flex items-center mt-1">
+                <Checkbox
+                  inputId="isCustom"
+                  checked={isCustomized}
+                  onChange={(e) => setIsCustomized(e.checked || false)}
+                />
+                <label
+                  htmlFor="isCustom"
+                  className="ml-2 text-sm font-semibold text-orange-600 cursor-pointer"
+                >
+                  Khách yêu cầu kích thước tùy chỉnh
+                </label>
+              </div>
+
+              {isCustomized && (
+                <div className="flex gap-2 p-3 bg-orange-50 border border-orange-200 rounded-md animate-fade-in">
+                  <InputNumber
+                    value={customSizes.long}
+                    onValueChange={(e) =>
+                      setCustomSizes({ ...customSizes, long: e.value ?? null })
+                    }
+                    placeholder="Dài (cm)"
+                    className="w-1/3"
+                  />
+                  <InputNumber
+                    value={customSizes.width}
+                    onValueChange={(e) =>
+                      setCustomSizes({ ...customSizes, width: e.value ?? null })
+                    }
+                    placeholder="Rộng (cm)"
+                    className="w-1/3"
+                  />
+                  <InputNumber
+                    value={customSizes.height}
+                    onValueChange={(e) =>
+                      setCustomSizes({
+                        ...customSizes,
+                        height: e.value ?? null,
+                      })
+                    }
+                    placeholder="Cao (cm)"
+                    className="w-1/3"
+                  />
+                </div>
+              )}
+
               <div className="flex gap-3 pt-1">
                 <InputNumber
                   value={quantity}
@@ -574,6 +677,12 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
                         <span className="text-[11px] font-semibold text-purple-600 bg-purple-50 w-fit px-1.5 rounded mt-0.5">
                           {row.colorName}
                         </span>
+                        {row.isCustomize && (
+                          <span className="text-[11px] font-semibold text-orange-600 bg-orange-50 w-fit px-1.5 rounded mt-0.5">
+                            Size: {row.customizeLong}x{row.customizeWidth}x
+                            {row.customizeHeight} cm
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}
@@ -611,7 +720,7 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
                       rounded
                       text
                       severity="danger"
-                      onClick={() => removeFromCart(row.variantId)}
+                      onClick={() => removeFromCart(row.cartItemId)}
                       className="w-8 h-8 p-0"
                     />
                   )}

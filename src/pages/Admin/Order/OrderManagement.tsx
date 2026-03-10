@@ -20,10 +20,26 @@ const OrderManagement = () => {
   const toast = useRef<Toast>(null);
 
   const { createOrder, isPending: isCreating } = useOrderMutations(toast);
+
   const handleCreateOrder = (data: any) => {
     createOrder(data, {
       onSuccess: () => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Thành công",
+          detail: "Đã tạo đơn hàng mới thành công!",
+        });
         setCreateVisible(false);
+        refetch();
+      },
+      onError: (error: any) => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tạo đơn thất bại",
+          detail:
+            error.response?.data?.message ||
+            "Có lỗi xảy ra. Sản phẩm có thể đã hết hàng!",
+        });
       },
     });
   };
@@ -32,12 +48,13 @@ const OrderManagement = () => {
     data: queryData,
     isLoading,
     isFetching,
+    refetch,
   } = useOrders({
     searchCondition: {
-      keyword: keyword,
-      status: "",
-      fromDate: "",
-      toDate: "",
+      keyword: keyword || null,
+      status: null,
+      fromDate: null,
+      toDate: null,
       isTotalPrice: false,
       isDeleted: false,
     },
@@ -47,6 +64,10 @@ const OrderManagement = () => {
     },
   });
 
+  // Thêm 1 dòng console.log để sếp tự "bắt quả tang" nó đang cấu trúc thế nào
+  console.log("Dữ liệu gốc từ API:", queryData);
+
+  // Bao trọn gói: Chọc 2 lớp data (Axios + C#), nếu không có thì chọc 1 lớp, không có nữa thì chọc trực tiếp
   const orders = queryData?.pageData || [];
   const totalRecords = queryData?.pageInfo?.totalItems || 0;
 
@@ -105,12 +126,15 @@ const OrderManagement = () => {
       createButtonLabel="Tạo đơn hàng"
       onCreate={() => setCreateVisible(true)}
     >
+      <Toast ref={toast} />
+
       <OrderForm
         visible={createVisible}
         onHide={() => setCreateVisible(false)}
         onSave={handleCreateOrder}
         loading={isCreating}
       />
+
       <DataTable
         value={orders}
         lazy
@@ -138,7 +162,9 @@ const OrderManagement = () => {
           header="Khách hàng"
           body={(row) => (
             <div className="flex flex-col">
-              <span className="font-bold">{row.customer?.fullName}</span>
+              <span className="font-bold">
+                {row.customer?.fullname || "Khách vãng lai"}
+              </span>
               <span className="text-xs text-gray-500">
                 {row.customer?.phone}
               </span>

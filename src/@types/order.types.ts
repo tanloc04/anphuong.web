@@ -7,10 +7,10 @@ export interface PageInfo {
 
 export interface OrderRequest {
     searchCondition: {
-        keyword: string,
-        status: string,
-        fromDate: string,
-        toDate: string,
+        keyword: string | null,
+        status: string | null,
+        fromDate: string | null,
+        toDate: string | null,
         isTotalPrice: boolean,
         isDeleted: boolean
     },
