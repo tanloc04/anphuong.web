@@ -5,6 +5,7 @@ import { Button } from "primereact/button";
 import { Tag } from "primereact/tag";
 import { Dropdown } from "primereact/dropdown";
 import { Calendar } from "primereact/calendar";
+import { Dialog } from "primereact/dialog";
 import ManagementLayout from "@/components/common/layout/ManagementLayout";
 import { useOrders, useOrderMutations } from "./hooks";
 import OrderDetailDialog from "./components/OrderDetailDialog";
@@ -16,7 +17,6 @@ import { useTableState } from "@/hooks/useTableState";
 
 const OrderManagement = () => {
   const [keyword, setKeyword] = useState("");
-  // 👇 Lấy nguyên bộ bí kíp từ Hook dùng chung
   const { lazyParams, onPage, onSort, resetPage } = useTableState(10);
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [dialogVisible, setDialogVisible] = useState(false);
@@ -26,14 +26,23 @@ const OrderManagement = () => {
   const [selectedStatus, setSelectedStatus] = useState<number | null>(null);
   const [dateRange, setDateRange] = useState<Date[] | null>(null);
 
+  const [updateStatusVisible, setUpdateStatusVisible] = useState(false);
+  const [orderToUpdate, setOrderToUpdate] = useState<any>(null);
+  const [newStatus, setNewStatus] = useState<number | null>(null);
+
   const orderStatuses = [
-    { label: "Chờ xác nhận (Mới)", value: 1 },
+    { label: "Đang chuẩn bị hàng", value: 1 },
     { label: "Đang giao hàng", value: 2 },
     { label: "Đã hoàn thành", value: 3 },
     { label: "Đã huỷ", value: 4 },
   ];
 
-  const { createOrder, isPending: isCreating } = useOrderMutations(toast);
+  const {
+    createOrder,
+    isPending: isCreating,
+    updateOrderStatus,
+    isUpdatingStatus,
+  } = useOrderMutations(toast);
 
   const handleCreateOrder = (
     data: any,
@@ -50,6 +59,26 @@ const OrderManagement = () => {
         onErrorCb(error);
       },
     });
+  };
+
+  const openUpdateStatus = (order: any) => {
+    setOrderToUpdate(order);
+    setNewStatus(order.status);
+    setUpdateStatusVisible(true);
+  };
+
+  const handleSaveStatus = () => {
+    if (!orderToUpdate || newStatus === null) return;
+
+    updateOrderStatus(
+      { id: orderToUpdate.id, status: newStatus },
+      {
+        onSuccess: () => {
+          setUpdateStatusVisible(false);
+          // Do hook của sếp đã có queryClient.invalidateQueries(["orders"]) nên bảng sẽ tự load lại!
+        },
+      },
+    );
   };
 
   const {
@@ -79,7 +108,7 @@ const OrderManagement = () => {
 
   const onSearch = (val: string) => {
     setKeyword(val);
-    resetPage(); // Dùng hook cho gọn
+    resetPage();
   };
 
   const openDetail = (order: any) => {
@@ -116,6 +145,14 @@ const OrderManagement = () => {
           tooltip="Xem chi tiết"
           onClick={() => openDetail(rowData)}
         />
+        <Button
+          icon="pi pi-pencil"
+          rounded
+          text
+          severity="warning"
+          tooltip="Cập nhật trạng thái"
+          onClick={() => openUpdateStatus(rowData)}
+        />
       </div>
     );
   };
@@ -138,7 +175,7 @@ const OrderManagement = () => {
               options={orderStatuses}
               onChange={(e) => {
                 setSelectedStatus(e.value);
-                resetPage(); // Dùng hook
+                resetPage();
               }}
               placeholder="Tất cả trạng thái"
               showClear
@@ -155,7 +192,7 @@ const OrderManagement = () => {
               value={dateRange}
               onChange={(e) => {
                 setDateRange(e.value as Date[]);
-                resetPage(); // Dùng hook
+                resetPage();
               }}
               selectionMode="range"
               readOnlyInput
@@ -178,7 +215,7 @@ const OrderManagement = () => {
               onClick={() => {
                 setSelectedStatus(null);
                 setDateRange(null);
-                resetPage(); // Dùng hook
+                resetPage();
               }}
             />
           )}
@@ -212,7 +249,6 @@ const OrderManagement = () => {
         rows={lazyParams.rows}
         totalRecords={totalRecords}
         onPage={onPage}
-        // 👇 Gắn sự kiện Sort vào DataTable
         onSort={onSort}
         sortField={lazyParams.sortField ?? undefined}
         sortOrder={lazyParams.sortOrder ?? undefined}
@@ -228,7 +264,7 @@ const OrderManagement = () => {
         <Column
           field="id"
           header="Mã đơn"
-          sortable // Bật tính năng Sort
+          sortable
           style={{ width: "80px" }}
           className="text-center font-bold text-gray-500"
         />
@@ -251,7 +287,7 @@ const OrderManagement = () => {
         <Column
           field="createdAt"
           header="Ngày đặt"
-          sortable // Bật tính năng Sort
+          sortable
           body={(row) => formatDate(row.createdAt)}
           style={{ width: "15%" }}
         />
@@ -259,7 +295,7 @@ const OrderManagement = () => {
         <Column
           field="totalPrice"
           header="Tổng tiền"
-          sortable // Bật tính năng Sort
+          sortable
           body={amountBodyTemplate}
           style={{ width: "15%" }}
           align="right"
@@ -279,7 +315,7 @@ const OrderManagement = () => {
         <Column
           field="status"
           header="Trạng thái"
-          sortable // Bật tính năng Sort
+          sortable
           body={statusBodyTemplate}
           style={{ width: "15%" }}
           align="center"
@@ -299,6 +335,44 @@ const OrderManagement = () => {
         onHide={() => setDialogVisible(false)}
         order={selectedOrder}
       />
+
+      <Dialog
+        header={`Cập nhật trạng thái Đơn #${orderToUpdate?.id}`}
+        visible={updateStatusVisible}
+        style={{ width: "400px" }}
+        modal
+        onHide={() => setUpdateStatusVisible(false)}
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              label="Hủy"
+              icon="pi pi-times"
+              text
+              onClick={() => setUpdateStatusVisible(false)}
+              className="!text-gray-500"
+            />
+            <Button
+              label="Lưu thay đổi"
+              icon="pi pi-check"
+              onClick={handleSaveStatus}
+              loading={isUpdatingStatus}
+            />
+          </div>
+        }
+      >
+        <div className="flex flex-col gap-3 py-4">
+          <span className="text-gray-600">
+            Chọn trạng thái mới cho đơn hàng:
+          </span>
+          <Dropdown
+            value={newStatus}
+            options={orderStatuses}
+            onChange={(e) => setNewStatus(e.value)}
+            placeholder="Chọn trạng thái"
+            className="w-full"
+          />
+        </div>
+      </Dialog>
     </ManagementLayout>
   );
 };

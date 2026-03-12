@@ -22,7 +22,7 @@ const OrderDetailDialog = ({ visible, onHide, order }: OrderDetailProps) => {
   if (!order) return null;
 
   const productTemplate = (rowData: any) => (
-    <div className="flex align-items-center gap-3">
+    <div className="flex items-center gap-3">
       <Image
         src={rowData.variantImage || "/placeholder.png"}
         alt={rowData.productName}
@@ -81,7 +81,7 @@ const OrderDetailDialog = ({ visible, onHide, order }: OrderDetailProps) => {
       footer={renderFooter()}
       className="p-fluid"
     >
-      {/* ================= GIAO DIỆN HIỂN THỊ TRÊN WEB (BÌNH THƯỜNG) ================= */}
+      {/* ================= GIAO DIỆN HIỂN THỊ TRÊN WEB ================= */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-1 flex flex-col gap-4 bg-gray-50 p-4 rounded-lg h-fit">
           <div>
@@ -209,7 +209,7 @@ const OrderDetailDialog = ({ visible, onHide, order }: OrderDetailProps) => {
         </div>
       </div>
 
-      {/* ================= KHU VỰC ẨN: GIAO DIỆN CHUẨN ĐỂ IN RA GIẤY A4 ================= */}
+      {/* ================= KHU VỰC ẨN: GIAO DIỆN IN RA GIẤY A4 ================= */}
       <div className="hidden">
         <div
           ref={printRef}
@@ -257,9 +257,7 @@ const OrderDetailDialog = ({ visible, onHide, order }: OrderDetailProps) => {
               {order.shippingAddress || order.customer?.customerAddress}
             </p>
             <p className="mb-1">
-              <span className="font-semibold w-32 inline-block">
-                Ngày đặt hàng:
-              </span>{" "}
+              <span className="font-semibold w-32 inline-block">Ngày đặt:</span>{" "}
               {formatDate(order.createdAt)}
             </p>
           </div>
