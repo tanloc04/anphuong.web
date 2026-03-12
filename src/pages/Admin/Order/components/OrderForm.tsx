@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Dialog } from "primereact/dialog";
 import { Button } from "primereact/button";
 import { Dropdown } from "primereact/dropdown";
@@ -26,7 +26,21 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { locationApi } from "@/api/locationApi";
 
-const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
+// Ghi đè Type để cho phép truyền callback báo kết quả ra ngoài
+interface LocalOrderFormProps extends Omit<OrderFormProps, "onSave"> {
+  onSave: (
+    payload: any,
+    onSuccess: () => void,
+    onError: (err: any) => void,
+  ) => void;
+}
+
+const OrderForm = ({
+  visible,
+  onHide,
+  onSave,
+  loading,
+}: LocalOrderFormProps) => {
   const [isNewCustomer, setIsNewCustomer] = useState(false);
 
   const [customerFilter, setCustomerFilter] = useState("");
@@ -256,7 +270,30 @@ const OrderForm = ({ visible, onHide, onSave, loading }: OrderFormProps) => {
       })),
     };
 
-    onSave(payload);
+    // Truyền callback thông báo về cho OrderManagement
+    onSave(
+      payload,
+      // Callback OnSuccess
+      () => {
+        toast.current?.show({
+          severity: "success",
+          summary: "Thành công",
+          detail: "Đã tạo đơn hàng mới thành công!",
+        });
+        // Có thể reset form ở đây nếu muốn
+        setCartItems([]);
+      },
+      // Callback OnError
+      (error: any) => {
+        toast.current?.show({
+          severity: "error",
+          summary: "Tạo đơn thất bại",
+          detail:
+            error?.response?.data?.message ||
+            "Có lỗi xảy ra. Sản phẩm có thể đã hết hàng!",
+        });
+      },
+    );
   };
 
   const customerItemTemplate = (item: any) => {

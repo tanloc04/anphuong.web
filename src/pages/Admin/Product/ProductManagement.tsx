@@ -17,7 +17,13 @@ import VariationManager from "./components/VariationManager";
 import ManagementLayout from "@/components/common/layout/ManagementLayout";
 
 const ProductManagement = () => {
-  const [lazyParams, setLazyParams] = useState({ first: 0, rows: 10, page: 0 });
+  const [lazyParams, setLazyParams] = useState({
+    first: 0,
+    rows: 10,
+    page: 0,
+    sortField: null as string | null,
+    sortOrder: null as 1 | -1 | null,
+  });
   const [keyword, setKeyword] = useState("");
 
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
@@ -56,6 +62,8 @@ const ProductManagement = () => {
     pageInfo: {
       pageNum: lazyParams.page + 1,
       pageSize: lazyParams.rows,
+      sortBy: lazyParams.sortField ?? undefined,
+      sortDesc: lazyParams.sortOrder === -1,
     },
   });
 
@@ -110,6 +118,15 @@ const ProductManagement = () => {
     }
   };
 
+  // 👇 Thêm hàm hứng sự kiện Sort từ Datatable
+  const onSort = (event: any) => {
+    setLazyParams((prev) => ({
+      ...prev,
+      sortField: event.sortField,
+      sortOrder: event.sortOrder,
+    }));
+  };
+
   // ================= TẠO GIAO DIỆN THANH FILTER =================
   const renderHeader = () => {
     return (
@@ -137,7 +154,7 @@ const ProductManagement = () => {
               placeholder="Tất cả danh mục"
               showClear
               filter
-              className="flex align-items-center"
+              className="w-full flex items-center"
             />
           </div>
 
@@ -293,8 +310,17 @@ const ProductManagement = () => {
         rows={lazyParams.rows}
         totalRecords={totalRecords}
         onPage={(e) =>
-          setLazyParams({ first: e.first, rows: e.rows, page: e.page ?? 0 })
+          setLazyParams((prev) => ({
+            ...prev,
+            first: e.first,
+            rows: e.rows,
+            page: e.page ?? 0,
+          }))
         }
+        // 👇 Gắn sự kiện và State Sort vào DataTable
+        onSort={onSort}
+        sortField={lazyParams.sortField ?? undefined}
+        sortOrder={lazyParams.sortOrder ?? undefined}
         loading={isLoading || isFetching}
         tableStyle={{ minWidth: "70rem" }}
         emptyMessage="Không tìm thấy sản phẩm nào."

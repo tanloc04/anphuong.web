@@ -12,7 +12,9 @@ export interface ApiResponse<T> {
 
 export interface PageInfo {
   pageNum: number,
-  pageSize: number
+  pageSize: number,
+  sortBy?: string,
+  sortDesc?: boolean
 }
 
 export interface FormInput {

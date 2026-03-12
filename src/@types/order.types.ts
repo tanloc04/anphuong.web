@@ -2,7 +2,9 @@ export interface PageInfo {
     totalItems: number,
     totalPages: number,
     pageNum: number,
-    pageSize: number
+    pageSize: number,
+    sortBy?: string,
+    sortDesc?: boolean
 }
 
 export interface OrderRequest {
@@ -16,7 +18,9 @@ export interface OrderRequest {
     },
     pageInfo: {
         pageNum: number,
-        pageSize: number
+        pageSize: number,
+        sortBy?: string,
+        sortDesc?: boolean
     }
 }
 

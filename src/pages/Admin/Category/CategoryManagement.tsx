@@ -8,15 +8,12 @@ import { useCategories, useCategoryMutations } from "./hooks";
 import CateForm from "./components/CategoryForm";
 import type { Category } from "@/@types/category.types";
 import ManagementLayout from "@/components/common/layout/ManagementLayout";
+import { useTableState } from "@/hooks/useTableState";
 
 const CategoryManagement = () => {
   const toast = useRef<Toast>(null);
   const [keyword, setKeyword] = useState<string>("");
-  const [lazyParams, setLazyParams] = useState({
-    first: 0,
-    rows: 10,
-    page: 1,
-  });
+  const { lazyParams, onPage, onSort, resetPage } = useTableState(10);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedCate, setSelectedCate] = useState<Category | null>(null);
 
@@ -29,6 +26,8 @@ const CategoryManagement = () => {
     pageInfo: {
       pageNum: lazyParams.first / lazyParams.rows + 1,
       pageSize: lazyParams.rows,
+      sortBy: lazyParams.sortField ?? undefined,
+      sortDesc: lazyParams.sortOrder === -1,
     },
   });
 
@@ -36,9 +35,6 @@ const CategoryManagement = () => {
 
   const categories = queryData?.pageData || [];
   const totalRecords = queryData?.pageInfo?.totalItems || 0;
-  const onPage = (event: any) => {
-    setLazyParams(event);
-  };
 
   const openNew = () => {
     setSelectedCate(null);
@@ -98,7 +94,7 @@ const CategoryManagement = () => {
       searchTerm={keyword}
       onSearchChange={(val: any) => {
         setKeyword(val);
-        setLazyParams((prev) => ({ ...prev, first: 0 }));
+        resetPage();
       }}
       onCreate={openNew}
       createButtonLabel="Thêm danh mục"
@@ -114,6 +110,9 @@ const CategoryManagement = () => {
         rows={lazyParams.rows}
         totalRecords={totalRecords}
         onPage={onPage}
+        onSort={onSort}
+        sortField={lazyParams.sortField ?? undefined}
+        sortOrder={lazyParams.sortOrder ?? undefined}
         loading={isLoading}
         rowHover
         showGridlines={false}
