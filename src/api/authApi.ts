@@ -1,49 +1,70 @@
 import axiosClient from "./axiosClient";
-import type { LoginRequest, ChangePasswordRequest, UpdateProfileRequest, RegisterRequest } from "@/@types/auth.types";
+import type {
+  LoginRequest,
+  ChangePasswordRequest,
+  UpdateProfileRequest,
+  RegisterRequest,
+} from "@/@types/auth.types";
 
 export const authApi = {
-    login: (data: LoginRequest) => {
-        return axiosClient.post('/Auth/login', data);
-    },
+  login: (data: LoginRequest) => {
+    return axiosClient.post("/Auth/login", data);
+  },
 
-    loginWithGoogle: (idToken: string) => {
-        return axiosClient.post('/Auth/google-login', { idToken });
-    },
+  loginWithGoogle: (idToken: string) => {
+    return axiosClient.post("/Auth/google-login", { idToken });
+  },
 
-    logout: () => {
-        return axiosClient.post('/Auth/logout');
-    },
+  logout: () => {
+    return axiosClient.post("/Auth/logout");
+  },
 
-    register: (data: RegisterRequest) => {
-        return axiosClient.post('/Customer/register', data);
-    },
+  register: (data: RegisterRequest) => {
+    return axiosClient.post("/Customer/register", data);
+  },
 
-    // sendEmail: async (email: string) => {
-    //     return axiosClient.post('/Customer/send-email', null, {
-    //         params: { email: email }
-    //     });
-    // },
+  blockUser: (id: number) => {
+    return axiosClient.put(`/Auth/block/${id}`);
+  },
 
-    refreshToken: (token: string, refreshToken: string) => {
-        return axiosClient.post('/Auth/refresh-token', { token, refreshToken });
-    },
+  // sendEmail: async (email: string) => {
+  //     return axiosClient.post('/Customer/send-email', null, {
+  //         params: { email: email }
+  //     });
+  // },
 
-    changePassword: (data: ChangePasswordRequest) => {
-        return axiosClient.post('/Auth/password', data);
-    },
+  refreshToken: (token: string, refreshToken: string) => {
+    return axiosClient.post("/Auth/refresh-token", { token, refreshToken });
+  },
 
-    getAccountInfo: () => {
-        return axiosClient.get('/Auth'); 
-    },
+  changePassword: (data: ChangePasswordRequest) => {
+    return axiosClient.post("/Auth/password", data);
+  },
 
-    getCustomerDetail: (username: string) => {
-        return axiosClient.post('/Customer/search', {
-            searchCondition: { keyword: username, isDeleted: false },
-            pageInfo: { pageNum: 1, pageSize: 1 }
-        });
-    },
+  forgotPassword: (data: { email: string }) => {
+    return axiosClient.post("/Auth/forgot-password", data);
+  },
 
-    updateProfile: (id: number, data: UpdateProfileRequest) => {
-        return axiosClient.put(`/Customer/${id}`, data);
-    },
+  resetPassword: (data: {
+    email: string;
+    otp: string;
+    newPassword: string;
+  }) => {
+    return axiosClient.post("/Auth/reset-password", data);
+  },
+
+  getAccountInfo: () => {
+    return axiosClient.get("/Auth");
+  },
+
+  getCustomerDetail: (username: string) => {
+    return axiosClient.post("/Customer/search", {
+      searchCondition: { keyword: username, isDeleted: false },
+      pageInfo: { pageNum: 1, pageSize: 1 },
+    });
+  },
+
+  updateProfile: (id: number, data: UpdateProfileRequest) => {
+    return axiosClient.put(`/Customer/${id}`, data);
+  },
 };
