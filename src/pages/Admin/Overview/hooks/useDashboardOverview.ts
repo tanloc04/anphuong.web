@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { orderApi } from "@/api/orderApi";
+import { productApi } from "@/api/productApi";
 import { formatCurrency } from "@/utils/format";
 
 export const useDashboardOverview = (isDarkMode: boolean) => {
-  const { data: queryData, isLoading } = useQuery({
+  const { data: queryData, isLoading: isLoadingRevenue } = useQuery({
     queryKey: ["revenueOverview"],
     queryFn: () =>
       orderApi.getRevenue({
@@ -12,6 +13,11 @@ export const useDashboardOverview = (isDarkMode: boolean) => {
         pageInfo: { pageNum: 1, pageSize: 1000 },
       }),
     staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: lowStockCount = 0, isLoading: isLoadingLowStock } = useQuery({
+    queryKey: ["lowStockCount"],
+    queryFn: () => productApi.getLowStockCount(5), // Ngưỡng mặc định là 5
   });
 
   const realData = queryData?.data?.data || queryData?.data || queryData || {};
@@ -30,44 +36,64 @@ export const useDashboardOverview = (isDarkMode: boolean) => {
 
   const recentOrders = useMemo(() => {
     return [...orders]
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+      )
       .slice(0, 5);
   }, [orders]);
 
-  const stats = useMemo(() => [
-    {
-      title: "Doanh Thu",
-      value: isLoading ? "..." : formatCurrency(totalRevenue),
-      icon: "pi pi-dollar",
-      color: "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
-      sub: "Cập nhật real-time",
-      subColor: "text-green-500 bg-green-50 dark:bg-green-900/20 dark:text-green-400",
-    },
-    {
-      title: "Đơn Hàng",
-      value: isLoading ? "..." : totalOrders,
-      icon: "pi pi-shopping-cart",
-      color: "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
-      sub: "Tổng số đơn hệ thống",
-      subColor: "text-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
-    },
-    {
-      title: "Khách Hàng",
-      value: isLoading ? "..." : uniqueCustomers,
-      icon: "pi pi-users",
-      color: "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
-      sub: "Khách hàng duy nhất",
-      subColor: "text-orange-500 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
-    },
-    {
-      title: "Sắp Hết Hàng",
-      value: "12",
-      icon: "pi pi-exclamation-triangle",
-      color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
-      sub: "Cần nhập thêm",
-      subColor: "text-red-500 bg-red-50 dark:bg-red-900/20 dark:text-red-400",
-    },
-  ], [isLoading, totalRevenue, totalOrders, uniqueCustomers]);
+  const stats = useMemo(
+    () => [
+      {
+        title: "Doanh Thu",
+        value: isLoadingRevenue ? "..." : formatCurrency(totalRevenue),
+        icon: "pi pi-dollar",
+        color:
+          "bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+        sub: "Cập nhật real-time",
+        subColor:
+          "text-green-500 bg-green-50 dark:bg-green-900/20 dark:text-green-400",
+      },
+      {
+        title: "Đơn Hàng",
+        value: isLoadingRevenue ? "..." : totalOrders,
+        icon: "pi pi-shopping-cart",
+        color:
+          "bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+        sub: "Tổng số đơn hệ thống",
+        subColor:
+          "text-blue-500 bg-blue-50 dark:bg-blue-900/20 dark:text-blue-400",
+      },
+      {
+        title: "Khách Hàng",
+        value: isLoadingRevenue ? "..." : uniqueCustomers,
+        icon: "pi pi-users",
+        color:
+          "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400",
+        sub: "Khách hàng duy nhất",
+        subColor:
+          "text-orange-500 bg-orange-50 dark:bg-orange-900/20 dark:text-orange-400",
+      },
+      {
+        title: "Sắp Hết Hàng",
+        value: isLoadingLowStock ? "..." : lowStockCount,
+        icon: "pi pi-exclamation-triangle",
+        color: "bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+        sub: "Cần nhập thêm",
+        subColor: "text-red-500 bg-red-50 dark:bg-red-900/20 dark:text-red-400",
+        route: "/admin/products",
+      },
+    ],
+    [
+      isLoadingRevenue,
+      isLoadingLowStock,
+      totalRevenue,
+      totalOrders,
+      uniqueCustomers,
+      lowStockCount,
+    ],
+  );
 
   const [chartData, setChartData] = useState({});
   const [chartOptions, setChartOptions] = useState({});
@@ -84,11 +110,16 @@ export const useDashboardOverview = (isDarkMode: boolean) => {
     const last7Days = [...Array(7)].map((_, i) => {
       const d = new Date();
       d.setDate(d.getDate() - (6 - i));
-      return d.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+      return d.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+      });
     });
 
     const revenueByDay = new Array(7).fill(0);
-    let completed = 0, shipping = 0, cancelled = 0;
+    let completed = 0,
+      shipping = 0,
+      cancelled = 0;
 
     orders.forEach((o: any) => {
       if (o.status === 3) completed++;
@@ -96,7 +127,10 @@ export const useDashboardOverview = (isDarkMode: boolean) => {
       else if (o.status === 4) cancelled++;
 
       if (o.status !== 4) {
-        const dateStr = new Date(o.createdAt).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
+        const dateStr = new Date(o.createdAt).toLocaleDateString("vi-VN", {
+          day: "2-digit",
+          month: "2-digit",
+        });
         const index = last7Days.indexOf(dateStr);
         if (index !== -1) revenueByDay[index] += o.totalPrice;
       }
@@ -119,8 +153,14 @@ export const useDashboardOverview = (isDarkMode: boolean) => {
       aspectRatio: 0.8,
       plugins: { legend: { labels: { color: textColor } } },
       scales: {
-        x: { ticks: { color: textColorSecondary, font: { weight: 500 } }, grid: { display: false, drawBorder: false } },
-        y: { ticks: { color: textColorSecondary }, grid: { color: surfaceBorder, drawBorder: false } },
+        x: {
+          ticks: { color: textColorSecondary, font: { weight: 500 } },
+          grid: { display: false, drawBorder: false },
+        },
+        y: {
+          ticks: { color: textColorSecondary },
+          grid: { color: surfaceBorder, drawBorder: false },
+        },
       },
     });
 
@@ -137,5 +177,12 @@ export const useDashboardOverview = (isDarkMode: boolean) => {
     });
   }, [isDarkMode, orders]);
 
-  return { stats, chartData, chartOptions, doughnutData, recentOrders, isLoading };
+  return {
+    stats,
+    chartData,
+    chartOptions,
+    doughnutData,
+    recentOrders,
+    isLoading: isLoadingRevenue || isLoadingLowStock,
+  };
 };

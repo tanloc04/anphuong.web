@@ -13,7 +13,7 @@ const MainLayout = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.3, // mỗi phần trễ 0.25s
+        staggerChildren: 0.15,
       },
     },
   };
@@ -24,7 +24,7 @@ const MainLayout = () => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 1.3, ease: "easeOut" },
+      transition: { duration: 0.8, ease: "easeOut" },
     },
   };
 
@@ -54,7 +54,6 @@ const MainLayout = () => {
       <motion.div variants={itemVariants}>
         <ScrollToTopButton />
       </motion.div>
-
 
       <motion.div variants={itemVariants}>
         <Footer />
