@@ -13,7 +13,6 @@ import { Tag } from "primereact/tag";
 import { Image } from "primereact/image";
 import { uploadToCloudinary } from "@/services/uploadCloudinaryService";
 
-// 👇 Nhớ Import thêm useMaterialMutations
 import {
   useColors,
   useMaterials,
@@ -31,6 +30,8 @@ const VariationManager = ({
 }: VariationManagerProps) => {
   const toast = useRef<Toast>(null);
 
+  // 👇 Thêm state cho SKU
+  const [sku, setSku] = useState("");
   const [selectedColor, setSelectedColor] = useState<Color | null>(null);
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
   const [stock, setStock] = useState<number | null>(0);
@@ -51,7 +52,6 @@ const VariationManager = ({
   const { data: colorsData } = useColors();
   const colors = colorsData?.pageData || [];
 
-  // KHÔNG CẦN refetch NỮA, React Query tự lo
   const { data: materialsData } = useMaterials();
   const materials = materialsData?.pageData || [];
 
@@ -69,12 +69,12 @@ const VariationManager = ({
     isMutatingVariant,
   } = useVariantMutations(toast);
 
-  // 👇 GỌI HOOK MATERIAL MUTATION Ở ĐÂY
   const { createMaterial, isCreatingMaterial } = useMaterialMutations(toast);
 
   useEffect(() => {
     if (visible && product) {
       setVariantPrice(product.price);
+      setSku(""); // Clear SKU
       setSelectedColor(null);
       setSelectedMaterial(null);
       setStock(0);
@@ -105,7 +105,9 @@ const VariationManager = ({
   };
 
   const handleAddVariant = async () => {
+    // 👇 Thêm validate bắt buộc nhập SKU
     if (
+      !sku.trim() ||
       !selectedColor ||
       !selectedMaterial ||
       stock === null ||
@@ -115,7 +117,7 @@ const VariationManager = ({
       toast.current?.show({
         severity: "warn",
         summary: "Thiếu thông tin",
-        detail: "Vui lòng nhập đủ thông tin biến thể!",
+        detail: "Vui lòng nhập đầy đủ thông tin biến thể (kể cả mã SKU)!",
       });
       return;
     }
@@ -129,6 +131,19 @@ const VariationManager = ({
         severity: "warn",
         summary: "Đã tồn tại",
         detail: "Biến thể với Màu và Chất liệu này đã có rồi!",
+      });
+      return;
+    }
+
+    // (Tùy chọn) Sếp có thể check trùng SKU ở Frontend luôn nếu thích
+    const isSkuExist = productVariants.some(
+      (v: any) => v.sku?.toLowerCase() === sku.trim().toLowerCase(),
+    );
+    if (isSkuExist) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Trùng SKU",
+        detail: "Mã SKU này đã tồn tại, vui lòng chọn mã khác!",
       });
       return;
     }
@@ -151,8 +166,10 @@ const VariationManager = ({
         }
       }
 
+      // 👇 Bơm SKU vào Payload gửi xuống Backend
       const payload = {
         productId: product.id,
+        sku: sku.trim(),
         colorId: selectedColor.id,
         materialId: selectedMaterial.id || selectedMaterial.Id,
         price: variantPrice,
@@ -162,6 +179,7 @@ const VariationManager = ({
 
       createVariant(payload, {
         onSuccess: () => {
+          setSku(""); // Reset SKU sau khi thành công
           setSelectedColor(null);
           setSelectedMaterial(null);
           setStock(0);
@@ -206,7 +224,6 @@ const VariationManager = ({
     );
   };
 
-  // 👇 HÀM TẠO CHẤT LIỆU MỚI BÂY GIỜ GỌN GÀNG HƠN NHIỀU
   const handleCreateNewMaterial = () => {
     if (!newMaterialName.trim()) return;
 
@@ -299,8 +316,8 @@ const VariationManager = ({
         <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 rounded-r flex align-items-start gap-3">
           <i className="pi pi-info-circle text-blue-500 mt-1"></i>
           <div className="text-sm text-blue-700">
-            Thêm các phiên bản biến thể. Giá bán mặc định được lấy từ sản phẩm
-            gốc, bạn có thể thay đổi tùy ý.
+            Thêm các phiên bản biến thể. Mã SKU là bắt buộc và phải là duy nhất
+            cho mỗi phân loại hàng.
           </div>
         </div>
 
@@ -310,6 +327,24 @@ const VariationManager = ({
           </label>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* 👇 Ô Nhập SKU (Spanning 2 columns cho nổi bật) */}
+            <div className="md:col-span-2">
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                Mã SKU <span className="text-red-500">*</span>
+              </label>
+              <div className="p-inputgroup h-3rem">
+                <span className="p-inputgroup-addon bg-white">
+                  <i className="pi pi-barcode"></i>
+                </span>
+                <InputText
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value.toUpperCase())} // Ép tự động viết hoa cho chuẩn mã vạch
+                  placeholder="VD: AP-0004-XAM"
+                  className="font-mono font-bold"
+                />
+              </div>
+            </div>
+
             <div>
               <label className="text-xs font-medium text-gray-600 mb-1 block">
                 Màu sắc <span className="text-red-500">*</span>
@@ -444,6 +479,7 @@ const VariationManager = ({
               className="flex-1 h-3rem font-bold"
               onClick={handleAddVariant}
               disabled={
+                !sku.trim() ||
                 !selectedColor ||
                 !selectedMaterial ||
                 stock === null ||
@@ -489,6 +525,17 @@ const VariationManager = ({
               bodyStyle={{ textAlign: "center" }}
             />
 
+            {/* 👇 Cột hiển thị SKU mới */}
+            <Column
+              header="Mã SKU"
+              body={(rowData) => (
+                <span className="font-mono font-semibold text-gray-700 bg-gray-200 px-2 py-1 rounded">
+                  {rowData.sku || "N/A"}
+                </span>
+              )}
+              style={{ minWidth: "120px" }}
+            />
+
             <Column
               header="Màu Sắc"
               body={(rowData) => (
@@ -506,7 +553,7 @@ const VariationManager = ({
                   </span>
                 </div>
               )}
-              style={{ minWidth: "150px" }}
+              style={{ minWidth: "130px" }}
             />
 
             <Column
@@ -516,7 +563,7 @@ const VariationManager = ({
                   {rowData.material?.name || "---"}
                 </span>
               )}
-              style={{ minWidth: "140px" }}
+              style={{ minWidth: "130px" }}
             />
 
             <Column
@@ -526,7 +573,7 @@ const VariationManager = ({
                   {rowData.price?.toLocaleString("vi-VN")} ₫
                 </span>
               )}
-              style={{ minWidth: "130px", textAlign: "right" }}
+              style={{ minWidth: "120px", textAlign: "right" }}
             />
 
             <Column
@@ -557,6 +604,7 @@ const VariationManager = ({
         </div>
       </Dialog>
 
+      {/* ... (Phần code Dialog Tạo màu và Tạo chất liệu vẫn giữ nguyên như cũ) */}
       <Dialog
         header="Tạo Màu Sắc Mới"
         visible={showCreateColor}

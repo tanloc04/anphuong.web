@@ -201,19 +201,22 @@ const ProductManagement = () => {
   // ==============================================================
 
   const imageBodyTemplate = (rowData: any) => {
+    const imageUrl =
+      rowData.thumbnail || rowData.image1 || rowData.detailImage?.image1;
+
     return (
       <div className="flex justify-center relative group">
-        {rowData.image1 ? (
+        {imageUrl ? (
           <Image
-            src={rowData.image1}
+            src={imageUrl}
             alt={rowData.name}
             width="50"
             preview
-            className="shadow-sm rounded border border-gray-200 overflow-hidden"
+            className="shadow-sm rounded border border-gray-200 overflow-hidden object-cover w-[50px] h-[50px]"
           />
         ) : (
           <div className="w-[50px] h-[50px] bg-gray-100 rounded flex items-center justify-center text-gray-400">
-            <i className="pi pi-image"></i>
+            <i className="pi pi-image text-xl"></i>
           </div>
         )}
       </div>
@@ -332,14 +335,20 @@ const ProductManagement = () => {
       >
         <Column
           field="id"
-          header="STT"
-          style={{ width: "50px" }}
-          className="text-center text-gray-500 font-mono text-xs"
+          header="Mã SP"
+          body={(rowData) => (
+            <span className="font-mono font-bold text-gray-700 bg-gray-100 px-2 py-1 rounded text-xs border border-gray-200 shadow-sm">
+              AP-{rowData.id.toString().padStart(4, "0")}
+            </span>
+          )}
+          style={{ width: "100px" }}
+          className="text-center"
         />
         <Column
           header="Ảnh"
           body={imageBodyTemplate}
           style={{ width: "80px" }}
+          align="center"
         />
         <Column
           field="name"
@@ -422,7 +431,10 @@ const ProductManagement = () => {
       <VariationManager
         visible={variationModalVisible}
         product={selectedProductForVariant}
-        onClose={() => setVariationModalVisible(false)}
+        onClose={() => {
+          setVariationModalVisible(false);
+          refetch();
+        }}
       />
     </ManagementLayout>
   );

@@ -253,6 +253,7 @@ const OrderManagement = () => {
         sortField={lazyParams.sortField ?? undefined}
         sortOrder={lazyParams.sortOrder ?? undefined}
         loading={isLoading || isFetching}
+        rowsPerPageOptions={[5, 10, 20]}
         tableStyle={{ minWidth: "60rem" }}
         emptyMessage="Chưa có đơn hàng nào."
         className="p-datatable-sm"

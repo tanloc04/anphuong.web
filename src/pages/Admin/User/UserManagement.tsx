@@ -132,6 +132,7 @@ const UserManagement = () => {
         onPage={onPage}
         loading={isLoading || isFetching}
         tableStyle={{ minWidth: "60rem" }}
+        rowsPerPageOptions={[5, 10, 20]}
         emptyMessage="Không tìm thấy người dùng nào."
         className="p-datatable-sm"
         stripedRows

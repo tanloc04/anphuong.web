@@ -1,67 +1,68 @@
-import type { ApiErrorDetail } from "./common.types"
+import type { ApiErrorDetail } from "./common.types";
 
 export interface LoginRequest {
-  email: string,
-  password: string
+  email: string;
+  password: string;
 }
 
 export interface LoginResponse {
-  token: string,
-  refreshToken: string
+  token: string;
+  refreshToken: string;
 }
 
 export interface LoginResult {
-  success: boolean,
-  data?: LoginResponse,
-  errors?: ApiErrorDetail[],
-  message?: string 
+  success: boolean;
+  data?: LoginResponse;
+  errors?: ApiErrorDetail[];
+  message?: string;
 }
 
 export interface UserProfile {
-  id: number,
-  fullname: string,
-  phone: string,
-  customerAddress: string,
-  username: string,
-  email: string,
-  role: boolean
+  id: number;
+  fullname: string;
+  phone: string;
+  customerAddress: string;
+  username: string;
+  email: string;
+  avatar?: string;
+  role: boolean;
 }
 
 export interface UpdateProfileRequest {
-  fullname: string,
-  phone: string,
-  customerAddress: string
+  fullname: string;
+  phone: string;
+  customerAddress: string;
 }
 
 export interface ChangePasswordRequest {
-  oldPassword: string,
-  newPassword: string,
-  confirmPassword: string
+  oldPassword: string;
+  newPassword: string;
+  confirmPassword: string;
 }
 
 export interface AuthContextType {
-    isAuthenticated: boolean,
-    user: UserProfile | null,
-    loading: boolean,
-    login: (data: LoginRequest) => Promise<void>,
-    loginGoogle: (idToken: string) => Promise<void>,
-    logout: () => void,
-    register: (data: RegisterRequest) => Promise<void>,
-    changePassword: (data: ChangePasswordRequest) => Promise<boolean>,
+  isAuthenticated: boolean;
+  user: UserProfile | null;
+  loading: boolean;
+  login: (data: LoginRequest) => Promise<void>;
+  loginGoogle: (idToken: string) => Promise<void>;
+  logout: () => void;
+  register: (data: RegisterRequest) => Promise<void>;
+  changePassword: (data: ChangePasswordRequest) => Promise<boolean>;
 }
 
 export interface RegisterRequest {
-  username: string,
-  email: string,
-  password: string,
-  confirmPassword: string,
-  fullName: string,
-  phone: string,
-  customerAddress: string
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  fullName: string;
+  phone: string;
+  customerAddress: string;
 }
 
 export interface ConfirmAccountResponse {
-  success: boolean,
-  message: string,
-  data?: any
+  success: boolean;
+  message: string;
+  data?: any;
 }

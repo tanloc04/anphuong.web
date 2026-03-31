@@ -1,6 +1,7 @@
-import { useNavigate, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Avatar } from "primereact/avatar";
 import { Ripple } from "primereact/ripple";
+import { useAuth } from "@/context/auth.context";
 
 type MenuItem = {
   label: string;
@@ -15,7 +16,7 @@ type MenuGroup = {
 };
 
 const Sidebar = () => {
-  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const menuGroups: MenuGroup[] = [
     {
@@ -47,9 +48,10 @@ const Sidebar = () => {
     },
   ];
 
-  const handleLogout = () => {
-    navigate("/login");
-  };
+  const displayName =
+    user?.fullname || user?.username || user?.email || "Admin";
+  const displayRole = (user as any)?.role || "Quản trị viên";
+  const avatarLabel = displayName.charAt(0).toUpperCase();
 
   return (
     <div className="h-screen w-64 bg-white border-r border-gray-200 flex flex-col fixed left-0 top-0 z-50 transition-colors duration-300">
@@ -84,7 +86,7 @@ const Sidebar = () => {
                         flex items-center px-3 py-3 rounded-lg transition-all duration-200
                         ${
                           item.disabled
-                            ? "opacity-50 cursor-not-allowed text-gray-400" // Form mờ đi, chuột cấm
+                            ? "opacity-50 cursor-not-allowed text-gray-400"
                             : isActive
                               ? "bg-indigo-50 text-indigo-600 font-medium p-ripple"
                               : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 cursor-pointer p-ripple"
@@ -111,19 +113,24 @@ const Sidebar = () => {
       <div className="p-4 border-t border-gray-100 bg-gray-50">
         <div className="flex items-center gap-3">
           <Avatar
-            label="T"
+            image={user?.avatar || undefined}
+            label={!user?.avatar ? avatarLabel : undefined}
             size="large"
             shape="circle"
-            className="bg-indigo-100 text-indigo-600 font-bold"
+            className="bg-indigo-100 text-indigo-600 font-bold uppercase overflow-hidden"
+            imageAlt="User Avatar"
           />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-800 truncate">
-              Trang Quoc Bao
+            <p
+              className="text-sm font-semibold text-gray-800 truncate"
+              title={displayName}
+            >
+              {displayName}
             </p>
-            <p className="text-xs text-gray-500 truncate">Super Admin</p>
+            <p className="text-xs text-gray-500 truncate">{displayRole}</p>
           </div>
           <button
-            onClick={handleLogout}
+            onClick={() => logout()}
             className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Đăng xuất"
           >
