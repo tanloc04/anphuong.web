@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Button } from "primereact/button";
@@ -14,6 +14,7 @@ import { formatCurrency, formatDate } from "@/utils/format";
 import { getStatusLabel, getStatusSeverity } from "@/utils/orderHelper";
 import { Toast } from "primereact/toast";
 import { useTableState } from "@/hooks/useTableState";
+import * as signalR from "@microsoft/signalr";
 
 const OrderManagement = () => {
   const [keyword, setKeyword] = useState("");
@@ -75,7 +76,6 @@ const OrderManagement = () => {
       {
         onSuccess: () => {
           setUpdateStatusVisible(false);
-          // Do hook của sếp đã có queryClient.invalidateQueries(["orders"]) nên bảng sẽ tự load lại!
         },
       },
     );
@@ -102,6 +102,29 @@ const OrderManagement = () => {
       sortDesc: lazyParams.sortOrder === -1,
     },
   });
+
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("https://localhost:7001/orderHub")
+      .withAutomaticReconnect()
+      .build();
+
+    connection.on("ReceiveNewOrder", () => {
+      toast.current?.show({
+        severity: "info",
+        summary: "Đơn hàng mới! 🚀",
+        detail: "Có khách vừa chốt đơn, vui lòng kiểm tra!",
+        life: 5000,
+      });
+      refetch();
+    });
+
+    connection.start().catch((err) => console.error(err));
+
+    return () => {
+      connection.stop();
+    };
+  }, [refetch]);
 
   const orders = queryData?.pageData || [];
   const totalRecords = queryData?.pageInfo?.totalItems || 0;
@@ -165,7 +188,6 @@ const OrderManagement = () => {
             <i className="pi pi-filter mr-2"></i>Bộ lọc:
           </span>
 
-          {/* 1. Lọc Trạng Thái */}
           <div className="p-inputgroup h-10 w-[250px]">
             <span className="p-inputgroup-addon bg-white">
               <i className="pi pi-info-circle text-gray-400"></i>
@@ -183,7 +205,6 @@ const OrderManagement = () => {
             />
           </div>
 
-          {/* 2. Lọc Ngày tháng */}
           <div className="p-inputgroup h-10 w-[350px]">
             <span className="p-inputgroup-addon bg-white">
               <i className="pi pi-calendar text-gray-400"></i>
@@ -204,7 +225,6 @@ const OrderManagement = () => {
             />
           </div>
 
-          {/* 3. Nút Xóa Lọc */}
           {(selectedStatus !== null || dateRange) && (
             <Button
               icon="pi pi-filter-slash"

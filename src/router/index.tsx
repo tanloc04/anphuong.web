@@ -20,6 +20,8 @@ import HomeConfiguration from "@/pages/Admin/Settings/components/HomeConfigurati
 import UserManagement from "@/pages/Admin/User/UserManagement";
 import OrderManagement from "@/pages/Admin/Order/OrderManagement";
 import CartManagement from "@/pages/components/CartManagement";
+import Checkout from "@/pages/components/CheckoutPage";
+import OrderSuccess from "@/pages/components/OrderSuccess";
 
 const AppRoot = () => {
   return (
@@ -41,6 +43,8 @@ export const router = createBrowserRouter([
           { path: "home", element: <Home /> },
           { path: "product/:id", element: <DetailProduct /> },
           { path: "cart", element: <CartManagement /> },
+          { path: "checkout", element: <Checkout /> },
+          { path: "order-success", element: <OrderSuccess /> },
           { path: "account/login", element: <Login /> },
           { path: "account/register", element: <Register /> },
           {

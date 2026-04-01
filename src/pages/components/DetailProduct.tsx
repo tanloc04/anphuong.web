@@ -3,29 +3,29 @@ import { useParams, useNavigate } from "react-router-dom";
 import { TabView, TabPanel } from "primereact/tabview";
 import { Tag } from "primereact/tag";
 import { Button } from "primereact/button";
-import { InputNumber } from "primereact/inputnumber";
 import { Skeleton } from "primereact/skeleton";
 import { Toast } from "primereact/toast";
-import { useProductDetail, useProducts } from "@/pages/Admin/Product/hooks"; // Sếp check lại đường dẫn hook nhé
+import { useProductDetail, useProducts } from "@/pages/Admin/Product/hooks";
 import { formatCurrency } from "@/utils/format";
+import { useAuth } from "@/context/auth.context";
+import { cartApi } from "@/api/cartApi";
+import { useQueryClient } from "@tanstack/react-query";
 
 const DetailProduct = () => {
-  // 1. Lấy ID từ URL
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const toastRef = useRef<Toast>(null);
+  const { isAuthenticated } = useAuth();
+  const queryClient = useQueryClient();
 
-  // Chuyển ID từ chuỗi (URL) sang số để gọi API
   const productId = id ? parseInt(id, 10) : null;
 
-  // 2. Gọi API lấy Chi tiết Sản phẩm
   const {
     data: product,
     isLoading: loadingProduct,
     isError,
   } = useProductDetail(productId);
 
-  // 3. Gọi API lấy Sản phẩm liên quan (Cùng Category)
   const { data: relatedData } = useProducts({
     pageInfo: { pageNum: 1, pageSize: 5 },
     searchCondition: {
@@ -38,61 +38,134 @@ const DetailProduct = () => {
     },
   });
 
-  // Loại bỏ sản phẩm hiện tại khỏi danh sách liên quan & lấy 4 cái đầu tiên
   const relatedProducts = (relatedData?.pageData || [])
     .filter((p: any) => p.id !== productId)
     .slice(0, 4);
 
-  // States
   const [quantity, setQuantity] = useState(1);
   const [mainImage, setMainImage] = useState<string>("");
 
-  // 4. Set ảnh mặc định khi API trả dữ liệu về
+  const [selectedVariant, setSelectedVariant] = useState<any>(null);
+  const [thumbnailStartIndex, setThumbnailStartIndex] = useState(0);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
   useEffect(() => {
     if (product) {
-      // Ưu tiên Thumbnail, nếu ko có thì lấy Image1 trong DetailImage
       const firstImage =
         product.thumbnail ||
         product.detailImage?.image1 ||
         "/placeholder-product.jpg";
       setMainImage(firstImage);
-      setQuantity(1); // Reset số lượng về 1 khi đổi sản phẩm khác
+      setQuantity(1);
+
+      // Mặc định CHƯA chọn biến thể nào (để hiện giá gốc).
+      // Hoặc sếp có thể set chọn biến thể đầu tiên: setSelectedVariant(product.variants?.[0] || null);
+      setSelectedVariant(null);
     }
   }, [product]);
 
-  const handleAddToCart = () => {
+  const currentPrice = selectedVariant
+    ? selectedVariant.price
+    : product?.price || 0;
+  const currentStock = selectedVariant
+    ? selectedVariant.inventory?.quantityInStock ||
+      selectedVariant.quantityInStock ||
+      0
+    : product?.totalStock || 0;
+
+  const calculateDiscountedPrice = () => {
+    if (!product) return 0;
+    // Vẫn áp dụng % discount của sản phẩm gốc lên giá của biến thể
+    return currentPrice * (1 - (product.discount || 0) / 100);
+  };
+
+  const handleAddToCart = async () => {
     if (!product) return;
 
-    // TODO: Chỗ này sau này sếp nối với API AddToCart thật, tạm thời để LocalStorage
-    const cartItem = {
-      productId: product.id,
-      productName: product.name,
-      image: mainImage,
-      price: product.price,
-      discount: product.discount,
-      quantity: quantity,
-      stock: product.totalStock, // Dùng totalStock từ DTO
-    };
-
-    const existingCart = localStorage.getItem("cart");
-    const cart = existingCart ? JSON.parse(existingCart) : [];
-
-    const existingItem = cart.find(
-      (item: any) => item.productId === product.id,
-    );
-    if (existingItem) {
-      existingItem.quantity += quantity;
-    } else {
-      cart.push(cartItem);
+    // 1. Kiểm tra khách đã chọn Phân loại chưa (nếu sản phẩm có biến thể)
+    if (product.variants && product.variants.length > 0 && !selectedVariant) {
+      toastRef.current?.show({
+        severity: "warn",
+        summary: "Thiếu thông tin",
+        detail:
+          "Vui lòng chọn Phân loại / Màu sắc trước khi thêm vào giỏ hàng!",
+        life: 3000,
+      });
+      return;
     }
 
-    localStorage.setItem("cart", JSON.stringify(cart));
-    toastRef.current?.show({
-      severity: "success",
-      summary: "Thành công",
-      detail: "Đã thêm vào giỏ hàng",
-      life: 2000,
-    });
+    // 2. Chuẩn bị giỏ đồ (Payload)
+    const payload = {
+      productId: product.id,
+      variantId: selectedVariant ? selectedVariant.id : null,
+      quantity: quantity,
+
+      // Mấy trường này mình lưu thêm nếu xài LocalStorage để show UI cho đẹp
+      // Backend sẽ tự ignore mấy trường dư thừa này nếu ko có trong request DTO
+      productName: product.name,
+      productImage: selectedVariant?.variantImage || product.thumbnail,
+      price: product.price,
+      variantDisplay: selectedVariant?.color?.name || "Mặc định",
+      maxStock: selectedVariant?.inventory?.quantityInStock || 999,
+    };
+
+    // 3. CHIA LUỒNG: ĐÃ ĐĂNG NHẬP VS VÃNG LAI
+    if (isAuthenticated) {
+      // LUỒNG 1: Gọi API thẳng xuống Database
+      try {
+        await cartApi.addToCart({
+          productId: payload.productId,
+          variantId: payload.variantId,
+          quantity: payload.quantity,
+        });
+
+        toastRef.current?.show({
+          severity: "success",
+          detail: "Đã thêm vào giỏ hàng!",
+        });
+
+        // TODO: Gọi hàm báo hiệu cho Header cập nhật số lượng (Làm ở bước sau)
+        queryClient.invalidateQueries({ queryKey: ["cart-data"] });
+      } catch (error) {
+        toastRef.current?.show({
+          severity: "error",
+          detail: "Lỗi khi thêm vào giỏ hàng!",
+        });
+      }
+    } else {
+      // LUỒNG 2: Lưu vào LocalStorage cho khách vãng lai
+      try {
+        const localCartStr = localStorage.getItem("cart");
+        let localCart = localCartStr ? JSON.parse(localCartStr) : [];
+
+        // Kiểm tra xem món này có trong giỏ local chưa
+        const existingItemIndex = localCart.findIndex(
+          (item: any) =>
+            item.productId === payload.productId &&
+            item.variantId === payload.variantId,
+        );
+
+        if (existingItemIndex !== -1) {
+          localCart[existingItemIndex].quantity += payload.quantity; // Cộng dồn
+        } else {
+          localCart.push(payload); // Thêm mới
+        }
+
+        localStorage.setItem("cart", JSON.stringify(localCart));
+        toastRef.current?.show({
+          severity: "success",
+          detail: "Đã thêm vào giỏ hàng!",
+        });
+
+        // TODO: Dispatch event để báo Header update (Làm ở bước sau)
+        window.dispatchEvent(new Event("localCartUpdated"));
+      } catch (error) {
+        console.error("Lỗi LocalStorage", error);
+      }
+    }
   };
 
   const renderBreadcrumb = () => (
@@ -116,42 +189,97 @@ const DetailProduct = () => {
   );
 
   const renderImageGallery = () => {
-    // Gom tất cả ảnh vào 1 mảng (Lấy từ DetailImage do Backend trả về)
-    const images = [
+    // 1. Lấy ảnh gốc
+    const baseImages = [
       product?.thumbnail,
       product?.detailImage?.image1,
       product?.detailImage?.image2,
       product?.detailImage?.image3,
       product?.detailImage?.image4,
-    ].filter(Boolean); // Lọc bỏ những ảnh null/undefined
+    ];
 
-    // Loại bỏ ảnh trùng lặp (ví dụ thumbnail trùng với image1)
-    const uniqueImages = Array.from(new Set(images));
+    // 2. Lấy thêm ảnh của tất cả các biến thể
+    const variantImages = (product?.variants || []).map(
+      (v: any) => v.variantImage,
+    );
+
+    // 3. Gom lại và lọc trùng lặp + lọc null
+    const allImages = [...baseImages, ...variantImages].filter(Boolean);
+    const uniqueImages = Array.from(new Set(allImages));
+
+    // 👇 Cắt đúng 4 ảnh để hiển thị dựa theo state startIndex
+    const visibleImages = uniqueImages.slice(
+      thumbnailStartIndex,
+      thumbnailStartIndex + 4,
+    );
 
     return (
       <div className="flex flex-col md:flex-row gap-4">
-        {/* Danh sách ảnh nhỏ (Thumbnails) */}
-        <div className="flex md:flex-col gap-3 order-2 md:order-1 w-full md:w-24 overflow-x-auto">
-          {uniqueImages.map((img, idx) => (
+        {/* CỘT THUMBNAILS (BÊN TRÁI) */}
+        <div className="flex md:flex-col gap-2 order-2 md:order-1 w-full md:w-24">
+          {/* Nút UP (Chỉ hiện ở Desktop nếu tổng số ảnh > 4) */}
+          {uniqueImages.length > 4 && (
             <button
-              key={idx}
-              onClick={() => setMainImage(img as string)}
-              className={`w-20 h-20 md:w-24 md:h-24 shrink-0 border-2 rounded-sm overflow-hidden transition-all duration-300 ${
-                mainImage === img
-                  ? "border-[#8B5E3C] opacity-100"
-                  : "border-transparent opacity-60 hover:opacity-100"
+              onClick={() =>
+                setThumbnailStartIndex((prev) => Math.max(0, prev - 1))
+              }
+              disabled={thumbnailStartIndex === 0}
+              className={`hidden md:flex items-center justify-center w-full py-1.5 bg-gray-50 hover:bg-gray-200 text-gray-500 rounded-sm transition-all ${
+                thumbnailStartIndex === 0
+                  ? "opacity-30 cursor-not-allowed"
+                  : "cursor-pointer"
               }`}
             >
-              <img
-                src={img as string}
-                alt={`thumbnail-${idx}`}
-                className="w-full h-full object-cover"
-              />
+              <i className="pi pi-chevron-up text-xs font-bold"></i>
             </button>
-          ))}
+          )}
+
+          {/* Danh sách 4 ảnh đang hiển thị */}
+          <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-hidden scroll-smooth hide-scrollbar">
+            {visibleImages.map((img, idx) => {
+              // Lấy index thật để truyền vào key
+              const realIdx = thumbnailStartIndex + idx;
+              return (
+                <button
+                  key={realIdx}
+                  onClick={() => setMainImage(img as string)}
+                  className={`w-20 h-20 md:w-24 md:h-24 shrink-0 border-2 rounded-sm overflow-hidden transition-all duration-300 ${
+                    mainImage === img
+                      ? "border-[#8B5E3C] opacity-100"
+                      : "border-transparent opacity-60 hover:opacity-100"
+                  }`}
+                >
+                  <img
+                    src={img as string}
+                    alt={`thumbnail-${realIdx}`}
+                    className="w-full h-full object-cover"
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Nút DOWN (Chỉ hiện ở Desktop nếu tổng số ảnh > 4) */}
+          {uniqueImages.length > 4 && (
+            <button
+              onClick={() =>
+                setThumbnailStartIndex((prev) =>
+                  Math.min(uniqueImages.length - 4, prev + 1),
+                )
+              }
+              disabled={thumbnailStartIndex >= uniqueImages.length - 4}
+              className={`hidden md:flex items-center justify-center w-full py-1.5 bg-gray-50 hover:bg-gray-200 text-gray-500 rounded-sm transition-all ${
+                thumbnailStartIndex >= uniqueImages.length - 4
+                  ? "opacity-30 cursor-not-allowed"
+                  : "cursor-pointer"
+              }`}
+            >
+              <i className="pi pi-chevron-down text-xs font-bold"></i>
+            </button>
+          )}
         </div>
 
-        {/* Ảnh chính lớn */}
+        {/* ẢNH CHÍNH LỚN */}
         <div className="order-1 md:order-2 flex-1 bg-gray-50 rounded-sm overflow-hidden flex items-center justify-center aspect-square md:aspect-[4/3] shadow-inner">
           {mainImage ? (
             <img
@@ -169,11 +297,6 @@ const DetailProduct = () => {
     );
   };
 
-  const calculateDiscountedPrice = () => {
-    if (!product) return 0;
-    return product.price * (1 - (product.discount || 0) / 100);
-  };
-
   const renderProductInfo = () => (
     <div className="space-y-6 font-montserrat">
       {/* Tên sản phẩm */}
@@ -182,11 +305,27 @@ const DetailProduct = () => {
           {product?.name}
         </h1>
         <div className="flex items-center gap-4 text-sm">
-          <div className="flex text-yellow-500">
-            {[...Array(5)].map((_, i) => (
-              <i key={i} className="pi pi-star-fill text-sm mr-1"></i>
-            ))}
+          <div className="flex items-center gap-2">
+            <div className="flex text-yellow-500">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <i
+                  key={star}
+                  className={`pi text-sm mr-1 ${
+                    star <= (product?.averageRating || 0)
+                      ? "pi-star-fill" // Tô vàng nếu <= số sao thật
+                      : "pi-star text-gray-300" // Sao rỗng (xám) nếu chưa đạt
+                  }`}
+                ></i>
+              ))}
+            </div>
+            {/* Hiển thị số lượng review nếu có */}
+            <span className="text-gray-500 text-xs mt-0.5">
+              {product?.totalReviews > 0
+                ? `(${product?.totalReviews} đánh giá)`
+                : "(Chưa có đánh giá)"}
+            </span>
           </div>
+
           <span className="text-gray-400">|</span>
           <span className="text-gray-500 font-montserrat-medium">
             SKU: AP-{product?.id.toString().padStart(4, "0")}
@@ -194,7 +333,7 @@ const DetailProduct = () => {
         </div>
       </div>
 
-      {/* Giá */}
+      {/* GIÁ TIỀN (Đã được làm cho nhảy tự động theo Variant) */}
       <div className="py-2">
         <div className="flex items-baseline gap-4 flex-wrap">
           <span className="text-3xl md:text-4xl font-montserrat-bold text-gray-900">
@@ -203,7 +342,7 @@ const DetailProduct = () => {
           {product?.discount > 0 && (
             <>
               <span className="text-xl text-gray-400 line-through font-montserrat-medium">
-                {formatCurrency(product.price)}
+                {formatCurrency(currentPrice)}
               </span>
               <Tag
                 value={`-${product.discount}%`}
@@ -223,19 +362,19 @@ const DetailProduct = () => {
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="text-gray-500">Chiều dài</span>
             <span className="font-montserrat-semibold text-gray-900">
-              {product?.longSize} cm
+              {product?.longSize} m
             </span>
           </div>
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="text-gray-500">Chiều rộng</span>
             <span className="font-montserrat-semibold text-gray-900">
-              {product?.widthSize} cm
+              {product?.widthSize} m
             </span>
           </div>
           <div className="flex justify-between border-b border-gray-200 pb-2">
             <span className="text-gray-500">Chiều cao</span>
             <span className="font-montserrat-semibold text-gray-900">
-              {product?.heightSize} cm
+              {product?.heightSize} m
             </span>
           </div>
           <div className="flex justify-between border-b border-gray-200 pb-2">
@@ -247,14 +386,64 @@ const DetailProduct = () => {
         </div>
       </div>
 
-      {/* Trạng thái tồn kho */}
+      {product?.variants && product.variants.length > 0 && (
+        <div className="pt-4">
+          <h3 className="text-gray-800 font-montserrat-semibold mb-3">
+            Phân loại / Màu sắc:
+          </h3>
+          <div className="flex flex-wrap gap-3">
+            {product.variants.map((v: any) => {
+              // Hứng số lượng tồn kho của biến thể này
+              const variantStock =
+                v.inventory?.quantityInStock || v.quantityInStock || 0;
+              // Lấy tên hiển thị: Ưu tiên Tên màu -> Tên chất liệu -> Mã SKU -> Biến thể ID
+              const displayName =
+                v.color?.name ||
+                v.material?.name ||
+                v.sku ||
+                `Biến thể ${v.id}`;
+
+              return (
+                <button
+                  key={v.id}
+                  onClick={() => {
+                    setSelectedVariant(v);
+                    if (v.variantImage) setMainImage(v.variantImage);
+                    setQuantity(1);
+                  }}
+                  className={`flex items-center gap-2 border px-3 py-2 rounded-sm transition-all ${
+                    selectedVariant?.id === v.id
+                      ? "border-[#8B5E3C] bg-[#8B5E3C]/5 text-[#8B5E3C] ring-1 ring-[#8B5E3C]"
+                      : "border-gray-200 text-gray-600 hover:border-gray-400"
+                  } ${variantStock === 0 ? "opacity-50 cursor-not-allowed bg-gray-50" : ""}`}
+                  disabled={variantStock === 0}
+                >
+                  <div
+                    className="w-4 h-4 rounded-full border border-gray-300 shadow-sm"
+                    style={{
+                      // Đổ mã màu hex vào đây, nếu không có thì để nền xám nhạt
+                      backgroundColor: v.color?.hexCode || "#f3f4f6",
+                      // Tạo viền nét đứt nếu không có mã màu để người dùng dễ phân biệt
+                      borderStyle: v.color?.hexCode ? "solid" : "dashed",
+                    }}
+                  ></div>
+
+                  <span className="text-sm font-medium">{displayName}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Trạng thái tồn kho (Đã nhảy số theo Variant) */}
       <div className="flex items-center gap-3">
         <span className="text-gray-600 font-montserrat-medium">
           Tình trạng:
         </span>
-        {product && product.totalStock > 0 ? (
+        {currentStock > 0 ? (
           <span className="text-green-600 font-montserrat-bold bg-green-50 px-3 py-1 rounded-sm text-sm">
-            Còn hàng ({product.totalStock})
+            Còn hàng ({currentStock})
           </span>
         ) : (
           <span className="text-red-500 font-montserrat-bold bg-red-50 px-3 py-1 rounded-sm text-sm">
@@ -270,7 +459,7 @@ const DetailProduct = () => {
             icon="pi pi-minus"
             className="p-button-text text-gray-600 hover:bg-gray-100 w-12 h-full flex items-center justify-center border-none rounded-none"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            disabled={quantity <= 1 || !product || product.totalStock === 0}
+            disabled={quantity <= 1 || currentStock === 0}
           />
           <div className="flex-1 flex items-center justify-center font-montserrat-semibold text-gray-900 border-x border-gray-100 h-full">
             {quantity}
@@ -278,13 +467,9 @@ const DetailProduct = () => {
           <Button
             icon="pi pi-plus"
             className="p-button-text text-gray-600 hover:bg-gray-100 w-12 h-full flex items-center justify-center border-none rounded-none"
-            onClick={() =>
-              setQuantity(Math.min(product?.totalStock || 1, quantity + 1))
-            }
+            onClick={() => setQuantity(Math.min(currentStock, quantity + 1))}
             disabled={
-              !product ||
-              quantity >= (product?.totalStock || 1) ||
-              product.totalStock === 0
+              !product || quantity >= currentStock || currentStock === 0
             }
           />
         </div>
@@ -293,8 +478,12 @@ const DetailProduct = () => {
           label="THÊM VÀO GIỎ HÀNG"
           icon="pi pi-shopping-bag"
           className="flex-1 h-12 bg-[#8B5E3C] border-none hover:bg-[#724C31] text-white font-montserrat-semibold uppercase tracking-widest px-6 rounded-sm transition-colors shadow-sm"
-          onClick={handleAddToCart}
-          disabled={!product || product.totalStock === 0}
+          onClick={handleAddToCart} // Sếp nhớ update lại hàm này để lưu thêm selectedVariant.id nhé
+          disabled={
+            !product ||
+            currentStock === 0 ||
+            (product?.variants?.length > 0 && !selectedVariant)
+          } // Bắt buộc chọn biến thể mới cho Add
         />
       </div>
     </div>

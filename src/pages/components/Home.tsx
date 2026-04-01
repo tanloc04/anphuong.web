@@ -23,7 +23,7 @@ const Home = () => {
           <SpecialProduct />
         </motion.div>
       </div>
-      
+
       {/* ProductCategories: float từ trên xuống */}
       <div className="relative">
         <motion.div
