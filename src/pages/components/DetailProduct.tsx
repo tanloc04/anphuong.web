@@ -178,7 +178,7 @@ const DetailProduct = () => {
       </button>
       <span className="text-gray-300">/</span>
       <button
-        onClick={() => navigate("/products")}
+        onClick={() => navigate("/pages/product")}
         className="text-gray-500 hover:text-[#8B5E3C] transition"
       >
         Sản phẩm

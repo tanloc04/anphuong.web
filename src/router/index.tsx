@@ -22,6 +22,8 @@ import OrderManagement from "@/pages/Admin/Order/OrderManagement";
 import CartManagement from "@/pages/components/CartManagement";
 import Checkout from "@/pages/components/CheckoutPage";
 import OrderSuccess from "@/pages/components/OrderSuccess";
+import Product from "@/components/Product";
+import VnPayReturn from "@/pages/components/VnPayReturn";
 
 const AppRoot = () => {
   return (
@@ -44,6 +46,8 @@ export const router = createBrowserRouter([
           { path: "product/:id", element: <DetailProduct /> },
           { path: "cart", element: <CartManagement /> },
           { path: "checkout", element: <Checkout /> },
+          { path: "/payment/vnpay-return", element: <VnPayReturn /> },
+          { path: "/pages/product", element: <Product /> },
           { path: "order-success", element: <OrderSuccess /> },
           { path: "account/login", element: <Login /> },
           { path: "account/register", element: <Register /> },

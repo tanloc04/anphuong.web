@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
@@ -9,6 +9,7 @@ import { Toast } from "primereact/toast";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/auth.context";
 import { cartApi } from "@/api/cartApi";
+import { paymentApi } from "@/api/paymentApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useOrderMutations } from "@/pages/Admin/Order/hooks";
 import type { CheckoutForm } from "@/@types/order.types";
@@ -18,6 +19,8 @@ const Checkout = () => {
   const navigate = useNavigate();
   const toastRef = React.useRef<Toast>(null);
   const queryClient = useQueryClient();
+
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const { createOrder, isPending } = useOrderMutations(toastRef);
 
@@ -71,10 +74,11 @@ const Checkout = () => {
       receiverName: data.fullName,
       receiverPhone: data.phone,
       shippingAddress: data.address,
-      paymentMethod: data.paymentMethod === "COD" ? 0 : 1,
+      email: data.email,
+      paymentMethod: data.paymentMethod === "COD" ? 0 : 1, // 0: COD, 1: VNPAY
       note: data.note,
       totalPrice: total,
-      status: 1,
+      status: 1, // 1: Chờ xử lý / Chờ thanh toán
       shippingDate: new Date(
         new Date().setDate(new Date().getDate() + 3),
       ).toISOString(),
@@ -86,10 +90,17 @@ const Checkout = () => {
         unitPrice: item.price,
         subTotal: item.price * item.quantity,
       })),
+      isNewCustomer: !isAuthenticated,
+      customerName: data.fullName,
+      customerPhone: data.phone,
     };
 
+    // Gọi API lưu đơn hàng vào DB trước
     createOrder(orderPayload, {
-      onSuccess: () => {
+      onSuccess: async (res: any) => {
+        setIsSuccess(true);
+
+        // Xóa giỏ hàng sau khi đặt thành công
         if (isAuthenticated) {
           queryClient.invalidateQueries({ queryKey: ["cart-data"] });
         } else {
@@ -97,9 +108,56 @@ const Checkout = () => {
           window.dispatchEvent(new Event("localCartUpdated"));
         }
 
-        setTimeout(() => {
-          navigate("/order-success");
-        }, 1500);
+        // ====================================================
+        // RẼ NHÁNH THANH TOÁN
+        // ====================================================
+        if (data.paymentMethod === "VNPAY") {
+          try {
+            // Lấy OrderId từ response của Backend trả về
+            const createdOrderId =
+              res?.data?.id || res?.id || res?.data?.data?.id;
+
+            if (!createdOrderId) {
+              toastRef.current?.show({
+                severity: "error",
+                detail: "Không lấy được mã đơn hàng để thanh toán VNPay!",
+              });
+              return;
+            }
+
+            // Gọi API qua axiosClient cực clean
+            const vnpayRes = await paymentApi.createVnPayUrl({
+              orderId: createdOrderId,
+              amount: total,
+              orderDescription: `Thanh toan don hang ${createdOrderId}`,
+            });
+
+            // Tùy theo cấu trúc axios mà lấy data (thường là vnpayRes.data)
+            const paymentUrl =
+              vnpayRes.data?.paymentUrl || (vnpayRes as any).paymentUrl;
+
+            if (paymentUrl) {
+              // Bế khách hàng bay sang web của VNPay 🚀
+              window.location.href = paymentUrl;
+            } else {
+              toastRef.current?.show({
+                severity: "error",
+                detail: "Lỗi từ cổng thanh toán VNPay!",
+              });
+            }
+          } catch (error) {
+            console.error("VNPay Error:", error);
+            toastRef.current?.show({
+              severity: "error",
+              detail: "Lỗi kết nối đến VNPay!",
+            });
+          }
+        } else {
+          // NẾU LÀ COD -> CHẠY NHƯ BÌNH THƯỜNG
+          setTimeout(() => {
+            navigate("/order-success");
+          }, 1500);
+        }
       },
     });
   };
@@ -111,7 +169,7 @@ const Checkout = () => {
     }).format(value);
   };
 
-  if (cartItems.length === 0) {
+  if (cartItems.length === 0 && !isSuccess) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50 pt-24">
         <i className="pi pi-shopping-bag text-6xl text-gray-300 mb-4"></i>
