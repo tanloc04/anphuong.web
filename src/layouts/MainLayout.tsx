@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import { Footer } from "../components/Footer";
 import FloatingPhoneButton from "../components/ui/FloatingPhoneButton";
 import ScrollToTopButton from "../components/ui/ScrollToTopButton";
+import ChatWidget from "@/pages/components/ChatWidget";
 
 const MainLayout = () => {
   // Parent container với stagger
@@ -47,12 +48,17 @@ const MainLayout = () => {
         <Outlet />
       </motion.main>
 
+      {/* Khu vực chứa các nút Floating lơ lửng */}
       <motion.div variants={itemVariants}>
         <FloatingPhoneButton />
       </motion.div>
 
       <motion.div variants={itemVariants}>
         <ScrollToTopButton />
+      </motion.div>
+
+      <motion.div variants={itemVariants}>
+        <ChatWidget />
       </motion.div>
 
       <motion.div variants={itemVariants}>

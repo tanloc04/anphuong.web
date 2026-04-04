@@ -24,6 +24,7 @@ import Checkout from "@/pages/components/CheckoutPage";
 import OrderSuccess from "@/pages/components/OrderSuccess";
 import Product from "@/components/Product";
 import VnPayReturn from "@/pages/components/VnPayReturn";
+import AdminChat from "@/pages/Admin/Chat/AdminChat";
 
 const AppRoot = () => {
   return (
@@ -74,6 +75,7 @@ export const router = createBrowserRouter([
               { path: "users", element: <UserManagement /> },
               { path: "orders", element: <OrderManagement /> },
               { path: "settings", element: <HomeConfiguration /> },
+              { path: "chats", element: <AdminChat /> },
             ],
           },
         ],

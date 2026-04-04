@@ -81,3 +81,12 @@ export interface ProductRequest {
   image3: string | File | null;
   image4: string | null | File;
 }
+
+export interface SearchResult {
+  id: number;
+  productCode: string; // SKU
+  productName: string;
+  price: number;
+  imageUrl: string;
+  categoryName: string;
+}

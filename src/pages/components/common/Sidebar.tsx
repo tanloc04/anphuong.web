@@ -33,6 +33,7 @@ const Sidebar = () => {
         { label: "Đơn hàng", icon: "pi pi-shopping-cart", to: "/admin/orders" },
         { label: "Danh mục", icon: "pi pi-list", to: "/admin/categories" },
         { label: "Khách hàng", icon: "pi pi-users", to: "/admin/users" },
+        { label: "Tin nhắn", icon: "pi pi-comments", to: "/admin/chats" },
       ],
     },
     {

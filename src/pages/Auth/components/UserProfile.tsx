@@ -16,6 +16,7 @@ import {
   faEnvelope,
   faPhone,
 } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom"; // Bổ sung hook điều hướng
 
 import { useAuth } from "../../../context/auth.context";
 import { authApi } from "@/api/authApi";
@@ -28,12 +29,16 @@ import type {
 const UserProfile = () => {
   const { user } = useAuth();
   const toast = useRef<Toast>(null);
+  const navigate = useNavigate(); // Khởi tạo navigate
   const [loading, setLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"info" | "security">("info");
   const [customerDetail, setCustomerDetail] = useState<any>(null);
 
   const { provinces, isLoading } = useProvinces();
+
+  const ADMIN_EMAIL = import.meta.env.VITE_ALLOWED_EMAILS;
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   const {
     control: controlInfo,
@@ -226,6 +231,17 @@ const UserProfile = () => {
                     </span>
                   </div>
                 </div>
+
+                {isAdmin && (
+                  <div className="w-full mt-5 pt-5 border-t border-dashed border-gray-200 animate-fade-in">
+                    <Button
+                      label="Trang Quản Trị"
+                      icon="pi pi-shield"
+                      className="w-full !bg-gray-800 !border-none hover:!bg-gray-700 text-sm font-semibold shadow-md transition-colors"
+                      onClick={() => navigate("/admin")}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           </div>
