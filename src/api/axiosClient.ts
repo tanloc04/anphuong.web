@@ -3,7 +3,7 @@ import axios from "axios";
 // export const API_BASE_URL = "http://localhost:5273/api"; // Hardcode thế này dễ lỗi khi deploy
 // Nên dùng biến môi trường, fallback về localhost nếu không có
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://locnt04-001-site1.mtempurl.com";
+  import.meta.env.VITE_API_URL || "http://localhost:5273/api";
 
 const axiosClient = axios.create({
   baseURL: API_BASE_URL,
