@@ -10,6 +10,7 @@ import { router } from "./router";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+// trigger production build
 const value = {
   ripple: true,
 };
