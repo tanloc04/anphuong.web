@@ -9,6 +9,7 @@ import { Avatar } from "primereact/avatar";
 import ManagementLayout from "@/components/common/layout/ManagementLayout";
 import UserForm from "./components/UserForm";
 import { useCustomers, useCustomerMutations } from "./hooks";
+import { useAuthMutations } from "@/pages/Auth/hooks";
 
 const UserManagement = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -38,7 +39,9 @@ const UserManagement = () => {
   const users = apiResponse?.data?.data?.pageData || [];
   const totalRecords = apiResponse?.data?.data?.pageInfo?.totalItems || 0;
 
-  const { update, toggleStatus, isPending } = useCustomerMutations(toast);
+  const { update, isPending } = useCustomerMutations(toast);
+
+  const { toggleStatus } = useAuthMutations(toast);
 
   const openNew = () => {
     setSelectedUser(null);
@@ -92,7 +95,7 @@ const UserManagement = () => {
           confirmDialog({
             message: `Xác nhận ${isActive ? "khóa" : "mở khóa"} ${rowData.username}?`,
             header: "Xác nhận",
-            accept: () => toggleStatus(rowData),
+            accept: () => toggleStatus(rowData.id),
           });
         }}
       />
@@ -129,6 +132,7 @@ const UserManagement = () => {
         onPage={onPage}
         loading={isLoading || isFetching}
         tableStyle={{ minWidth: "60rem" }}
+        rowsPerPageOptions={[5, 10, 20]}
         emptyMessage="Không tìm thấy người dùng nào."
         className="p-datatable-sm"
         stripedRows

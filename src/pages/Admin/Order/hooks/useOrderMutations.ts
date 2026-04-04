@@ -22,8 +22,24 @@ export const useOrderMutations = (toast: RefObject<Toast>) => {
         }
     });
 
+    const updateStatusMutation = useMutation({
+        mutationFn: (data: { id: number; status: number }) => orderApi.updateStatus(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["orders"] });
+        },
+        onError: (error: any) => {
+            toast.current?.show({ 
+                severity: "error", 
+                summary: "Lỗi", 
+                detail: error?.response?.data?.message || "Không thể cập nhật trạng thái!" 
+            });
+        }
+    });
+
     return {
         createOrder: createMutation.mutate,
-        isPending: createMutation.isPending
+        isPending: createMutation.isPending,
+        updateOrderStatus: updateStatusMutation.mutate,
+        isUpdatingStatus: updateStatusMutation.isPending
     };
 };

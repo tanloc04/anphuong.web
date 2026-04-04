@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Dialog } from "primereact/dialog";
 import { Dropdown } from "primereact/dropdown";
 import { Button } from "primereact/button";
@@ -7,11 +7,19 @@ import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
 import { ColorPicker } from "primereact/colorpicker";
 import { InputText } from "primereact/inputtext";
+import { InputNumber } from "primereact/inputnumber";
 import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 import { Tag } from "primereact/tag";
 import { Image } from "primereact/image";
 import { uploadToCloudinary } from "@/services/uploadCloudinaryService";
-import { useColors, useVariants, useVariantMutations } from "../hooks";
+
+import {
+  useColors,
+  useMaterials,
+  useVariants,
+  useVariantMutations,
+  useMaterialMutations,
+} from "../hooks";
 import type { Color } from "@/@types/color.types";
 import type { VariationManagerProps } from "@/@types/variant.types";
 
@@ -21,9 +29,15 @@ const VariationManager = ({
   onClose,
 }: VariationManagerProps) => {
   const toast = useRef<Toast>(null);
-  const [selectedColor, setSelectedColor] = useState<Color | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // 👇 Thêm state cho SKU
+  const [sku, setSku] = useState("");
+  const [selectedColor, setSelectedColor] = useState<Color | null>(null);
+  const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
+  const [stock, setStock] = useState<number | null>(0);
+  const [variantPrice, setVariantPrice] = useState<number | null>(0);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -32,8 +46,14 @@ const VariationManager = ({
   const [newColorName, setNewColorName] = useState("");
   const [newColorHex, setNewColorHex] = useState("000000");
 
+  const [showCreateMaterial, setShowCreateMaterial] = useState(false);
+  const [newMaterialName, setNewMaterialName] = useState("");
+
   const { data: colorsData } = useColors();
   const colors = colorsData?.pageData || [];
+
+  const { data: materialsData } = useMaterials();
+  const materials = materialsData?.pageData || [];
 
   const { data: variantsData, isLoading: isLoadingVariants } = useVariants(
     visible && product ? product.id : null,
@@ -49,6 +69,19 @@ const VariationManager = ({
     isMutatingVariant,
   } = useVariantMutations(toast);
 
+  const { createMaterial, isCreatingMaterial } = useMaterialMutations(toast);
+
+  useEffect(() => {
+    if (visible && product) {
+      setVariantPrice(product.price);
+      setSku(""); // Clear SKU
+      setSelectedColor(null);
+      setSelectedMaterial(null);
+      setStock(0);
+      clearSelectedFile();
+    }
+  }, [visible, product]);
+
   const onFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -60,8 +93,7 @@ const VariationManager = ({
         });
         return;
       }
-      const objectUrl = URL.createObjectURL(file);
-      setPreviewUrl(objectUrl);
+      setPreviewUrl(URL.createObjectURL(file));
       setSelectedFile(file);
     }
   };
@@ -69,28 +101,54 @@ const VariationManager = ({
   const clearSelectedFile = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleAddVariant = async () => {
-    if (!selectedColor || !product) return;
+    // 👇 Thêm validate bắt buộc nhập SKU
+    if (
+      !sku.trim() ||
+      !selectedColor ||
+      !selectedMaterial ||
+      stock === null ||
+      variantPrice === null ||
+      !product
+    ) {
+      toast.current?.show({
+        severity: "warn",
+        summary: "Thiếu thông tin",
+        detail: "Vui lòng nhập đầy đủ thông tin biến thể (kể cả mã SKU)!",
+      });
+      return;
+    }
 
     const isExist = productVariants.some(
-      (v: any) => v.colorId === selectedColor.id,
+      (v: any) =>
+        v.colorId === selectedColor.id && v.materialId === selectedMaterial.id,
     );
     if (isExist) {
       toast.current?.show({
         severity: "warn",
         summary: "Đã tồn tại",
-        detail: "Màu này đã được thêm rồi!",
+        detail: "Biến thể với Màu và Chất liệu này đã có rồi!",
+      });
+      return;
+    }
+
+    // (Tùy chọn) Sếp có thể check trùng SKU ở Frontend luôn nếu thích
+    const isSkuExist = productVariants.some(
+      (v: any) => v.sku?.toLowerCase() === sku.trim().toLowerCase(),
+    );
+    if (isSkuExist) {
+      toast.current?.show({
+        severity: "error",
+        summary: "Trùng SKU",
+        detail: "Mã SKU này đã tồn tại, vui lòng chọn mã khác!",
       });
       return;
     }
 
     setIsUploading(true);
-
     try {
       let uploadedImageUrl = "";
       if (selectedFile) {
@@ -101,27 +159,34 @@ const VariationManager = ({
           toast.current?.show({
             severity: "error",
             summary: "Lỗi upload",
-            detail: "Upload ảnh cho variant không thành công!",
+            detail: "Upload ảnh không thành công!",
           });
           setIsUploading(false);
           return;
         }
-
-        const payload = {
-          productId: product.id,
-          colorId: selectedColor.id,
-          variantImage: uploadedImageUrl,
-        };
-
-        createVariant(payload, {
-          onSuccess: () => {
-            setSelectedColor(null);
-            clearSelectedFile();
-          },
-
-          onError: () => {},
-        });
       }
+
+      // 👇 Bơm SKU vào Payload gửi xuống Backend
+      const payload = {
+        productId: product.id,
+        sku: sku.trim(),
+        colorId: selectedColor.id,
+        materialId: selectedMaterial.id || selectedMaterial.Id,
+        price: variantPrice,
+        stock: stock,
+        variantImage: uploadedImageUrl,
+      };
+
+      createVariant(payload, {
+        onSuccess: () => {
+          setSku(""); // Reset SKU sau khi thành công
+          setSelectedColor(null);
+          setSelectedMaterial(null);
+          setStock(0);
+          setVariantPrice(product.price);
+          clearSelectedFile();
+        },
+      });
     } catch (error) {
       console.error(error);
     } finally {
@@ -130,41 +195,27 @@ const VariationManager = ({
   };
 
   const confirmDeleteVariant = (variant: any) => {
-    const colorName = variant.color?.name || "màu này";
+    const colorName = variant.color?.name || "biến thể";
     confirmDialog({
       message: `Bạn có chắc muốn xóa "${colorName}" khỏi sản phẩm?`,
       header: "Xác nhận xóa",
       icon: "pi pi-exclamation-triangle",
-      defaultFocus: "reject",
       acceptClassName: "p-button-danger",
-      acceptLabel: "Xóa",
-      rejectLabel: "Hủy",
       accept: () => deleteVariant(variant.id),
     });
   };
 
   const handleCreateNewColor = () => {
-    if (!newColorName.trim()) {
-      toast.current?.show({
-        severity: "error",
-        summary: "Thiếu thông tin",
-        detail: "Vui lòng nhập tên màu!",
-      });
-      return;
-    }
-
+    if (!newColorName.trim()) return;
     let finalHex = newColorHex.startsWith("#")
       ? newColorHex
       : `#${newColorHex}`;
-
     createColor(
       { name: newColorName, hexCode: finalHex },
       {
         onSuccess: (data: any) => {
           const createdColor = data?.data?.data || data?.data;
-          if (createdColor) {
-            setSelectedColor(createdColor);
-          }
+          if (createdColor) setSelectedColor(createdColor);
           setShowCreateColor(false);
           setNewColorName("");
           setNewColorHex("000000");
@@ -173,11 +224,24 @@ const VariationManager = ({
     );
   };
 
-  const colorOptionTemplate = (option: Color) => {
-    if (!option) {
-      return <span>Chọn màu</span>;
-    }
+  const handleCreateNewMaterial = () => {
+    if (!newMaterialName.trim()) return;
 
+    createMaterial(
+      { name: newMaterialName, description: "" },
+      {
+        onSuccess: (res: any) => {
+          const createdMaterial = res.data?.data || res.data;
+          if (createdMaterial) setSelectedMaterial(createdMaterial);
+          setShowCreateMaterial(false);
+          setNewMaterialName("");
+        },
+      },
+    );
+  };
+
+  const colorOptionTemplate = (option: Color) => {
+    if (!option) return <span>Chọn màu</span>;
     return (
       <div className="flex align-items-center gap-2">
         <div
@@ -191,7 +255,7 @@ const VariationManager = ({
 
   const imageBodyTemplate = (rowData: any) => {
     return rowData.variantImage ? (
-      <div className="border-1 border-gray-200 border-round overflow-hidden w-4rem bg-white">
+      <div className="border-1 border-gray-200 border-round overflow-hidden w-4rem h-4rem bg-white mx-auto flex align-items-center justify-content-center">
         <Image
           src={rowData.variantImage}
           alt="Variant"
@@ -204,6 +268,21 @@ const VariationManager = ({
       </div>
     ) : (
       <span className="text-gray-400 italic text-sm">Không có ảnh</span>
+    );
+  };
+
+  const actionBodyTemplate = (rowData: any) => {
+    return (
+      <div className="flex align-items-center justify-content-center w-full">
+        <Button
+          icon="pi pi-trash"
+          rounded
+          text
+          severity="danger"
+          onClick={() => confirmDeleteVariant(rowData)}
+          loading={isMutatingVariant}
+        />
+      </div>
     );
   };
 
@@ -227,29 +306,50 @@ const VariationManager = ({
       <Dialog
         header={headerContent}
         visible={visible}
-        style={{ width: "650px", maxWidth: "95vw" }}
+        style={{ width: "1000px", maxWidth: "95vw" }}
         onHide={onClose}
         modal
         className="p-fluid"
       >
         <Toast ref={toast} />
 
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-5 rounded-r flex align-items-start gap-3">
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-3 mb-4 rounded-r flex align-items-start gap-3">
           <i className="pi pi-info-circle text-blue-500 mt-1"></i>
           <div className="text-sm text-blue-700">
-            Thêm các phiên bản màu sắc và ảnh đại diện cho biến thể này.
+            Thêm các phiên bản biến thể. Mã SKU là bắt buộc và phải là duy nhất
+            cho mỗi phân loại hàng.
           </div>
         </div>
 
         <div className="p-4 border border-gray-200 rounded-xl bg-gray-50/50 mb-4 shadow-sm">
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Thêm biến thể mới
+          <label className="block text-sm font-semibold text-gray-700 mb-3">
+            Thông tin biến thể mới
           </label>
 
-          <div className="flex flex-wrap gap-3 align-items-end">
-            {/*Đây là dropdow dành cho màu*/}
-            <div className="flex-1 min-w-[200px]">
-              <div className="p-inputgroup flex-1 h-3rem">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            {/* 👇 Ô Nhập SKU (Spanning 2 columns cho nổi bật) */}
+            <div className="md:col-span-2">
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                Mã SKU <span className="text-red-500">*</span>
+              </label>
+              <div className="p-inputgroup h-3rem">
+                <span className="p-inputgroup-addon bg-white">
+                  <i className="pi pi-barcode"></i>
+                </span>
+                <InputText
+                  value={sku}
+                  onChange={(e) => setSku(e.target.value.toUpperCase())} // Ép tự động viết hoa cho chuẩn mã vạch
+                  placeholder="VD: AP-0004-XAM"
+                  className="font-mono font-bold"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                Màu sắc <span className="text-red-500">*</span>
+              </label>
+              <div className="p-inputgroup h-3rem">
                 <Dropdown
                   value={selectedColor}
                   onChange={(e) => setSelectedColor(e.value)}
@@ -259,24 +359,84 @@ const VariationManager = ({
                   valueTemplate={
                     selectedColor ? colorOptionTemplate : undefined
                   }
-                  placeholder="-- Chọn màu từ danh sách --"
-                  className="w-full"
+                  placeholder="-- Chọn Màu --"
                   filter
-                  emptyMessage="Không tìm thấy màu nào."
                   showClear
                 />
                 <Button
                   icon="pi pi-plus"
                   severity="secondary"
                   className="bg-white text-gray-600 border-gray-300"
-                  tooltip="Không có màu bạn cần? Tạo mới ngay!"
-                  tooltipOptions={{ position: "top" }}
+                  tooltip="Tạo màu mới"
                   onClick={() => setShowCreateColor(true)}
                 />
               </div>
             </div>
-            {/*Đây là khu vực chọn ảnh*/}
-            <div className="flex align-items-center gap-2">
+
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                Chất liệu <span className="text-red-500">*</span>
+              </label>
+              <div className="p-inputgroup h-3rem">
+                <Dropdown
+                  value={selectedMaterial}
+                  onChange={(e) => setSelectedMaterial(e.value)}
+                  options={materials}
+                  optionLabel="name"
+                  placeholder="-- Chọn Chất Liệu --"
+                  filter
+                  showClear
+                />
+                <Button
+                  icon="pi pi-plus"
+                  severity="secondary"
+                  className="bg-white text-gray-600 border-gray-300"
+                  tooltip="Tạo chất liệu mới"
+                  onClick={() => setShowCreateMaterial(true)}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                Giá bán riêng (VNĐ) <span className="text-red-500">*</span>
+              </label>
+              <div className="p-inputgroup h-3rem">
+                <span className="p-inputgroup-addon bg-white font-bold text-green-600">
+                  ₫
+                </span>
+                <InputNumber
+                  value={variantPrice}
+                  onValueChange={(e) => setVariantPrice(e.value ?? null)}
+                  placeholder="Nhập giá..."
+                  min={0}
+                />
+              </div>
+              <small className="text-gray-400 mt-1 block italic">
+                Mặc định: {product?.price?.toLocaleString("vi-VN")} ₫
+              </small>
+            </div>
+
+            <div>
+              <label className="text-xs font-medium text-gray-600 mb-1 block">
+                Tồn kho <span className="text-red-500">*</span>
+              </label>
+              <div className="p-inputgroup h-3rem">
+                <span className="p-inputgroup-addon bg-white">
+                  <i className="pi pi-box"></i>
+                </span>
+                <InputNumber
+                  value={stock}
+                  onValueChange={(e) => setStock(e.value ?? null)}
+                  placeholder="Nhập số lượng..."
+                  min={0}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="flex align-items-center gap-4 border-t border-gray-200 pt-4 mt-2">
+            <div className="flex align-items-center gap-3 w-10rem">
               <input
                 type="file"
                 accept="image/*"
@@ -284,22 +444,18 @@ const VariationManager = ({
                 style={{ display: "none" }}
                 onChange={onFileSelect}
               />
-
-              {!previewUrl && (
+              {!previewUrl ? (
                 <Button
                   type="button"
                   icon="pi pi-image"
-                  label="Ảnh"
-                  className="p-button-outlined p-button-secondary h-3rem"
-                  tooltip="Chọn ảnh đại diện cho màu này"
+                  label="Thêm Ảnh"
+                  className="p-button-outlined p-button-secondary h-3rem w-full white-space-nowrap"
                   onClick={() => fileInputRef.current?.click()}
                 />
-              )}
-
-              {previewUrl && (
+              ) : (
                 <div
-                  className="relative border-1 border-gray-300 border-round surface-card"
-                  style={{ width: "3rem", height: "3rem" }}
+                  className="relative border-1 border-gray-300 border-round"
+                  style={{ width: "3.5rem", height: "3.5rem" }}
                 >
                   <img
                     src={previewUrl}
@@ -307,7 +463,7 @@ const VariationManager = ({
                     className="w-full h-full border-round object-cover"
                   />
                   <button
-                    className="absolute -top-2 -right-2 bg-red-500 text-white border-circle w-1.5rem h-1.5rem flex align-items-center justify-content-center border-none cursor-pointer shadow-1"
+                    className="absolute -top-2 -right-2 bg-red-500 text-white border-circle w-1.5rem h-1.5rem flex align-items-center justify-content-center border-none shadow-1"
                     onClick={clearSelectedFile}
                     type="button"
                   >
@@ -316,13 +472,21 @@ const VariationManager = ({
                 </div>
               )}
             </div>
+
             <Button
               label="Thêm Biến Thể"
               icon="pi pi-check"
-              className="w-auto px-4"
+              className="flex-1 h-3rem font-bold"
               onClick={handleAddVariant}
-              disabled={!selectedColor || isMutatingVariant}
-              loading={isMutatingVariant}
+              disabled={
+                !sku.trim() ||
+                !selectedColor ||
+                !selectedMaterial ||
+                stock === null ||
+                variantPrice === null ||
+                isMutatingVariant
+              }
+              loading={isUploading || isMutatingVariant}
             />
           </div>
         </div>
@@ -332,79 +496,115 @@ const VariationManager = ({
             <span className="font-bold text-gray-700 text-sm">
               Danh sách đang bán
             </span>
-            <Tag value={`${productVariants.length} màu`} severity="info"></Tag>
+            <Tag value={`${productVariants.length} loại`} severity="info"></Tag>
           </div>
 
           <DataTable
             value={productVariants}
             size="small"
-            emptyMessage="Chưa có màu nào."
+            emptyMessage="Chưa có biến thể nào."
             loading={isLoadingVariants}
             stripedRows
             rowHover
+            scrollable
+            scrollHeight="300px"
           >
             <Column
               header="#"
               body={(data, options) => options.rowIndex + 1}
-              style={{ width: "50px" }}
-              className="text-center text-gray-500"
+              style={{ minWidth: "50px" }}
+              headerStyle={{ textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
+              className="text-gray-500"
             />
-
             <Column
               header="Ảnh"
               body={imageBodyTemplate}
-              style={{ width: "80px" }}
-              className="text-center"
+              style={{ minWidth: "80px" }}
+              headerStyle={{ textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
+            />
+
+            {/* 👇 Cột hiển thị SKU mới */}
+            <Column
+              header="Mã SKU"
+              body={(rowData) => (
+                <span className="font-mono font-semibold text-gray-700 bg-gray-200 px-2 py-1 rounded">
+                  {rowData.sku || "N/A"}
+                </span>
+              )}
+              style={{ minWidth: "120px" }}
             />
 
             <Column
               header="Màu Sắc"
-              body={(rowData) => {
-                const colorData = rowData.color || {};
-                const hex = colorData.hexCode || "#ccc";
-                const name = colorData.name || "Chưa đặt tên";
+              body={(rowData) => (
+                <div className="flex align-items-center gap-2">
+                  <div
+                    className="shadow-sm border-round"
+                    style={{
+                      width: "24px",
+                      height: "24px",
+                      backgroundColor: rowData.color?.hexCode || "#ccc",
+                    }}
+                  />
+                  <span className="font-bold text-gray-800">
+                    {rowData.color?.name}
+                  </span>
+                </div>
+              )}
+              style={{ minWidth: "130px" }}
+            />
 
+            <Column
+              header="Chất liệu"
+              body={(rowData) => (
+                <span className="text-gray-700">
+                  {rowData.material?.name || "---"}
+                </span>
+              )}
+              style={{ minWidth: "130px" }}
+            />
+
+            <Column
+              header="Giá bán"
+              body={(rowData) => (
+                <span className="font-semibold text-green-600">
+                  {rowData.price?.toLocaleString("vi-VN")} ₫
+                </span>
+              )}
+              style={{ minWidth: "120px", textAlign: "right" }}
+            />
+
+            <Column
+              header="Tồn kho"
+              body={(rowData) => {
+                const qty = rowData.inventory?.quantityInStock ?? 0;
                 return (
-                  <div className="flex align-items-center gap-3">
-                    <div
-                      className="shadow-sm border-round-md"
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        backgroundColor: hex,
-                        border: "1px solid #e5e7eb",
-                      }}
-                    />
-                    <div>
-                      <div className="font-bold text-gray-800">{name}</div>
-                      <div className="text-xs text-gray-500 font-mono uppercase bg-gray-100 px-1 rounded inline-block">
-                        {hex}
-                      </div>
-                    </div>
-                  </div>
+                  <Tag
+                    value={qty}
+                    severity={qty > 0 ? "success" : "danger"}
+                    rounded
+                  />
                 );
               }}
+              style={{ minWidth: "100px" }}
+              headerStyle={{ textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
             />
 
             <Column
               header="Thao tác"
-              body={(rowData) => (
-                <Button
-                  icon="pi pi-trash"
-                  rounded
-                  text
-                  severity="danger"
-                  tooltip="Xóa biến thể này"
-                  onClick={() => confirmDeleteVariant(rowData)}
-                  loading={isMutatingVariant}
-                />
-              )}
-              style={{ width: "100px", textAlign: "center" }}
+              body={actionBodyTemplate}
+              style={{ minWidth: "80px" }}
+              headerStyle={{ textAlign: "center" }}
+              bodyStyle={{ textAlign: "center" }}
             />
           </DataTable>
         </div>
       </Dialog>
 
+      {/* ... (Phần code Dialog Tạo màu và Tạo chất liệu vẫn giữ nguyên như cũ) */}
       <Dialog
         header="Tạo Màu Sắc Mới"
         visible={showCreateColor}
@@ -436,24 +636,64 @@ const VariationManager = ({
             <InputText
               value={newColorName}
               onChange={(e) => setNewColorName(e.target.value)}
-              placeholder="Ví dụ: Xanh Navy..."
-              className="w-full"
               autoFocus
+              className="w-full"
+              placeholder="Ví dụ: Xanh Navy..."
             />
           </div>
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">
               Mã màu (Hex)
             </label>
-            <div className="flex gap-3 align-items-center border p-3 rounded-lg bg-gray-50 hover:bg-white transition-colors border-gray-200">
+            <div className="flex gap-3 align-items-center border p-3 rounded-lg">
               <ColorPicker
                 value={newColorHex}
                 onChange={(e) => setNewColorHex(e.value as string)}
               />
-              <span className="font-mono text-lg text-gray-600 font-semibold tracking-wider">
+              <span className="font-mono text-lg font-semibold">
                 #{newColorHex}
               </span>
             </div>
+          </div>
+        </div>
+      </Dialog>
+
+      <Dialog
+        header="Tạo Chất Liệu Mới"
+        visible={showCreateMaterial}
+        style={{ width: "400px" }}
+        onHide={() => setShowCreateMaterial(false)}
+        footer={
+          <div className="flex justify-content-end gap-2 pt-2">
+            <Button
+              label="Hủy"
+              icon="pi pi-times"
+              text
+              onClick={() => setShowCreateMaterial(false)}
+              className="text-gray-600"
+            />
+            <Button
+              label="Lưu Chất Liệu"
+              icon="pi pi-check"
+              loading={isCreatingMaterial}
+              onClick={handleCreateNewMaterial}
+            />
+          </div>
+        }
+      >
+        <div className="flex flex-column gap-4 mt-2">
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Tên chất liệu <span className="text-red-500">*</span>
+            </label>
+            <InputText
+              value={newMaterialName}
+              onChange={(e) => setNewMaterialName(e.target.value)}
+              autoFocus
+              className="w-full"
+              placeholder="Ví dụ: Gỗ Sồi, Vải Nỉ..."
+              onKeyDown={(e) => e.key === "Enter" && handleCreateNewMaterial()}
+            />
           </div>
         </div>
       </Dialog>

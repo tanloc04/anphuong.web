@@ -1,5 +1,5 @@
 export const uploadToCloudinary = async (file: File) => {
-  const cloudName =  "dfniy6iy3";
+  const cloudName = "dfniy6iy3";
   const uploadPreset = "anphuong-pictures";
 
   const formData = new FormData();
@@ -11,8 +11,8 @@ export const uploadToCloudinary = async (file: File) => {
       `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
       {
         method: "POST",
-        body: formData
-      }
+        body: formData,
+      },
     );
 
     if (!response.ok) {

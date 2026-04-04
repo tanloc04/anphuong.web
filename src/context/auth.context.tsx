@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { authApi } from "@/api/authApi";
+import { cartApi } from "@/api/cartApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type {
   LoginRequest,
@@ -53,6 +54,29 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     toast.current?.show({ severity, summary, detail, life: 3000 });
   };
 
+  const syncLocalCartToServer = async () => {
+    try {
+      const localCartStr = localStorage.getItem("cart");
+      if (!localCartStr) return;
+
+      const localCart = JSON.parse(localCartStr);
+      if (!Array.isArray(localCart) || localCart.length === 0) return;
+
+      const syncPayload = localCart.map((item: any) => ({
+        productId: item.productId,
+        variantId: item.variantId || null,
+        quantity: item.quantity,
+      }));
+
+      await cartApi.syncCart(syncPayload);
+
+      localStorage.removeItem("cart");
+      console.log("Đồng bộ giỏ hàng thành công!");
+    } catch (error) {
+      console.error("Lỗi đồng bộ giỏ hàng lúc Login:", error);
+    }
+  };
+
   const handleLoginSuccess = async (responseData: any) => {
     // if (responseData?.token) {
     //     localStorage.setItem('token', responseData.token);
@@ -82,6 +106,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       const userData = userRes.data;
 
       if (userData) {
+        await syncLocalCartToServer();
         const displayName = userData?.username || userData?.email || "User";
         showToast(
           "success",
@@ -90,7 +115,6 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
         );
         navigate("/");
       } else {
-        // Nếu fetch user thất bại -> Chứng tỏ Cookie chưa hoạt động
         showToast("error", "Lỗi Cookie", "Không đọc được Cookie từ Backend!");
       }
     } catch (err) {
@@ -99,17 +123,17 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
     }
   };
 
-  const resendEmail = async (email: string) => {
-    try {
-      setIsActionLoading(true);
-      await authApi.sendEmail(email);
-      showToast("success", "Đã gửi", "Vui lòng kiểm tra hộp thư của bạn.");
-    } catch (error) {
-      showToast("error", "Lỗi", "Không thể gửi email kích hoạt!");
-    } finally {
-      setIsActionLoading(false);
-    }
-  };
+  // const resendEmail = async (email: string) => {
+  //   try {
+  //     setIsActionLoading(true);
+  //     await authApi.sendEmail(email);
+  //     showToast("success", "Đã gửi", "Vui lòng kiểm tra hộp thư của bạn.");
+  //   } catch (error) {
+  //     showToast("error", "Lỗi", "Không thể gửi email kích hoạt!");
+  //   } finally {
+  //     setIsActionLoading(false);
+  //   }
+  // };
 
   const login = async (credentials: LoginRequest) => {
     try {
@@ -166,11 +190,11 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       setIsActionLoading(true);
       const response = await authApi.register(data);
       if (response.data && response.data.success) {
-        try {
-          await authApi.sendEmail(data.email);
-        } catch (emailError) {
-          console.warn("Đăng ký thành công nhưng gửi mail lỗi:", emailError);
-        }
+        // try {
+        //   await authApi.sendEmail(data.email);
+        // } catch (emailError) {
+        //   console.warn("Đăng ký thành công nhưng gửi mail lỗi:", emailError);
+        // }
 
         showToast(
           "success",
@@ -233,6 +257,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
       localStorage.removeItem("isLoggedIn");
 
       queryClient.removeQueries({ queryKey: ["user-account-info"] });
+      queryClient.removeQueries({ queryKey: ["cart-data"] });
 
       showToast("info", "Đăng xuất", "Hẹn gặp lại bạn!");
       setIsActionLoading(false);
@@ -248,7 +273,7 @@ export const AuthProvider = ({ children }: React.PropsWithChildren) => {
         loading: isLoadingProfile || isActionLoading,
         login,
         loginGoogle,
-        resendEmail,
+        // resendEmail,
         logout,
         register,
         changePassword,

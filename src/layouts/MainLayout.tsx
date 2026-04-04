@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import { Footer } from "../components/Footer";
 import FloatingPhoneButton from "../components/ui/FloatingPhoneButton";
 import ScrollToTopButton from "../components/ui/ScrollToTopButton";
+import ChatWidget from "@/pages/components/ChatWidget";
 
 const MainLayout = () => {
   // Parent container với stagger
@@ -13,7 +14,7 @@ const MainLayout = () => {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.3, // mỗi phần trễ 0.25s
+        staggerChildren: 0.15,
       },
     },
   };
@@ -24,7 +25,7 @@ const MainLayout = () => {
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 1.3, ease: "easeOut" },
+      transition: { duration: 0.8, ease: "easeOut" },
     },
   };
 
@@ -47,6 +48,7 @@ const MainLayout = () => {
         <Outlet />
       </motion.main>
 
+      {/* Khu vực chứa các nút Floating lơ lửng */}
       <motion.div variants={itemVariants}>
         <FloatingPhoneButton />
       </motion.div>
@@ -55,6 +57,9 @@ const MainLayout = () => {
         <ScrollToTopButton />
       </motion.div>
 
+      <motion.div variants={itemVariants}>
+        <ChatWidget />
+      </motion.div>
 
       <motion.div variants={itemVariants}>
         <Footer />

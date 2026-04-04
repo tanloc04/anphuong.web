@@ -23,7 +23,12 @@ export const useProductSelect = (keyword: string = "") => {
         queryKey: ['products', 'select', keyword],
         queryFn: async () => {
             const res = await productApi.search({
-                searchCondition: { keyword, isDeleted: false, status: 'ACTIVE' },
+                searchCondition: { keyword, 
+                isDeleted: false, 
+                status: 'ACTIVE',
+                categoryId: null,
+                startDate: null,
+                endDate: null },
                 pageInfo: { pageNum: 1, pageSize: 20 }
             });
             return res.data?.data?.pageData || [];

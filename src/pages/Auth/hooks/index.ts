@@ -1,1 +1,2 @@
-export * from './useLocations'
+export * from "./useLocations";
+export * from "./useAuthMutations";

@@ -1,13 +1,24 @@
-import { useNavigate, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Avatar } from "primereact/avatar";
 import { Ripple } from "primereact/ripple";
-import { useDarkMode } from "@/hooks/useDarkMode";
+import { useAuth } from "@/context/auth.context";
+
+type MenuItem = {
+  label: string;
+  icon: string;
+  to: string;
+  disabled?: boolean;
+};
+
+type MenuGroup = {
+  label: string;
+  items: MenuItem[];
+};
 
 const Sidebar = () => {
-  const navigate = useNavigate();
-  const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const { user, logout } = useAuth();
 
-  const menuGroups = [
+  const menuGroups: MenuGroup[] = [
     {
       label: "TỔNG QUAN",
       items: [
@@ -22,25 +33,34 @@ const Sidebar = () => {
         { label: "Đơn hàng", icon: "pi pi-shopping-cart", to: "/admin/orders" },
         { label: "Danh mục", icon: "pi pi-list", to: "/admin/categories" },
         { label: "Khách hàng", icon: "pi pi-users", to: "/admin/users" },
+        { label: "Tin nhắn", icon: "pi pi-comments", to: "/admin/chats" },
       ],
     },
     {
       label: "HỆ THỐNG",
-      items: [{ label: "Cài đặt", icon: "pi pi-cog", to: "/admin/settings" }],
+      items: [
+        {
+          label: "Cài đặt",
+          icon: "pi pi-cog",
+          to: "/admin/settings",
+          disabled: true,
+        },
+      ],
     },
   ];
 
-  const handleLogout = () => {
-    navigate("/login");
-  };
+  const displayName =
+    user?.fullname || user?.username || user?.email || "Admin";
+  const displayRole = (user as any)?.role || "Quản trị viên";
+  const avatarLabel = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="h-screen w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col fixed left-0 top-0 z-50 transition-colors duration-300">
-      <div className="h-16 flex items-center px-6 border-b border-gray-100 dark:border-gray-800">
+    <div className="h-screen w-64 bg-white border-r border-gray-200 flex flex-col fixed left-0 top-0 z-50 transition-colors duration-300">
+      <div className="h-16 flex items-center px-6 border-b border-gray-100">
         <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-3">
           <span className="text-white font-bold text-lg">A</span>
         </div>
-        <span className="text-xl font-bold text-gray-800 dark:text-white tracking-tight">
+        <span className="text-xl font-bold text-gray-800 tracking-tight">
           AP Furniture
         </span>
       </div>
@@ -48,7 +68,7 @@ const Sidebar = () => {
       <div className="flex-1 overflow-y-auto py-4 custom-scrollbar">
         {menuGroups.map((group, index) => (
           <div key={index} className="mb-6">
-            <div className="px-6 mb-2 text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+            <div className="px-6 mb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
               {group.label}
             </div>
 
@@ -57,18 +77,32 @@ const Sidebar = () => {
                 <li key={item.to} className="mb-1">
                   <NavLink
                     to={item.to}
+                    onClick={(e) => {
+                      if (item.disabled) {
+                        e.preventDefault();
+                      }
+                    }}
+                    end
                     className={({ isActive }) => `
-                        flex items-center px-3 py-3 rounded-lg transition-all duration-200 cursor-pointer p-ripple
+                        flex items-center px-3 py-3 rounded-lg transition-all duration-200
                         ${
-                          isActive
-                            ? "bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium"
-                            : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
+                          item.disabled
+                            ? "opacity-50 cursor-not-allowed text-gray-400"
+                            : isActive
+                              ? "bg-indigo-50 text-indigo-600 font-medium p-ripple"
+                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900 cursor-pointer p-ripple"
                         }
                       `}
                   >
                     <i className={`${item.icon} mr-3 text-lg`}></i>
                     <span className="text-sm">{item.label}</span>
-                    <Ripple />
+                    {item.disabled && (
+                      <span className="ml-auto text-[10px] bg-gray-100 text-gray-500 font-medium px-2 py-0.5 rounded-full">
+                        Sắp ra mắt
+                      </span>
+                    )}
+
+                    {!item.disabled && <Ripple />}
                   </NavLink>
                 </li>
               ))}
@@ -77,54 +111,28 @@ const Sidebar = () => {
         ))}
       </div>
 
-      <div className="p-4 border-t border-gray-100 dark:border-gray-800 bg-gray-50 dark:bg-gray-900">
-        <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-200 dark:border-gray-700 px-1">
-          <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-            Giao diện
-          </span>
-          <button
-            onClick={toggleDarkMode}
-            className={`
-                relative w-12 h-6 rounded-full transition-colors duration-200 ease-in-out focus:outline-none
-                ${isDarkMode ? "bg-indigo-600" : "bg-gray-300 dark:bg-gray-600"} 
-            `}
-            title="Chuyển đổi giao diện"
-          >
-            <span
-              className={`
-                  absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out flex items-center justify-center
-                  ${isDarkMode ? "translate-x-6" : "translate-x-0"}
-              `}
-            >
-              <i
-                className={`pi ${
-                  isDarkMode ? "pi-sun" : "pi-moon"
-                } text-[0.6rem] ${
-                  isDarkMode ? "text-yellow-500" : "text-indigo-600"
-                }`}
-              ></i>
-            </span>
-          </button>
-        </div>
-
+      <div className="p-4 border-t border-gray-100 bg-gray-50">
         <div className="flex items-center gap-3">
           <Avatar
-            label="T"
+            image={user?.avatar || undefined}
+            label={!user?.avatar ? avatarLabel : undefined}
             size="large"
             shape="circle"
-            className="bg-indigo-100 dark:bg-indigo-900 text-indigo-600 dark:text-indigo-200 font-bold"
+            className="bg-indigo-100 text-indigo-600 font-bold uppercase overflow-hidden"
+            imageAlt="User Avatar"
           />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-gray-800 dark:text-gray-200 truncate">
-              Trang Quoc Bao
+            <p
+              className="text-sm font-semibold text-gray-800 truncate"
+              title={displayName}
+            >
+              {displayName}
             </p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-              Super Admin
-            </p>
+            <p className="text-xs text-gray-500 truncate">{displayRole}</p>
           </div>
           <button
-            onClick={handleLogout}
-            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors"
+            onClick={() => logout()}
+            className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
             title="Đăng xuất"
           >
             <i className="pi pi-sign-out"></i>

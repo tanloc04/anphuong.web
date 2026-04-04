@@ -11,6 +11,7 @@ import NotFound from "@/pages/components/NotFound";
 import AboutUs from "@/pages/components/AboutUs";
 import News from "@/pages/components/News";
 import Dashboard from "@/pages/components/Dashboard";
+import DetailProduct from "@/pages/components/DetailProduct";
 import ProductManagement from "@/pages/Admin/Product/ProductManagement";
 import AdminRoute from "./AdminRoute";
 import CategoryManagement from "@/pages/Admin/Category/CategoryManagement";
@@ -18,6 +19,12 @@ import Overview from "@/pages/Admin/Overview/components/Overview";
 import HomeConfiguration from "@/pages/Admin/Settings/components/HomeConfiguration";
 import UserManagement from "@/pages/Admin/User/UserManagement";
 import OrderManagement from "@/pages/Admin/Order/OrderManagement";
+import CartManagement from "@/pages/components/CartManagement";
+import Checkout from "@/pages/components/CheckoutPage";
+import OrderSuccess from "@/pages/components/OrderSuccess";
+import Product from "@/components/Product";
+import VnPayReturn from "@/pages/components/VnPayReturn";
+import AdminChat from "@/pages/Admin/Chat/AdminChat";
 
 const AppRoot = () => {
   return (
@@ -37,12 +44,21 @@ export const router = createBrowserRouter([
         children: [
           { index: true, element: <Home /> },
           { path: "home", element: <Home /> },
+          { path: "product/:id", element: <DetailProduct /> },
+          { path: "cart", element: <CartManagement /> },
+          { path: "checkout", element: <Checkout /> },
+          { path: "/payment/vnpay-return", element: <VnPayReturn /> },
+          { path: "/pages/product", element: <Product /> },
+          { path: "order-success", element: <OrderSuccess /> },
           { path: "account/login", element: <Login /> },
           { path: "account/register", element: <Register /> },
-          { path: "account/confirmation/:id", element: <AccountConfirmation />},
-          { path: "account/profile", element:  <UserProfile />},
+          {
+            path: "account/confirmation/:id",
+            element: <AccountConfirmation />,
+          },
+          { path: "account/profile", element: <UserProfile /> },
           { path: "pages/about-us", element: <AboutUs /> },
-          { path: "pages/news", element: <News /> }
+          { path: "pages/news", element: <News /> },
         ],
       },
       {
@@ -56,17 +72,18 @@ export const router = createBrowserRouter([
               { path: "overview", element: <Overview /> },
               { path: "products", element: <ProductManagement /> },
               { path: "categories", element: <CategoryManagement /> },
-              { path: "users", element: <UserManagement/> },
+              { path: "users", element: <UserManagement /> },
               { path: "orders", element: <OrderManagement /> },
-              { path: "settings", element:  <HomeConfiguration />}
-            ]
-          }
+              { path: "settings", element: <HomeConfiguration /> },
+              { path: "chats", element: <AdminChat /> },
+            ],
+          },
         ],
       },
       {
         path: "*",
         element: <NotFound />,
       },
-    ]
-  }
+    ],
+  },
 ]);

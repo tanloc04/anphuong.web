@@ -9,6 +9,10 @@ export const useOrders = (params: OrderRequest) => {
         placeholderData: keepPreviousData,
         staleTime: 60 * 1000,
         select: (response: any) => {
+            if (response?.data?.data?.pageData) {
+                return response.data.data;
+            }
+
             if (response?.data?.pageData) {
                 return response.data;
             }
