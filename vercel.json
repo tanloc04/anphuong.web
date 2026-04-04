@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/"
+      "source": "/api/:path*",
+      "destination": "http://locnt04-001-site1.mtempurl.com/api/:path*"
     }
   ]
 }
