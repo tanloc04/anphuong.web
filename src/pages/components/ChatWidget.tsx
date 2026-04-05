@@ -1,8 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  HttpTransportType,
+} from "@microsoft/signalr";
 import { Button } from "primereact/button";
 import { InputText } from "primereact/inputtext";
-import { Badge } from "primereact/badge"; // 👈 Thêm thư viện Badge
+import { Badge } from "primereact/badge";
 import { useAuth } from "@/context/auth.context";
 import { chatApi } from "@/api/chatApi";
 import type { ChatMessage } from "@/@types/chat.types";
@@ -40,8 +44,11 @@ const ChatWidget = () => {
   }, [messages, isOpen]);
 
   useEffect(() => {
+    // 👇 Đã thêm cấu hình ép dùng LongPolling để qua mặt Vercel
     const newConnection = new HubConnectionBuilder()
-      .withUrl("/chatHub")
+      .withUrl("/chatHub", {
+        transport: HttpTransportType.LongPolling,
+      })
       .withAutomaticReconnect()
       .build();
 
@@ -60,7 +67,7 @@ const ChatWidget = () => {
       newConnection.on("ReceiveMessage", (message: ChatMessage) => {
         setMessages((prev) => [...prev, message]);
 
-        // 👈 TĂNG SỐ ĐỎ NẾU KHUNG CHAT ĐANG ĐÓNG
+        // TĂNG SỐ ĐỎ NẾU KHUNG CHAT ĐANG ĐÓNG
         setIsOpen((currentIsOpen) => {
           if (!currentIsOpen) {
             setUnreadCount((prev) => prev + 1);
@@ -83,13 +90,13 @@ const ChatWidget = () => {
 
     initChat();
 
-    // 👈 2. CLEANUP DỨT KHOÁT: Đóng đúng cái connection vừa tạo
+    // CLEANUP DỨT KHOÁT: Đóng đúng cái connection vừa tạo
     return () => {
       newConnection.stop();
     };
   }, [chatUserId]);
 
-  // 👈 3. HÀM XỬ LÝ KHI MỞ KHUNG CHAT (XÓA SỐ ĐỎ & BÁO SERVER ĐÃ ĐỌC)
+  // HÀM XỬ LÝ KHI MỞ KHUNG CHAT (XÓA SỐ ĐỎ & BÁO SERVER ĐÃ ĐỌC)
   const toggleChat = () => {
     setIsOpen(true);
     setUnreadCount(0);
@@ -191,7 +198,7 @@ const ChatWidget = () => {
         </div>
       )}
 
-      {/* 👈 4. GẮN BADGE VÀ ĐỔI HÀM ONCLICK CHỖ NÀY */}
+      {/* GẮN BADGE VÀ ĐỔI HÀM ONCLICK CHỖ NÀY */}
       {!isOpen && (
         <button
           onClick={toggleChat}

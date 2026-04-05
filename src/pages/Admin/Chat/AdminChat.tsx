@@ -1,5 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { HubConnection, HubConnectionBuilder } from "@microsoft/signalr";
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  HttpTransportType,
+} from "@microsoft/signalr";
 import { InputText } from "primereact/inputtext";
 import { Button } from "primereact/button";
 import { Badge } from "primereact/badge";
@@ -29,9 +33,11 @@ const AdminChat = () => {
   }, [messages]);
 
   useEffect(() => {
-    // 👇 1. ĐƯA KHỞI TẠO RA NGOÀI ĐỂ CLEANUP DỄ DÀNG HƠN
+    // 👇 Thêm cấu hình ép dùng LongPolling
     const newConnection = new HubConnectionBuilder()
-      .withUrl("/chatHub")
+      .withUrl("/chatHub", {
+        transport: HttpTransportType.LongPolling,
+      })
       .withAutomaticReconnect()
       .build();
 
@@ -43,7 +49,7 @@ const AdminChat = () => {
         console.error(error);
       }
 
-      // 🔥 FIX LỖI NHẬN DATA TỪ HUB: Hub đang gửi nguyên object ChatMessage
+      // FIX LỖI NHẬN DATA TỪ HUB: Hub đang gửi nguyên object ChatMessage
       newConnection.on("ReceiveMessage", (newMsg: AdminChatMessage) => {
         // Nếu tin nhắn thuộc về người Admin đang mở xem
         if (currentUserIdRef.current === newMsg.userId) {
@@ -99,7 +105,7 @@ const AdminChat = () => {
 
     initAdminChat();
 
-    // 👇 2. CLEANUP DỨT KHOÁT ĐÓNG ĐÚNG CONNECTION NÀY
+    // CLEANUP DỨT KHOÁT ĐÓNG ĐÚNG CONNECTION NÀY
     return () => {
       newConnection.stop();
     };
