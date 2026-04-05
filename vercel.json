@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://locnt04-001-site1.mtempurl.com/api/:path*"
+      "destination": "http://11303253:60-dayfreetrial@locnt04-001-site1.mtempurl.com/api/:path*"
     },
     {
       "source": "/chatHub",
-      "destination": "http://locnt04-001-site1.mtempurl.com/chatHub"
+      "destination": "http://11303253:60-dayfreetrial@locnt04-001-site1.mtempurl.com/chatHub"
     },
     {
       "source": "/(.*)",
