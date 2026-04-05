@@ -31,7 +31,7 @@ const AdminChat = () => {
   useEffect(() => {
     // 👇 1. ĐƯA KHỞI TẠO RA NGOÀI ĐỂ CLEANUP DỄ DÀNG HƠN
     const newConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5273/chatHub")
+      .withUrl("/chatHub")
       .withAutomaticReconnect()
       .build();
 

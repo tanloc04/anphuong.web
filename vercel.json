@@ -5,6 +5,10 @@
       "destination": "http://locnt04-001-site1.mtempurl.com/api/:path*"
     },
     {
+      "source": "/chatHub",
+      "destination": "http://locnt04-001-site1.mtempurl.com/chatHub"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }

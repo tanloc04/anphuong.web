@@ -14,11 +14,9 @@ const ChatWidget = () => {
   const [inputText, setInputText] = useState("");
   const [connection, setConnection] = useState<HubConnection | null>(null);
 
-  // 👈 Thêm state quản lý số tin nhắn chưa đọc
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Xử lý ID cho cả Member và Guest
   const getChatUserId = () => {
     if (user?.id) return user.id;
     let guestId = localStorage.getItem("guest_chat_id");
@@ -41,11 +39,9 @@ const ChatWidget = () => {
     }
   }, [messages, isOpen]);
 
-  // Khởi tạo kết nối SignalR & Load lịch sử
   useEffect(() => {
-    // 👈 1. ĐƯA KHỞI TẠO CONNECTION RA NGOÀI ĐỂ CLEANUP CÓ THỂ GỌI ĐƯỢC
     const newConnection = new HubConnectionBuilder()
-      .withUrl("http://localhost:5273/chatHub")
+      .withUrl("/chatHub")
       .withAutomaticReconnect()
       .build();
 
