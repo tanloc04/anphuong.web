@@ -5,8 +5,8 @@
       "destination": "http://11303253:60-dayfreetrial@locnt04-001-site1.mtempurl.com/api/:path*"
     },
     {
-      "source": "/chatHub",
-      "destination": "http://11303253:60-dayfreetrial@locnt04-001-site1.mtempurl.com/chatHub"
+      "source": "/chatHub/:path*",
+      "destination": "http://11303253:60-dayfreetrial@locnt04-001-site1.mtempurl.com/chatHub/:path*"
     },
     {
       "source": "/(.*)",
