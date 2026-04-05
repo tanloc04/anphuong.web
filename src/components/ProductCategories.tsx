@@ -38,9 +38,7 @@ export function ProductCategories() {
             : categories.map((category: any) => (
                 <div
                   key={category.id}
-                  onClick={() =>
-                    navigate(`/products?categoryId=${category.id}`)
-                  }
+                  onClick={() => navigate(`/product?category=${category.id}`)}
                   className="group cursor-pointer flex flex-col"
                 >
                   {/* Khung ảnh: Dùng lại h-64 thần thánh của sếp, bao Fit, bao đẹp */}
