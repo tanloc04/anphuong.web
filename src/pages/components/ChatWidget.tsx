@@ -44,16 +44,19 @@ const ChatWidget = () => {
   }, [messages, isOpen]);
 
   useEffect(() => {
-    // 👇 Đã thêm cấu hình ép dùng LongPolling để qua mặt Vercel
+    // 👇 1. Cấu hình LongPolling và ép thử lại dồn dập hơn khi rớt mạng
     const newConnection = new HubConnectionBuilder()
       .withUrl("/chatHub", {
         transport: HttpTransportType.LongPolling,
       })
-      .withAutomaticReconnect()
+      .withAutomaticReconnect([0, 1000, 3000, 5000, 10000]) // Thử lại ngay lập tức, 1s, 3s, 5s, 10s
       .build();
 
+    // 👇 2. Ép SignalR nhận biết rớt mạng sớm hơn (15 giây thay vì 30 giây mặc định)
+    newConnection.serverTimeoutInMilliseconds = 15000;
+
     const initChat = async () => {
-      // 1. Lấy lịch sử Chat từ API
+      // Lấy lịch sử Chat từ API
       try {
         const res = await chatApi.getChatHistory(chatUserId);
         if (res.data && res.data.success) {
@@ -63,7 +66,7 @@ const ChatWidget = () => {
         console.error("Lỗi load lịch sử chat:", error);
       }
 
-      // 2. Lắng nghe tin nhắn từ Server
+      // Lắng nghe tin nhắn từ Server
       newConnection.on("ReceiveMessage", (message: ChatMessage) => {
         setMessages((prev) => [...prev, message]);
 
@@ -74,6 +77,22 @@ const ChatWidget = () => {
           }
           return currentIsOpen;
         });
+      });
+
+      // 👇 3. LƯỚI VÉT: Bắt sự kiện kết nối lại để Join phòng và tải lại tin nhắn lỡ mất
+      newConnection.onreconnected(async () => {
+        console.log("Mạng chập chờn, đã kết nối lại. Đang đồng bộ tin nhắn...");
+        try {
+          await newConnection.invoke("JoinUserRoom", chatUserId);
+
+          // Gọi API vét lại toàn bộ lịch sử để bù tin nhắn bị lỡ
+          const res = await chatApi.getChatHistory(chatUserId);
+          if (res.data && res.data.success) {
+            setMessages(res.data.data);
+          }
+        } catch (err) {
+          console.error("Lỗi đồng bộ sau khi rớt mạng:", err);
+        }
       });
 
       try {

@@ -33,13 +33,16 @@ const AdminChat = () => {
   }, [messages]);
 
   useEffect(() => {
-    // 👇 Thêm cấu hình ép dùng LongPolling
+    // 👇 1. Cấu hình LongPolling và ép thử kết nối lại dồn dập
     const newConnection = new HubConnectionBuilder()
       .withUrl("/chatHub", {
         transport: HttpTransportType.LongPolling,
       })
-      .withAutomaticReconnect()
+      .withAutomaticReconnect([0, 1000, 3000, 5000, 10000]) // Thử lại ngay, 1s, 3s, 5s, 10s
       .build();
+
+    // 👇 2. Ép SignalR nhận biết rớt mạng sớm hơn (15s)
+    newConnection.serverTimeoutInMilliseconds = 15000;
 
     const initAdminChat = async () => {
       try {
@@ -92,6 +95,30 @@ const AdminChat = () => {
               new Date(a.lastMessageTime).getTime(),
           );
         });
+      });
+
+      // 👇 3. LƯỚI VÉT: Bắt sự kiện kết nối lại để Join phòng và tải lại toàn bộ data lỡ mất
+      newConnection.onreconnected(async () => {
+        console.log(
+          "Mạng Admin chập chờn, đã kết nối lại. Đang đồng bộ data...",
+        );
+        try {
+          await newConnection.invoke("JoinAdminRoom");
+
+          // 1. Cập nhật lại danh sách người nhắn bên trái
+          const resUsers = await chatApi.getChatUsers();
+          if (resUsers.data?.success) setChatUsers(resUsers.data.data);
+
+          // 2. Cập nhật lại khung chat của người đang xem hiện tại (nếu đang chọn)
+          if (currentUserIdRef.current) {
+            const resHist = await chatApi.getChatHistory(
+              currentUserIdRef.current,
+            );
+            if (resHist.data?.success) setMessages(resHist.data.data);
+          }
+        } catch (err) {
+          console.error("Lỗi đồng bộ Admin sau khi rớt mạng:", err);
+        }
       });
 
       try {
