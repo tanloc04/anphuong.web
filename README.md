@@ -1,6 +1,7 @@
 # AnPhuong Project - Frontend Application
 
-**Status: In Progress (Phase 1 Completed - 60%)**
+**Status: In Progress (Phase 2 Active - Deployment & API Integration)**
+**Live Demo:** [https://anphuong-web.vercel.app](https://anphuong-web.vercel.app/)
 
 This repository contains the frontend source code for the AnPhuong project. It is designed to provide a responsive and interactive user interface for the system.
 
@@ -15,11 +16,22 @@ This repository contains the frontend source code for the AnPhuong project. It i
 
 This application is built using a Component-based architecture to maximize code reusability and maintainability. TypeScript is strictly utilized across the project to ensure type safety, reduce runtime errors, and improve developer experience during integration.
 
-## Current Progress (Phase 1)
+## Current Progress (Phase 2 - Live Testing & API)
+
+We are currently in Phase 2, focusing on connecting the system and deploying it for real-world testing.
+
+* **Live Deployment:** The application has been successfully deployed for live testing.
+  * **Frontend:** Hosted on **Vercel** with continuous deployment.
+  * **Backend & Database:** API and SQL Server database are hosted and running on **SmarterASP.net**.
+* **Payment Integration:** Successfully integrated VNPay Sandbox for end-to-end checkout and payment processing.
+* **API Integration:** Connecting React frontend components with real data from the backend RESTful APIs.
+
+## Completed (Phase 1 - Foundation & UI/UX)
 
 * Established the core project structure and routing mechanisms.
 * Developed reusable base UI components.
-* Completed layouts for Authentication views, Dashboard layout, Product Management, Category Management, User Management.
+* Completed layouts for Authentication views, Dashboard layout, Product Management, Category Management, and User Management.
+
 ## Application UI (Screenshots & Demos)
 
 ### 1. Customer Storefront (Giao diện Khách hàng)
@@ -55,11 +67,11 @@ This application is built using a Component-based architecture to maximize code 
 
 ---
 
-## Upcoming Features (Phase 2 Roadmap)
+## Upcoming Features (Phase 3 Roadmap)
 
-* Integration with backend RESTful APIs for dynamic data fetching.
-* Implementation of global state management Redux/Recoil.
-* Further UI/UX refinements and performance optimization.
+* Fix any error that user tested on the deployment.
+* Further UI/UX refinements, animation enhancements, and performance optimization.
+* Implement responsive UI/UX on any devices like: mobile, tablet.
 
 ## Related Resources
 
